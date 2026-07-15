@@ -42,6 +42,10 @@ namespace FinancialIQ.Api.Migrations
                         .HasColumnType("text")
                         .HasColumnName("segment");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("text")

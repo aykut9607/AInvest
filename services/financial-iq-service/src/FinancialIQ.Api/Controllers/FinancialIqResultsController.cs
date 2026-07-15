@@ -1,58 +1,41 @@
 using FinancialIQ.Api.Application.Abstract;
 using FinancialIQ.Api.Domain.Dtos;
-using FinancialIQ.Api.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinancialIQ.Api.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/financial-iq")]
 [ApiController]
 public class FinancialIqResultsController : ControllerBase
 {
-    private readonly IFinancialIqService _financialIqService;
+    private readonly IFinancialIqResultService _service;
 
-    public FinancialIqResultsController(IFinancialIqService financialIqService)
+    public FinancialIqResultsController(IFinancialIqResultService service)
     {
-        _financialIqService = financialIqService;
+        _service = service;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetAll()
-    {
-        var result = await _financialIqService.GetAllAsync();
-        return result.Success ? Ok(result) : BadRequest(result);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Add([FromBody] FinancialIqResult financialIqResult)
-    {
-        var result = await _financialIqService.AddAsync(financialIqResult);
-        return result.Success ? Ok(result) : BadRequest(result);
-    }
-
-
-
+    // Command — calculates and saves the score
     [HttpPost("calculate")]
-    public async Task<IActionResult> Calculate([FromBody] CalculateRequest request)
+    public async Task<IActionResult> Calculate(CalculateRequest request)
     {
-        var months = request.MonthlyExpenses > 0
-            ? request.CashReserve / request.MonthlyExpenses
-            : 0;
+        var result = await _service.CalculateAsync(request);
 
-        var segment = months >= 3 ? "STRONG" : "NEEDS_IMPROVEMENT";
-        var score = months >= 3 ? 80 : 40;
+        if (!result.Success)
+            return BadRequest(result);
 
-        var result = new FinancialIqResult
-        {
-            Id = Guid.NewGuid(),
-            UserId = request.UserId,
-            Score = score,
-            Segment = segment,
-            CreatedAt = DateTime.UtcNow
-        };
+        return Ok(result);
+    }
 
-        var addResult = await _financialIqService.AddAsync(result);
+    // Query — only reads the latest saved result
+    [HttpGet("{userId}/latest")]
+    public async Task<IActionResult> GetLatest(string userId)
+    {
+        var result = await _service.GetLatestAsync(userId);
 
-        return addResult.Success ? Ok(result) : BadRequest(addResult);
+        if (!result.Success)
+            return NotFound(result);
+
+        return Ok(result);
     }
 }

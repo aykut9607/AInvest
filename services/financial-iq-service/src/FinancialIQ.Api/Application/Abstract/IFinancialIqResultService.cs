@@ -1,11 +1,10 @@
 using FinancialIQ.Api.Core.Utilities.Results;
-using IResult = FinancialIQ.Api.Core.Utilities.Results.IResult;
-using FinancialIQ.Api.Domain.Entities;
+using FinancialIQ.Api.Domain.Dtos;
 
 namespace FinancialIQ.Api.Application.Abstract;
 
-public interface IFinancialIqService
+public interface IFinancialIqResultService
 {
-    Task<IDataResult<List<FinancialIqResult>>> GetAllAsync();
-    Task<IResult>AddAsync(FinancialIqResult financialIqResult);
+    Task<IDataResult<FinancialIqResultResponse>> GetLatestAsync(string userId);
+    Task<IDataResult<FinancialIqResultResponse>> CalculateAsync(CalculateRequest request);
 }

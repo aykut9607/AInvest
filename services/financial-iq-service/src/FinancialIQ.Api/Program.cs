@@ -12,7 +12,7 @@ builder.Services.AddDbContext<FinancialIqDbContext >(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("FinancialIqDb")));
 
 builder.Services.AddScoped<IFinancialIqResultDal, EfFinancialIqResultDal>();
-builder.Services.AddScoped<IFinancialIqService, FinancialIqManager>();
+builder.Services.AddScoped<IFinancialIqResultService, FinancialIqManager>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
