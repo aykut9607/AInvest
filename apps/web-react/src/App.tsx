@@ -3,9 +3,8 @@ import "./App.css";
 
 import FinancialProfileForm from "./components/FinancialProfileForm";
 import ScoreCard from "./components/ScoreCard";
-import WarningList from "./components/WarningList";
 
-import { calculateFinancialScore } from "./api/financeApi";
+import { saveAndCalculateFinancialScore } from "./api/financeApi";
 
 import type {
   FinancialProfileFormData,
@@ -14,6 +13,7 @@ import type {
 
 function App() {
   const [form, setForm] = useState<FinancialProfileFormData>({
+    userId: "",
     monthlyIncome: "",
     monthlyExpenses: "",
     monthlyDebtPayment: "",
@@ -45,10 +45,14 @@ function App() {
     setError("");
 
     try {
-      const calculatedResult = await calculateFinancialScore(form);
+      const calculatedResult = await saveAndCalculateFinancialScore(form.userId, form);
       setResult(calculatedResult);
-    } catch {
-      setError("Something went wrong while calculating the financial score.");
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong while calculating the financial score."
+      );
       setResult(null);
     } finally {
       setLoading(false);
@@ -57,26 +61,23 @@ function App() {
 
   return (
     <div className="app">
-    <header className="app-header">
-      <h1>AInvest Mock</h1>
-      <p>Financial Readiness Score Prototype</p>
-    </header>
+      <header className="app-header">
+        <h1>AInvest Mock</h1>
+        <p>Financial Readiness Score Prototype</p>
+      </header>
 
-    <FinancialProfileForm
-      form={form}
-      loading={loading}
-      onChange={handleChange}
-      onSubmit={handleSubmit}
-    />
+      <FinancialProfileForm
+        form={form}
+        loading={loading}
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+      />
 
-    {error && <p className="error-message">{error}</p>}
+      {error && <p className="error-message">{error}</p>}
 
-    <ScoreCard result={result} />
-
-    <WarningList result={result} />
-  </div>
-);
+      <ScoreCard result={result} />
+    </div>
+  );
 }
 
 export default App;
-

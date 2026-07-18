@@ -1,5 +1,5 @@
 export interface FinancialProfileFormData {
-  //Inputs
+  userId: string;
   monthlyIncome: string;
   monthlyExpenses: string;
   monthlyDebtPayment: string;
@@ -9,13 +9,9 @@ export interface FinancialProfileFormData {
   riskPreference: "LOW" | "MEDIUM" | "HIGH";
 }
 
-
 export interface FinancialScoreResult {
-//Outputs
   score: number;
   segment: "STRONG" | "BALANCED" | "NEEDS_IMPROVEMENT" | "HIGH_RISK";
-  warnings: string[];
-  factors: string[];
 }
 
 /*80-100 → STRONG

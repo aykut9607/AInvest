@@ -19,6 +19,18 @@ function FinancialProfileForm({
       <h2>Financial Profile</h2>
 
       <div>
+        <label>User ID</label>
+        <input
+          type="text"
+          name="userId"
+          value={form.userId}
+          onChange={onChange}
+          placeholder="Example: demo-user-1"
+          required
+        />
+      </div>
+
+      <div>
         <label>Monthly Income</label>
         <input
           type="number"

@@ -1,110 +1,58 @@
-import type {
-  FinancialProfileFormData,
-  FinancialScoreResult,
-} from "../types/finance";
+import axios from "axios";
+import type { FinancialProfileFormData } from "../types/finance";
 
-export async function calculateFinancialScore(
+const BASE_URL = import.meta.env.VITE_FINANCE_API_BASE_URL as string;
+
+interface ApiResult<T> {
+  data: T | null;
+  success: boolean;
+  message: string;
+}
+
+interface FinancialIqCalculateResponse {
+  score: number;
+  segment: "STRONG" | "BALANCED" | "NEEDS_IMPROVEMENT" | "HIGH_RISK";
+}
+
+export async function saveAndCalculateFinancialScore(
+  userId: string,
   form: FinancialProfileFormData
-): Promise<FinancialScoreResult> {
-  const monthlyIncome = Number(form.monthlyIncome);
-  const monthlyExpenses = Number(form.monthlyExpenses);
-  const monthlyDebtPayment = Number(form.monthlyDebtPayment);
-  const totalDebt = Number(form.totalDebt);
-  const cashReserve = Number(form.cashReserve);
-  const investmentAmount = Number(form.investmentAmount);
-
-  if (monthlyIncome <= 0) {
-    return {
-      score: 0,
-      segment: "HIGH_RISK",
-      warnings: ["Monthly income must be greater than zero."],
-      factors: [],
-    };
-  }
-
-  const debtPaymentRatio = monthlyDebtPayment / monthlyIncome;
-  const spendingRatio = monthlyExpenses / monthlyIncome;
-
-  const monthlyRequiredAmount = monthlyExpenses + monthlyDebtPayment;
-
-  const cashReserveMonths =
-    monthlyRequiredAmount > 0 ? cashReserve / monthlyRequiredAmount : 0;
-
-  const monthlyAvailableAmount =
-    monthlyIncome - monthlyExpenses - monthlyDebtPayment;
-
-  const totalDebtToAnnualIncomeRatio = totalDebt / (monthlyIncome * 12);
-
-  let score = 70;
-  const warnings: string[] = [];
-  const factors: string[] = [];
-
-  if (debtPaymentRatio > 0.4) {
-    score -= 25;
-    warnings.push("Debt payment ratio is high.");
-  } else {
-    factors.push("Debt payment ratio is manageable.");
-  }
-
-  if (spendingRatio > 0.7) {
-    score -= 20;
-    warnings.push("Monthly expenses are high compared to income.");
-  } else {
-    factors.push("Spending level is acceptable.");
-  }
-
-  if (cashReserveMonths < 2) {
-    score -= 20;
-    warnings.push("Cash reserve is low.");
-  } else {
-    factors.push("Cash reserve is acceptable.");
-  }
-
-  if (totalDebtToAnnualIncomeRatio > 1.5) {
-    score -= 10;
-    warnings.push("Total debt is high compared to annual income.");
-  } else {
-    factors.push("Total debt level is acceptable compared to annual income.");
-  }
-
-  if (investmentAmount > monthlyAvailableAmount) {
-    score -= 10;
-    warnings.push(
-      "Planned investment amount is higher than monthly available amount."
-    );
-  } else if (investmentAmount > 0) {
-    factors.push(
-      "Planned investment amount is compatible with available monthly cash flow."
-    );
-  }
-
-  if (form.riskPreference === "HIGH") {
-    score -= 5;
-    warnings.push("High risk preference requires careful planning.");
-  }
-
-  if (score < 0) {
-    score = 0;
-  }
-
-  let segment: FinancialScoreResult["segment"];
-
-  if (score >= 80) {
-    segment = "STRONG";
-  } else if (score >= 60) {
-    segment = "BALANCED";
-  } else if (score >= 40) {
-    segment = "NEEDS_IMPROVEMENT";
-  } else {
-    segment = "HIGH_RISK";
-  }
-
-  await new Promise((resolve) => setTimeout(resolve, 700));
-
-  return {
-    score,
-    segment,
-    warnings,
-    factors,
+): Promise<FinancialIqCalculateResponse> {
+  const upsertBody = {
+    monthlyIncome: Number(form.monthlyIncome),
+    monthlyExpenses: Number(form.monthlyExpenses),
+    monthlyDebtPayment: Number(form.monthlyDebtPayment),
+    totalDebt: Number(form.totalDebt),
+    cashReserve: Number(form.cashReserve),
+    investmentAmount: Number(form.investmentAmount),
+    riskPreference: form.riskPreference,
   };
+
+  try {
+    await axios.put(`${BASE_URL}/api/Profiles/${userId}`, upsertBody);
+  } catch (err) {
+    throw new Error(extractErrorMessage(err, "Failed to save financial profile."), { cause: err });
+  }
+
+  try {
+    const response = await axios.post<ApiResult<FinancialIqCalculateResponse>>(
+      `${BASE_URL}/api/Profiles/${userId}/calculate-iq`
+    );
+
+    if (!response.data.success || !response.data.data) {
+      throw new Error(response.data.message || "Failed to calculate financial IQ.");
+    }
+
+    return response.data.data;
+  } catch (err) {
+    throw new Error(extractErrorMessage(err, "Failed to calculate financial IQ."), { cause: err });
+  }
+}
+
+function extractErrorMessage(err: unknown, fallback: string): string {
+  if (axios.isAxiosError(err)) {
+    const data = err.response?.data as ApiResult<unknown> | undefined;
+    if (data?.message) return data.message;
+  }
+  return fallback;
 }
