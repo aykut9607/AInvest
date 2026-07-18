@@ -66,4 +66,15 @@ public class ProfilesController : ControllerBase
 
         return Ok(result);
     }
+
+    [HttpPost("{userId}/calculate-iq")]
+    public async Task<IActionResult> CalculateIq(string userId)
+    {
+        var result = await _financialProfileService.CalculateIqAsync(userId);
+
+        if (!result.Success)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
 }

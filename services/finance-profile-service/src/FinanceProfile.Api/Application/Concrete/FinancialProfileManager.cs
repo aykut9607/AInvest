@@ -1,5 +1,3 @@
-
-
 using FinanceProfile.Api.Application.Abstract;
 using FinanceProfile.Api.Application.Constants;
 using FinanceProfile.Api.Core.Utilities.Results;
@@ -7,17 +5,21 @@ using IResult = FinanceProfile.Api.Core.Utilities.Results.IResult;
 using FinanceProfile.Api.Domain.Entities;
 using FinanceProfile.Api.Infrastructure.Abstract;
 using FinanceProfile.Api.DTOs;
+using FinanceProfile.Api.Infrastructure.External;
 
 namespace FinanceProfile.Api.Application.Concrete;
 
 
 public class FinancialProfileManager : IFinancialProfileService
 {
-    private readonly IFinancialProfileDal _financialProfileDal;
+        private readonly IFinancialProfileDal _financialProfileDal;
+        private readonly IFinancialIqClient _financialIqClient;
 
-    public FinancialProfileManager(IFinancialProfileDal financialProfileDal)
+
+    public FinancialProfileManager(IFinancialProfileDal financialProfileDal, IFinancialIqClient financialIqClient)
     {
         _financialProfileDal = financialProfileDal;
+        _financialIqClient = financialIqClient;
     }
 
     public async Task<IDataResult<List<FinancialProfileResponse>>> GetAllAsync()
@@ -94,10 +96,21 @@ public class FinancialProfileManager : IFinancialProfileService
         RiskPreference = request.RiskPreference,
         UpdatedAt = DateTime.UtcNow
     };
-    
-        
-    
 
-
-  
+    public async Task<IDataResult<FinancialIqCalculateResponse>> CalculateIqAsync(string userId)
+    {
+        var profile = await _financialProfileDal.GetAsync(x => x.UserId == userId);
+        if (profile == null)
+        {
+            return new ErrorDataResult<FinancialIqCalculateResponse>(Messages.FinancialProfileNotFound);
+        }
+        var iqRequest = new FinancialIqCalculateRequest
+        {   UserId = profile.UserId,
+            MonthlyIncome = profile.MonthlyIncome,
+            MonthlyExpenses = profile.MonthlyExpenses,
+            MonthlyDebtPayment = profile.MonthlyDebtPayment,
+            CashReserve = profile.CashReserve
+        };
+        return await _financialIqClient.CalculateAsync(iqRequest);
+    }
 }

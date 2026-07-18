@@ -11,4 +11,5 @@ public interface IFinancialProfileService
     Task<IDataResult<FinancialProfileResponse>> GetByUserIdAsync(string userId);
     Task<IResult> UpsertAsync(string id, UpsertFinancialProfileRequest request);
     Task<IResult>DeleteAsync(string id);
+    Task<IDataResult<FinancialIqCalculateResponse>> CalculateIqAsync(string userId);
 }

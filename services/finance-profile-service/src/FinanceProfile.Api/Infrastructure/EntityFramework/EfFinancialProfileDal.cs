@@ -22,6 +22,7 @@ public class EfFinancialProfileDal : EfEntityRepositoryBase<FinancialProfile, Fi
         }
         else
         {
+            entity.Id = existingEntity.Id;
             _context.Entry(existingEntity).CurrentValues.SetValues(entity);
         }
         await _context.SaveChangesAsync();
