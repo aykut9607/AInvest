@@ -48,18 +48,25 @@ public class FinancialIqManager : IFinancialIqResultService
     }
 
     // --- Core scoring logic ---
-    private static (int score, string segment) CalculateScore(CalculateRequest r)
+    internal static (int score, string segment) CalculateScore(CalculateRequest r)
     {
         // factor name -> points earned
         var factorScores = new Dictionary<string, decimal>();
+
         // prevents duplicate warnings if multiple thresholds trigger the same message
         var warnings = new HashSet<string>();
 
         // 1) Cash reserve months
         var cashReserveMonths = r.MonthlyExpenses > 0 ? r.CashReserve / r.MonthlyExpenses : 0;
+        //cashReserveMonths is calculated by dividing the cash reserve by monthly expenses
+        //example lets say cash reserve is 6000 and monthly expenses is 2000, then cashReserveMonths = 6000 / 2000 = 3 .meaning the user has 3 months of cash reserve
+
         factorScores["CashReserveMonths"] = cashReserveMonths switch
+        //switch expression used to determine the score based on cash reserve months
         {
             >= 6 => 25,
+            //if cash reserve months is greater than or equal to 6, then the score is 25.
+
             >= 3 => 15,
             >= 1 => 8,
             _ => 0
@@ -68,6 +75,9 @@ public class FinancialIqManager : IFinancialIqResultService
 
         // 2) Debt-to-income ratio
         var debtRatio = r.MonthlyDebtPayment / r.MonthlyIncome;
+        //debtRatio is calculated by dividing the monthly debt payment by monthly income
+        //example lets say monthly debt payment is 500 and monthly income is 5000, then debtRatio = 500 / 5000 = 0.1 .meaning the user has a debt-to-income ratio of 10%
+
         factorScores["DebtToIncomeRatio"] = debtRatio switch
         {
             <= 0.10m => 25,
@@ -79,6 +89,10 @@ public class FinancialIqManager : IFinancialIqResultService
 
         // 3) Savings rate
         var savingsRate = (r.MonthlyIncome - r.MonthlyExpenses - r.MonthlyDebtPayment) / r.MonthlyIncome;
+        //savingsRate is calculated by subtracting monthly expenses and debt payment from monthly income, then dividing by monthly income
+        //example lets say monthly income is 5000, monthly expenses is 2000, and monthly debt payment is 500, 
+        // then savingsRate = (5000 - 2000 - 500) / 5000 = 2500 / 5000 = 0.5 .meaning the user has a savings rate of 50%
+
         factorScores["SavingsRate"] = savingsRate switch
         {
             >= 0.20m => 25,
@@ -90,6 +104,9 @@ public class FinancialIqManager : IFinancialIqResultService
 
         // 4) Expense ratio
         var expenseRatio = r.MonthlyExpenses / r.MonthlyIncome;
+        //expenseRatio is calculated by dividing monthly expenses by monthly income
+        //example lets say monthly expenses is 2000 and monthly income is 5000, then expenseRatio = 2000 / 5000 = 0.4 .meaning the user has an expense ratio of 40%
+
         factorScores["ExpenseRatio"] = expenseRatio switch
         {
             <= 0.40m => 25,
