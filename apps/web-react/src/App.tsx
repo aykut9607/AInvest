@@ -5,6 +5,7 @@ import FinancialProfileForm from "./components/FinancialProfileForm";
 import ScoreCard from "./components/ScoreCard";
 
 import { saveAndCalculateFinancialScore } from "./api/financeApi";
+import { explainFinancialScore } from "./api/explainApi";
 
 import type {
   FinancialProfileFormData,
@@ -27,6 +28,11 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const [explanation, setExplanation] = useState<string | null>(null);
+  const [explanationDisclaimer, setExplanationDisclaimer] = useState<string | null>(null);
+  const [explainLoading, setExplainLoading] = useState(false);
+  const [explainError, setExplainError] = useState("");
+
   const handleChange = (
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -43,6 +49,9 @@ function App() {
 
     setLoading(true);
     setError("");
+    setExplanation(null);
+    setExplanationDisclaimer(null);
+    setExplainError("");
 
     try {
       const calculatedResult = await saveAndCalculateFinancialScore(form.userId, form);
@@ -56,6 +65,23 @@ function App() {
       setResult(null);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleExplain = async () => {
+    if (!result) return;
+
+    setExplainLoading(true);
+    setExplainError("");
+
+    try {
+      const explainResult = await explainFinancialScore(result.score, result.segment);
+      setExplanation(explainResult.explanation);
+      setExplanationDisclaimer(explainResult.disclaimer);
+    } catch {
+      setExplainError("Something went wrong while explaining the financial score.");
+    } finally {
+      setExplainLoading(false);
     }
   };
 
@@ -75,7 +101,14 @@ function App() {
 
       {error && <p className="error-message">{error}</p>}
 
-      <ScoreCard result={result} />
+      <ScoreCard
+        result={result}
+        explanation={explanation}
+        explanationDisclaimer={explanationDisclaimer}
+        explainLoading={explainLoading}
+        explainError={explainError}
+        onExplain={handleExplain}
+      />
     </div>
   );
 }

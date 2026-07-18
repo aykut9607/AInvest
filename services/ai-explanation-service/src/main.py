@@ -1,8 +1,16 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from datetime import datetime, timezone
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/health")
 def health():
@@ -23,13 +31,13 @@ class ExplainResponse(BaseModel):
 @app.post("/ai/explain-financial-iq")
 def explain(request: ExplainRequest):
     templates = {
-        "STRONG": "Finansal durumunuz güçlü görünüyor, nakit rezerviniz giderlerinizi rahatça karşılıyor.",
-        "NEEDS_IMPROVEMENT": "Nakit rezerviniz giderlerinize kıyasla düşük, birikiminizi artırmayı düşünebilirsiniz."
+        "STRONG": "Your financial standing looks strong, your cash reserve comfortably covers your expenses.",
+        "BALANCED": "Your financial standing is balanced, there's room for improvement in some areas such as cash reserve or debt ratio.",
+        "NEEDS_IMPROVEMENT": "Your cash reserve is low relative to your expenses, you might consider increasing your savings.",
+        "HIGH_RISK": "Your financial standing needs attention, your debt ratio and cash reserve may be priority areas to review."
     }
-    #"Here, you are passing two arguments to .get(): 
-    # the first is the key to search for (request.segment), and the second is the default value to return if it is not found
-    explanation = templates.get(request.segment, "Skorunuz hesaplandı, detaylı analiz için danışmanınıza başvurun.")
+    explanation = templates.get(request.segment, "Your score has been calculated. Consult your advisor for a detailed analysis.")
     return ExplainResponse(
         explanation=explanation,
-        disclaimer="Bu bilgi eğitim amaçlıdır, yatırım tavsiyesi değildir."
+        disclaimer="This information is for educational purposes only, not investment advice."
     )
