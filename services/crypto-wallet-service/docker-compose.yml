@@ -1,0 +1,13 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: wallet-redis
+    ports:
+      - "6379:6379"
+
+  couchbase:
+    image: couchbase/server:community
+    container_name: wallet-couchbase
+    ports:
+      - "8091-8096:8091-8096"
+      - "11210:11210"
