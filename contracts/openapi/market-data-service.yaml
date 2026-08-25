@@ -1,0 +1,6 @@
+openapi: 3.0.3
+info:
+  title: market-data-service
+  version: 0.1.0-draft
+  description: "Placeholder — filled in during the phase this service is built (see roadmap Section 12)."
+paths: {}
