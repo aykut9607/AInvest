@@ -1,0 +1,7 @@
+### Refresh - reused (should now be invalid)
+POST http://localhost:8081/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "hTCc6P3jgYrDBHsVUbHOu78sX1AIgTCR3IoFgHyMvlE"
+}
