@@ -1,6 +1,35 @@
 @FinanceProfile.Api_HostAddress = http://localhost:5293
 
-GET {{FinanceProfile.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+### 1) Create - new test user
+PUT {{FinanceProfile.Api_HostAddress}}/api/Profiles/test-createdat-user
+Content-Type: application/json
 
-###
+{
+  "monthlyIncome": 30000,
+  "monthlyExpenses": 15000,
+  "monthlyDebtPayment": 2000,
+  "totalDebt": 50000,
+  "cashReserve": 10000,
+  "investmentAmount": 5000,
+  "riskPreference": "MEDIUM"
+}
+
+### 2) Get - record CreatedAt (T1)
+GET {{FinanceProfile.Api_HostAddress}}/api/Profiles/test-createdat-user
+
+### 3) Update - SAME user, different values
+PUT {{FinanceProfile.Api_HostAddress}}/api/Profiles/test-createdat-user
+Content-Type: application/json
+
+{
+  "monthlyIncome": 35000,
+  "monthlyExpenses": 16000,
+  "monthlyDebtPayment": 2000,
+  "totalDebt": 48000,
+  "cashReserve": 12000,
+  "investmentAmount": 6000,
+  "riskPreference": "HIGH"
+}
+
+### 4) Get - verify CreatedAt is unchanged (T2)
+GET {{FinanceProfile.Api_HostAddress}}/api/Profiles/test-createdat-user
