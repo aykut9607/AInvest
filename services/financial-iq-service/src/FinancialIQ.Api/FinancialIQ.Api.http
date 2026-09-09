@@ -1,6 +1,31 @@
 @FinancialIQ.Api_HostAddress = http://localhost:5109
 
-GET {{FinancialIQ.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+### 1) Calculate - create new result (near-perfect scores)
+POST {{FinancialIQ.Api_HostAddress}}/api/financial-iq/calculate
+Content-Type: application/json
 
-###
+{
+  "userId": "test-createdat-iq-user",
+  "monthlyIncome": 10000,
+  "monthlyExpenses": 4000,
+  "monthlyDebtPayment": 1000,
+  "cashReserve": 24000
+}
+
+### 2) GetLatest - record CreatedAt (T1)
+GET {{FinancialIQ.Api_HostAddress}}/api/financial-iq/test-createdat-iq-user/latest
+
+### 3) Calculate - SAME user, much weaker numbers
+POST {{FinancialIQ.Api_HostAddress}}/api/financial-iq/calculate
+Content-Type: application/json
+
+{
+  "userId": "test-createdat-iq-user",
+  "monthlyIncome": 10000,
+  "monthlyExpenses": 8000,
+  "monthlyDebtPayment": 3500,
+  "cashReserve": 2000
+}
+
+### 4) GetLatest - verify CreatedAt unchanged (T2)
+GET {{FinancialIQ.Api_HostAddress}}/api/financial-iq/test-createdat-iq-user/latest
