@@ -24,6 +24,7 @@ public class EfFinancialIqResultDal : EfEntityRepositoryBase<FinancialIqResult, 
         else
         {
              entity.Id = existingResult.Id; 
+             entity.CreatedAt = existingResult.CreatedAt;
             _context.Entry(existingResult).CurrentValues.SetValues(entity);
         }
 
