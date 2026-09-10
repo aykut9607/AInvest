@@ -1,5 +1,6 @@
 using FinancialIQ.Api.Application.Concrete;
 using FinancialIQ.Api.Domain.Dtos;
+using System.Text.Json;
 using Xunit;
 
 namespace FinancialIQ.Tests;
@@ -18,29 +19,27 @@ public class FinancialIqManagerTests
             CashReserve = 60000
         };
 
-        var (score, segment) = FinancialIqManager.CalculateScore(request);
+        var (score, segment, factorBreakdown) = FinancialIqManager.CalculateScore(request);
 
         Assert.Equal("BALANCED", segment);
     }
 
-
-   [Fact]
-public void HighDebt_ShouldReturnHighRiskSegment()
-{
-    var request = new CalculateRequest
+    [Fact]
+    public void HighDebt_ShouldReturnHighRiskSegment()
     {
-        UserId = "test-user",
-        MonthlyIncome = 50000,
-        MonthlyExpenses = 42000,
-        MonthlyDebtPayment = 22000,
-        CashReserve = 5000
-    };
+        var request = new CalculateRequest
+        {
+            UserId = "test-user",
+            MonthlyIncome = 50000,
+            MonthlyExpenses = 42000,
+            MonthlyDebtPayment = 22000,
+            CashReserve = 5000
+        };
 
-    var (score, segment) = FinancialIqManager.CalculateScore(request);
+        var (score, segment, factorBreakdown) = FinancialIqManager.CalculateScore(request);
 
-    Assert.Equal("HIGH_RISK", segment);
-}
-
+        Assert.Equal("HIGH_RISK", segment);
+    }
 
     [Fact]
     public void LowCashReserve_ShouldReturnLowScoreForCashFactor()
@@ -51,30 +50,51 @@ public void HighDebt_ShouldReturnHighRiskSegment()
             MonthlyIncome = 60000,
             MonthlyExpenses = 20000,
             MonthlyDebtPayment = 5000,
-            CashReserve = 5000   // 5000/20000 = 0.25 ay — 1 aydan az
+            CashReserve = 5000   // 5000/20000 = 0.25 months - less than 1 month
         };
 
-        var (score, segment) = FinancialIqManager.CalculateScore(request);
+        var (score, segment, factorBreakdown) = FinancialIqManager.CalculateScore(request);
 
-        // toplam skoru değil, sadece bu senaryonun mantıklı bir segmentte olduğunu doğruluyoruz
+        // not checking the total score, just confirming this scenario lands in a reasonable segment
         Assert.NotEqual("STRONG", segment);
     }
 
-
- [Fact]
-public void ZeroExpenses_ShouldNotThrow()
-{
-    var request = new CalculateRequest
+    [Fact]
+    public void ZeroExpenses_ShouldNotThrow()
     {
-        UserId = "test-user",
-        MonthlyIncome = 40000,
-        MonthlyExpenses = 0,
-        MonthlyDebtPayment = 0,
-        CashReserve = 30000
-    };
+        var request = new CalculateRequest
+        {
+            UserId = "test-user",
+            MonthlyIncome = 40000,
+            MonthlyExpenses = 0,
+            MonthlyDebtPayment = 0,
+            CashReserve = 30000
+        };
 
-    var exception = Record.Exception(() => FinancialIqManager.CalculateScore(request));
+        var exception = Record.Exception(() => FinancialIqManager.CalculateScore(request));
 
-    Assert.Null(exception);
-}
+        Assert.Null(exception);
+    }
+
+    [Fact]
+    public void PerfectScenario_ShouldProduceValidJsonWithEmptyWarnings()
+    {
+        var request = new CalculateRequest
+        {
+            UserId = "test-user",
+            MonthlyIncome = 10000,
+            MonthlyExpenses = 4000,
+            MonthlyDebtPayment = 1000,
+            CashReserve = 24000
+        };
+
+        var (score, segment, factorBreakdown) = FinancialIqManager.CalculateScore(request);
+
+        Assert.Equal(100, score);
+        Assert.Equal("STRONG", segment);
+
+        using var json = JsonDocument.Parse(factorBreakdown);
+        var warnings = json.RootElement.GetProperty("warnings");
+        Assert.Equal(0, warnings.GetArrayLength());
+    }
 }

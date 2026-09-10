@@ -33,6 +33,11 @@ namespace FinancialIQ.Api.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
+                    b.Property<string>("FactorBreakdown")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("factor_breakdown");
+
                     b.Property<int>("Score")
                         .HasColumnType("integer")
                         .HasColumnName("score");
