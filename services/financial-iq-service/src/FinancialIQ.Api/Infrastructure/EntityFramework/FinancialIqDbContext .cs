@@ -19,6 +19,7 @@ public class FinancialIqDbContext  : DbContext
             entity.Property(p => p.UserId).HasColumnName("user_id");
             entity.Property(p => p.Score).HasColumnName("score");
             entity.Property(p => p.Segment).HasColumnName("segment");
+            entity.Property(p => p.FactorBreakdown).HasColumnName("factor_breakdown");
             entity.Property(p => p.CreatedAt).HasColumnName("created_at");
             entity.Property(p => p.UpdatedAt).HasColumnName("updated_at");
         });

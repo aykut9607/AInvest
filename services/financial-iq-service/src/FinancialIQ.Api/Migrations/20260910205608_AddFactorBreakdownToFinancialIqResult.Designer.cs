@@ -3,6 +3,7 @@ using System;
 using FinancialIQ.Api.Infrastructure.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FinancialIQ.Api.Migrations
 {
     [DbContext(typeof(FinancialIqDbContext))]
-    partial class FinancialIqDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260910205608_AddFactorBreakdownToFinancialIqResult")]
+    partial class AddFactorBreakdownToFinancialIqResult
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

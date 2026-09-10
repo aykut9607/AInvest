@@ -5,6 +5,7 @@ using IResult = FinancialIQ.Api.Core.Utilities.Results.IResult;
 using FinancialIQ.Api.Domain.Entities;
 using FinancialIQ.Api.Domain.Dtos;
 using FinancialIQ.Api.Infrastructure.Abstract;
+using System.Text.Json;
 
 namespace FinancialIQ.Api.Application.Concrete;
 
@@ -31,13 +32,15 @@ public class FinancialIqManager : IFinancialIqResultService
         if (request.MonthlyIncome <= 0)
             return new ErrorDataResult<FinancialIqResultResponse>(Messages.InvalidMonthlyIncome);
 
-        var (score, segment) = CalculateScore(request);
+        var (score, segment, factorBreakdown) = CalculateScore(request);
+
 
         var entity = new FinancialIqResult
         {
             UserId = request.UserId,
             Score = score,
             Segment = segment,
+            FactorBreakdown = factorBreakdown,
             UpdatedAt = DateTime.UtcNow
         };
 
@@ -48,7 +51,7 @@ public class FinancialIqManager : IFinancialIqResultService
     }
 
     // --- Core scoring logic ---
-    internal static (int score, string segment) CalculateScore(CalculateRequest r)
+    internal static (int score, string segment, string factorBreakdown) CalculateScore(CalculateRequest r)
     {
         // factor name -> points earned (Dictionary usage required by the posting's "data structures" criterion)
         var factorScores = new Dictionary<string, decimal>();
@@ -125,17 +128,20 @@ public class FinancialIqManager : IFinancialIqResultService
             >= 30 => "NEEDS_IMPROVEMENT",
             _ => "HIGH_RISK"
         };
-
-        return (totalScore, segment);
+        // bundle scores + warnings into one JSON string so the AI/RAG service can explain "why" this score, not just "what"
+        var breakdown = new { factors = factorScores, warnings };
+        var factorBreakdownJson = JsonSerializer.Serialize(breakdown);
+        return (totalScore, segment, factorBreakdownJson);
     }
 
     private static FinancialIqResultResponse MapToResponse(FinancialIqResult entity) => new()
-    {
-        Id = entity.Id,
-        UserId = entity.UserId,
-        Score = entity.Score,
-        Segment = entity.Segment,
-        CreatedAt = entity.CreatedAt,
-        UpdatedAt = entity.UpdatedAt
-    };
+{
+    Id = entity.Id,
+    UserId = entity.UserId,
+    Score = entity.Score,
+    Segment = entity.Segment,
+    FactorBreakdown = entity.FactorBreakdown,
+    CreatedAt = entity.CreatedAt,
+    UpdatedAt = entity.UpdatedAt
+};
 }

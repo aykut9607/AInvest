@@ -8,6 +8,7 @@ public class FinancialIqResultResponse : IDto
     public string UserId { get; set; } = string.Empty;
     public int Score { get; set; }
     public string Segment { get; set; } = string.Empty;
+    public string FactorBreakdown { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }
