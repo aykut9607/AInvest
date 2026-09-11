@@ -1,11 +1,7 @@
-﻿
-
-namespace FinanceProfile.Api.Core.Utilities.Results
-
+namespace FinanceProfile.Api.Application.Results
 {
     public class ErrorDataResult<T> : DataResult<T>
     {
-
        public ErrorDataResult(T data,string message) : base(data,false,message)
         {
         }
@@ -20,7 +16,5 @@ namespace FinanceProfile.Api.Core.Utilities.Results
         public ErrorDataResult() : base(default!, false)
         {
         }
-
-
     }
 }

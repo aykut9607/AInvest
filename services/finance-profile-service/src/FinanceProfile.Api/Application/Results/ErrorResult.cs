@@ -1,6 +1,4 @@
-﻿
-
-namespace FinanceProfile.Api.Core.Utilities.Results
+namespace FinanceProfile.Api.Application.Results
 {
     public class ErrorResult : Result
     {
@@ -10,6 +8,5 @@ namespace FinanceProfile.Api.Core.Utilities.Results
         public ErrorResult() : base(false)
         {
         }
-    
     }
 }

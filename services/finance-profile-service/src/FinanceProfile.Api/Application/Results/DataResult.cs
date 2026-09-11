@@ -1,5 +1,4 @@
-﻿
-namespace FinanceProfile.Api.Core.Utilities.Results
+namespace FinanceProfile.Api.Application.Results
 {
     public class DataResult<T> : Result, IDataResult<T>
     {

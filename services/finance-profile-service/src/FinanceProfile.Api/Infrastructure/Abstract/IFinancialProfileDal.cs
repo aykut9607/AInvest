@@ -1,6 +1,4 @@
 using FinanceProfile.Api.Domain.Entities;
-using FinanceProfile.Api.Core.DataAccess;
-
 
 namespace FinanceProfile.Api.Infrastructure.Abstract;
 

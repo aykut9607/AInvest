@@ -1,5 +1,5 @@
 using System.Net.Http.Json;
-using FinanceProfile.Api.Core.Utilities.Results;
+using FinanceProfile.Api.Application.Results;
 using FinanceProfile.Api.DTOs;
 using FinanceProfile.Api.Infrastructure.Abstract;
 
@@ -21,7 +21,7 @@ public class FinancialIqClient: IFinancialIqClient
         var response = await client.PostAsJsonAsync("/api/financial-iq/calculate", request);
         if(!response.IsSuccessStatusCode)
         {
-            return new ErrorDataResult<FinancialIqCalculateResponse>(null,"Failed to calculate financial IQ.");
+            return new ErrorDataResult<FinancialIqCalculateResponse>("Failed to calculate financial IQ.");
         }
 
         var wrapper = await response.Content.ReadFromJsonAsync<IqServiceWrapper>();
