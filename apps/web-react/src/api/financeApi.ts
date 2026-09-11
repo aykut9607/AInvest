@@ -11,7 +11,7 @@ interface ApiResult<T> {
 
 interface FinancialIqCalculateResponse {
   score: number;
-  segment: "STRONG" | "BALANCED" | "NEEDS_IMPROVEMENT" | "HIGH_RISK";
+  segment: "LOW" | "MEDIUM" | "HIGH";
 }
 
 export async function saveAndCalculateFinancialScore(
