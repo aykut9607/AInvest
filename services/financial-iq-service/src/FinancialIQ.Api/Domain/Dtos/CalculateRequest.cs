@@ -1,4 +1,4 @@
-using FinancialIQ.Api.Core.Entities;
+using FinancialIQ.Api.Domain.Common;
 
 namespace FinancialIQ.Api.Domain.Dtos;
 

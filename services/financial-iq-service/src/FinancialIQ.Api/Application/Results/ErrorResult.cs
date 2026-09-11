@@ -1,6 +1,4 @@
-﻿
-
-namespace FinancialIQ.Api.Core.Utilities.Results
+namespace FinancialIQ.Api.Application.Results
 {
     public class ErrorResult : Result
     {
@@ -10,6 +8,5 @@ namespace FinancialIQ.Api.Core.Utilities.Results
         public ErrorResult() : base(false)
         {
         }
-    
     }
 }

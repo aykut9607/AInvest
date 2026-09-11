@@ -1,6 +1,4 @@
-﻿
-namespace FinancialIQ.Api.Core.Utilities.Results
-
+namespace FinancialIQ.Api.Application.Results
 {
     public class SuccessDataResult<T> : DataResult<T>
     {
@@ -21,3 +19,5 @@ namespace FinancialIQ.Api.Core.Utilities.Results
         }
     }
 }
+
+
