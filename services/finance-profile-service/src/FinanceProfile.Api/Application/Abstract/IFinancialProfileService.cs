@@ -1,5 +1,5 @@
-using FinanceProfile.Api.Core.Utilities.Results;
-using IResult = FinanceProfile.Api.Core.Utilities.Results.IResult;
+using FinanceProfile.Api.Application.Results;
+using IResult = FinanceProfile.Api.Application.Results.IResult;
 using FinanceProfile.Api.Domain.Entities;
 using FinanceProfile.Api.DTOs;
 

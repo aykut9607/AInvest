@@ -1,4 +1,3 @@
-using FinanceProfile.Api.Core.DataAccess.EntityFramework;
 using FinanceProfile.Api.Domain.Entities;
 using FinanceProfile.Api.Infrastructure.Abstract;
 using Microsoft.EntityFrameworkCore;

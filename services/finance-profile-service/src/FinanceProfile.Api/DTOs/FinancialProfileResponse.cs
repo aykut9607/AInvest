@@ -1,4 +1,4 @@
-using FinanceProfile.Api.Core.Entities;
+using FinanceProfile.Api.Domain.Common;
 namespace FinanceProfile.Api.DTOs;
 
 public class FinancialProfileResponse: IDto

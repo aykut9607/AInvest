@@ -1,4 +1,4 @@
-namespace FinanceProfile.Api.Core.Exceptions;
+namespace FinanceProfile.Api.Infrastructure.Exceptions;
 
 public class DataAccessException : Exception
 {
