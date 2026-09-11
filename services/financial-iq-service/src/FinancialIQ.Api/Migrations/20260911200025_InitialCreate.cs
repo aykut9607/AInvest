@@ -15,11 +15,13 @@ namespace FinancialIQ.Api.Migrations
                 name: "financial_iq_results",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    user_id = table.Column<string>(type: "text", nullable: false),
-                    score = table.Column<int>(type: "integer", nullable: false),
-                    segment = table.Column<string>(type: "text", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    user_id = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    score = table.Column<int>(type: "int", nullable: false),
+                    segment = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    factor_breakdown = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
