@@ -8,7 +8,7 @@ namespace FinancialIQ.Tests;
 public class FinancialIqManagerTests
 {
     [Fact]
-    public void Balanced_ShouldReturnBalancedSegment()
+    public void Medium_ShouldReturnMediumSegment()
     {
         var request = new CalculateRequest
         {
@@ -21,11 +21,11 @@ public class FinancialIqManagerTests
 
         var (score, segment, factorBreakdown) = FinancialIqManager.CalculateScore(request);
 
-        Assert.Equal("BALANCED", segment);
+        Assert.Equal("MEDIUM", segment);
     }
 
     [Fact]
-    public void HighDebt_ShouldReturnHighRiskSegment()
+    public void HighDebt_ShouldReturnLowSegment()
     {
         var request = new CalculateRequest
         {
@@ -38,11 +38,11 @@ public class FinancialIqManagerTests
 
         var (score, segment, factorBreakdown) = FinancialIqManager.CalculateScore(request);
 
-        Assert.Equal("HIGH_RISK", segment);
+        Assert.Equal("LOW", segment);
     }
 
     [Fact]
-    public void LowCashReserve_ShouldReturnLowScoreForCashFactor()
+    public void LowCashReserve_ShouldReturnZeroPointsForCashFactor()
     {
         var request = new CalculateRequest
         {
@@ -55,8 +55,11 @@ public class FinancialIqManagerTests
 
         var (score, segment, factorBreakdown) = FinancialIqManager.CalculateScore(request);
 
-        // not checking the total score, just confirming this scenario lands in a reasonable segment
-        Assert.NotEqual("STRONG", segment);
+        // checking the specific factor directly, not the overall segment -
+        // the other 3 factors can be strong enough to offset a weak cash reserve in the total score
+        using var json = JsonDocument.Parse(factorBreakdown);
+        var cashReserveScore = json.RootElement.GetProperty("factors").GetProperty("CashReserveMonths").GetInt32();
+        Assert.Equal(0, cashReserveScore);
     }
 
     [Fact]
@@ -91,7 +94,7 @@ public class FinancialIqManagerTests
         var (score, segment, factorBreakdown) = FinancialIqManager.CalculateScore(request);
 
         Assert.Equal(100, score);
-        Assert.Equal("STRONG", segment);
+        Assert.Equal("HIGH", segment);
 
         using var json = JsonDocument.Parse(factorBreakdown);
         var warnings = json.RootElement.GetProperty("warnings");

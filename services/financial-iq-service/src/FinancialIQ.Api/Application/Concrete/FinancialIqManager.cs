@@ -123,10 +123,9 @@ public class FinancialIqManager : IFinancialIqResultService
 
         var segment = totalScore switch
         {
-            >= 80 => "STRONG",
-            >= 55 => "BALANCED",
-            >= 30 => "NEEDS_IMPROVEMENT",
-            _ => "HIGH_RISK"
+            >= 71 => "HIGH",
+            >= 41 => "MEDIUM",
+            _ => "LOW"
         };
         // bundle scores + warnings into one JSON string so the AI/RAG service can explain "why" this score, not just "what"
         var breakdown = new { factors = factorScores, warnings };
