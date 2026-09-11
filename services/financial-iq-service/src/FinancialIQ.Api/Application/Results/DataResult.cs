@@ -1,5 +1,4 @@
-﻿
-namespace FinancialIQ.Api.Core.Utilities.Results
+namespace FinancialIQ.Api.Application.Results
 {
     public class DataResult<T> : Result, IDataResult<T>
     {

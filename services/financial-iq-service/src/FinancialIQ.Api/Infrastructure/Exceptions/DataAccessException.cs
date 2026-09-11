@@ -1,4 +1,4 @@
-namespace FinancialIQ.Api.Core.Exceptions;
+namespace FinancialIQ.Api.Infrastructure.Exceptions;
 
 public class DataAccessException : Exception
 {

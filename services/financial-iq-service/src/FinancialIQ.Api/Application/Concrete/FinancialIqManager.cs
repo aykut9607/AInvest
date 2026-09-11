@@ -1,7 +1,6 @@
 using FinancialIQ.Api.Application.Abstract;
 using FinancialIQ.Api.Application.Constants;
-using FinancialIQ.Api.Core.Utilities.Results;
-using IResult = FinancialIQ.Api.Core.Utilities.Results.IResult;
+using FinancialIQ.Api.Application.Results;
 using FinancialIQ.Api.Domain.Entities;
 using FinancialIQ.Api.Domain.Dtos;
 using FinancialIQ.Api.Infrastructure.Abstract;

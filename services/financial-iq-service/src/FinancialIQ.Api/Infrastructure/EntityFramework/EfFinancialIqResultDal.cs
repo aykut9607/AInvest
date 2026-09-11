@@ -1,4 +1,3 @@
-using FinancialIQ.Api.Core.DataAccess.EntityFramework;
 using FinancialIQ.Api.Domain.Entities;
 using FinancialIQ.Api.Infrastructure.Abstract;
 using Microsoft.EntityFrameworkCore;

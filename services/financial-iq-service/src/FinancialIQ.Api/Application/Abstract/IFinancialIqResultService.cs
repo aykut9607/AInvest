@@ -1,4 +1,4 @@
-using FinancialIQ.Api.Core.Utilities.Results;
+using FinancialIQ.Api.Application.Results;
 using FinancialIQ.Api.Domain.Dtos;
 
 namespace FinancialIQ.Api.Application.Abstract;
