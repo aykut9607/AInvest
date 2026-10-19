@@ -68,7 +68,10 @@ public class FinancialIqManager : IFinancialIqResultService
         var warnings = new HashSet<string>();
 
         // 1) Cash reserve months
-        var cashReserveMonths = r.MonthlyExpenses > 0 ? r.CashReserve / r.MonthlyExpenses : 0;
+        // with zero monthly expenses any positive reserve covers them indefinitely, so it counts as ample (6 months)
+        var cashReserveMonths = r.MonthlyExpenses > 0
+            ? r.CashReserve / r.MonthlyExpenses
+            : r.CashReserve > 0 ? 6m : 0m;
         //cashReserveMonths is calculated by dividing the cash reserve by monthly expenses
         //example lets say cash reserve is 6000 and monthly expenses is 2000, then cashReserveMonths = 6000 / 2000 = 3 .meaning the user has 3 months of cash reserve
 

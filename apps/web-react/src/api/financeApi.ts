@@ -26,6 +26,7 @@ export async function saveAndCalculateFinancialScore(
     cashReserve: Number(form.cashReserve),
     investmentAmount: Number(form.investmentAmount),
     riskPreference: form.riskPreference,
+    impatienceLevel: Number(form.impatienceLevel),
   };
 
   try {

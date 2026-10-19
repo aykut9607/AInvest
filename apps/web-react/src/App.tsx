@@ -22,6 +22,7 @@ function App() {
     cashReserve: "",
     investmentAmount: "",
     riskPreference: "MEDIUM",
+    impatienceLevel: "3",
   });
 
   const [result, setResult] = useState<FinancialScoreResult | null>(null);

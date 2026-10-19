@@ -7,6 +7,8 @@ export interface FinancialProfileFormData {
   cashReserve: string;
   investmentAmount: string;
   riskPreference: "LOW" | "MEDIUM" | "HIGH";
+  // "1" = can wait years for a return, "5" = wants results right away
+  impatienceLevel: "1" | "2" | "3" | "4" | "5";
 }
 
 export interface FinancialScoreResult {

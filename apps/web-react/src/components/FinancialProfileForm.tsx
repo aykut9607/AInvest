@@ -115,6 +115,21 @@
           </select>
         </div>
 
+        <div>
+          <label>How long can you wait to see a return?</label>
+          <select
+            name="impatienceLevel"
+            value={form.impatienceLevel}
+            onChange={onChange}
+          >
+            <option value="1">1 - Years, I'm in no hurry</option>
+            <option value="2">2 - A year or two</option>
+            <option value="3">3 - Several months</option>
+            <option value="4">4 - A few weeks</option>
+            <option value="5">5 - I want results right away</option>
+          </select>
+        </div>
+
         <button type="submit" disabled={loading}>
           {loading ? "Calculating..." : "Save & Calculate"}
         </button>

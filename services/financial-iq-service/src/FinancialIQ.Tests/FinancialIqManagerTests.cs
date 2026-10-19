@@ -80,6 +80,29 @@ public class FinancialIqManagerTests
     }
 
     [Fact]
+    public void ZeroExpensesWithReserve_ShouldCountReserveAsAmple()
+    {
+        var request = new CalculateRequest
+        {
+            UserId = "test-user",
+            MonthlyIncome = 40000,
+            MonthlyExpenses = 0,
+            MonthlyDebtPayment = 0,
+            CashReserve = 30000,
+            RiskPreference = "HIGH"
+        };
+
+        var (_, _, factorBreakdown) = FinancialIqManager.CalculateScore(request);
+
+        // previously 0 expenses meant "0 months of reserve": cash factor 0, capacity LOW and a false OVERSTATED flag
+        using var json = JsonDocument.Parse(factorBreakdown);
+        var root = json.RootElement;
+        Assert.Equal(20, root.GetProperty("factors").GetProperty("CashReserveMonths").GetInt32());
+        Assert.Equal("HIGH", root.GetProperty("riskProfile").GetProperty("behavioral").GetString());
+        Assert.DoesNotContain("Low cash reserve", root.GetProperty("warnings").EnumerateArray().Select(w => w.GetString()));
+    }
+
+    [Fact]
     public void PerfectScenario_ShouldProduceValidJsonWithEmptyWarnings()
     {
         var request = new CalculateRequest
