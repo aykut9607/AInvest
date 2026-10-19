@@ -1,7 +1,46 @@
-### Refresh - reused (should now be invalid)
-POST http://localhost:8081/auth/refresh
+@baseUrl = http://localhost:8081
+
+### 1) Register - new user (change the email if it already exists -> 409)
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
-  "refreshToken": "hTCc6P3jgYrDBHsVUbHOu78sX1AIgTCR3IoFgHyMvlE"
+  "email": "demo@ainvest.dev",
+  "password": "Demo12345!"
+}
+
+### 2) Login - returns accessToken + refreshToken
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "demo@ainvest.dev",
+  "password": "Demo12345!"
+}
+
+### 3) Login - wrong password (should be rejected)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "demo@ainvest.dev",
+  "password": "wrong-password"
+}
+
+### 4) Refresh - uses the refreshToken from step 2, returns a new token pair
+# @name refresh
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{login.response.body.refreshToken}}"
+}
+
+### 5) Refresh - reuse the OLD token from step 2 (rotation: should now be invalid)
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{login.response.body.refreshToken}}"
 }
