@@ -7,5 +7,6 @@
   <Folder Name="/services/financial-iq-service/" />
   <Folder Name="/services/financial-iq-service/src/">
     <Project Path="services/financial-iq-service/src/FinancialIQ.Api/FinancialIQ.Api.csproj" />
+    <Project Path="services/financial-iq-service/src/FinancialIQ.Tests/FinancialIQ.Tests.csproj" />
   </Folder>
 </Solution>
