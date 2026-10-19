@@ -21,6 +21,8 @@ public class FinancialProfileResponse: IDto
 
     public string RiskPreference { get; set; } = "MEDIUM";
 
+    public int ImpatienceLevel { get; set; }
+
     public DateTime CreatedAt { get; set; }
 
     public DateTime UpdatedAt { get; set; }

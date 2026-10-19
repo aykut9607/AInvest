@@ -17,4 +17,6 @@ namespace FinanceProfile.Api.DTOs;
         public decimal InvestmentAmount { get; set; }
 
         public string RiskPreference { get; set; } = "MEDIUM";
+
+        public int ImpatienceLevel { get; set; } = 3;
     }

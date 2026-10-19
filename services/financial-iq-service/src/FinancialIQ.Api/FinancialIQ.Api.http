@@ -29,3 +29,44 @@ Content-Type: application/json
 
 ### 4) GetLatest - verify CreatedAt unchanged (T2)
 GET {{FinancialIQ.Api_HostAddress}}/api/financial-iq/test-createdat-iq-user/latest
+
+### 5) Calculate - 6 factors, perfect case (expect score 100, riskProfile ALIGNED)
+POST {{FinancialIQ.Api_HostAddress}}/api/financial-iq/calculate
+Content-Type: application/json
+
+{
+  "userId": "test-6factor-user",
+  "monthlyIncome": 10000,
+  "monthlyExpenses": 4000,
+  "monthlyDebtPayment": 1000,
+  "cashReserve": 24000,
+  "riskPreference": "HIGH",
+  "impatienceLevel": 1
+}
+
+### 6) Calculate - inconsistency: says HIGH, numbers say LOW (demo-user-4 values, expect OVERSTATED)
+POST {{FinancialIQ.Api_HostAddress}}/api/financial-iq/calculate
+Content-Type: application/json
+
+{
+  "userId": "test-6factor-user",
+  "monthlyIncome": 30000,
+  "monthlyExpenses": 25000,
+  "monthlyDebtPayment": 7000,
+  "cashReserve": 3000,
+  "riskPreference": "HIGH",
+  "impatienceLevel": 5
+}
+
+### 7) Calculate - invalid impatience level (expect error message)
+POST {{FinancialIQ.Api_HostAddress}}/api/financial-iq/calculate
+Content-Type: application/json
+
+{
+  "userId": "test-6factor-user",
+  "monthlyIncome": 10000,
+  "monthlyExpenses": 4000,
+  "monthlyDebtPayment": 1000,
+  "cashReserve": 24000,
+  "impatienceLevel": 9
+}

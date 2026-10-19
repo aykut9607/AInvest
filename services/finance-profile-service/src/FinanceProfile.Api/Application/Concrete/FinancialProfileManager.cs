@@ -51,7 +51,10 @@ public class FinancialProfileManager : IFinancialProfileService
         var allowedRisks = new[] { "LOW", "MEDIUM", "HIGH" };
         if (!allowedRisks.Contains(request.RiskPreference))
          return new ErrorResult(Messages.InvalidRiskPreference);
-        
+
+        if (request.ImpatienceLevel < 1 || request.ImpatienceLevel > 5)
+         return new ErrorResult(Messages.InvalidImpatienceLevel);
+
             var entity= MapToEntity(id, request);
             await _financialProfileDal.UpsertAsync(entity);
             return new SuccessResult(Messages.FinancialProfileSaved);
@@ -80,6 +83,7 @@ public class FinancialProfileManager : IFinancialProfileService
         CashReserve = entity.CashReserve,
         InvestmentAmount = entity.InvestmentAmount,
         RiskPreference = entity.RiskPreference,
+        ImpatienceLevel = entity.ImpatienceLevel,
         CreatedAt = entity.CreatedAt,
         UpdatedAt = entity.UpdatedAt
     };
@@ -94,6 +98,7 @@ public class FinancialProfileManager : IFinancialProfileService
         CashReserve = request.CashReserve,
         InvestmentAmount = request.InvestmentAmount,
         RiskPreference = request.RiskPreference,
+        ImpatienceLevel = request.ImpatienceLevel,
         UpdatedAt = DateTime.UtcNow
     };
 
@@ -109,7 +114,9 @@ public class FinancialProfileManager : IFinancialProfileService
             MonthlyIncome = profile.MonthlyIncome,
             MonthlyExpenses = profile.MonthlyExpenses,
             MonthlyDebtPayment = profile.MonthlyDebtPayment,
-            CashReserve = profile.CashReserve
+            CashReserve = profile.CashReserve,
+            RiskPreference = profile.RiskPreference,
+            ImpatienceLevel = profile.ImpatienceLevel
         };
         return await _financialIqClient.CalculateAsync(iqRequest);
     }

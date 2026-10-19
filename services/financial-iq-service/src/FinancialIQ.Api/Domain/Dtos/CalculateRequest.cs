@@ -9,4 +9,7 @@ public class CalculateRequest : IDto
     public decimal MonthlyExpenses { get; set; }
     public decimal MonthlyDebtPayment { get; set; }
     public decimal CashReserve { get; set; }
+    // defaults keep older callers (that only send the 4 money fields) working
+    public string RiskPreference { get; set; } = "MEDIUM";
+    public int ImpatienceLevel { get; set; } = 3;
 }

@@ -33,3 +33,36 @@ Content-Type: application/json
 
 ### 4) Get - verify CreatedAt is unchanged (T2)
 GET {{FinanceProfile.Api_HostAddress}}/api/Profiles/test-createdat-user
+
+### 5) Upsert with impatienceLevel (1 = can wait years, 5 = wants results now)
+PUT {{FinanceProfile.Api_HostAddress}}/api/Profiles/test-impatience-user
+Content-Type: application/json
+
+{
+  "monthlyIncome": 30000,
+  "monthlyExpenses": 25000,
+  "monthlyDebtPayment": 7000,
+  "totalDebt": 90000,
+  "cashReserve": 3000,
+  "investmentAmount": 10000,
+  "riskPreference": "HIGH",
+  "impatienceLevel": 4
+}
+
+### 6) Get - impatienceLevel should come back as 4
+GET {{FinanceProfile.Api_HostAddress}}/api/Profiles/test-impatience-user
+
+### 7) Upsert with invalid impatienceLevel (expect error)
+PUT {{FinanceProfile.Api_HostAddress}}/api/Profiles/test-impatience-user
+Content-Type: application/json
+
+{
+  "monthlyIncome": 30000,
+  "monthlyExpenses": 25000,
+  "monthlyDebtPayment": 7000,
+  "totalDebt": 90000,
+  "cashReserve": 3000,
+  "investmentAmount": 10000,
+  "riskPreference": "HIGH",
+  "impatienceLevel": 0
+}

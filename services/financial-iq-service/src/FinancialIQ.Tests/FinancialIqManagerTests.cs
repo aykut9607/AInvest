@@ -88,7 +88,9 @@ public class FinancialIqManagerTests
             MonthlyIncome = 10000,
             MonthlyExpenses = 4000,
             MonthlyDebtPayment = 1000,
-            CashReserve = 24000
+            CashReserve = 24000,
+            RiskPreference = "HIGH",   // matches the HIGH behavioral capacity of these numbers
+            ImpatienceLevel = 1
         };
 
         var (score, segment, factorBreakdown) = FinancialIqManager.CalculateScore(request);

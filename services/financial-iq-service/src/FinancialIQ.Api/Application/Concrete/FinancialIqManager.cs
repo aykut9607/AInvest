@@ -12,6 +12,9 @@ public class FinancialIqManager : IFinancialIqResultService
 {
     private readonly IFinancialIqResultDal _dal;
 
+    // ordered low -> high, the index is used as the risk "level" when comparing stated vs behavioral risk
+    private static readonly string[] RiskLevels = { "LOW", "MEDIUM", "HIGH" };
+
     public FinancialIqManager(IFinancialIqResultDal dal)
     {
         _dal = dal;
@@ -30,6 +33,12 @@ public class FinancialIqManager : IFinancialIqResultService
     {
         if (request.MonthlyIncome <= 0)
             return new ErrorDataResult<FinancialIqResultResponse>(Messages.InvalidMonthlyIncome);
+
+        if (!RiskLevels.Contains(request.RiskPreference))
+            return new ErrorDataResult<FinancialIqResultResponse>(Messages.InvalidRiskPreference);
+
+        if (request.ImpatienceLevel < 1 || request.ImpatienceLevel > 5)
+            return new ErrorDataResult<FinancialIqResultResponse>(Messages.InvalidImpatienceLevel);
 
         var (score, segment, factorBreakdown) = CalculateScore(request);
 
@@ -66,11 +75,11 @@ public class FinancialIqManager : IFinancialIqResultService
         factorScores["CashReserveMonths"] = cashReserveMonths switch
         //switch expression used to determine the score based on cash reserve months
         {
-            >= 6 => 25,
-            //if cash reserve months is greater than or equal to 6, then the score is 25.
+            >= 6 => 20,
+            //if cash reserve months is greater than or equal to 6, then the score is 20.
 
-            >= 3 => 15,
-            >= 1 => 8,
+            >= 3 => 12,
+            >= 1 => 6,
             _ => 0
         };
         if (cashReserveMonths < 3) warnings.Add("Low cash reserve");
@@ -82,9 +91,9 @@ public class FinancialIqManager : IFinancialIqResultService
 
         factorScores["DebtToIncomeRatio"] = debtRatio switch
         {
-            <= 0.10m => 25,
-            <= 0.20m => 15,
-            <= 0.36m => 8,
+            <= 0.10m => 20,
+            <= 0.20m => 12,
+            <= 0.36m => 6,
             _ => 0
         };
         if (debtRatio > 0.36m) warnings.Add("High debt burden");
@@ -97,9 +106,9 @@ public class FinancialIqManager : IFinancialIqResultService
 
         factorScores["SavingsRate"] = savingsRate switch
         {
-            >= 0.20m => 25,
-            >= 0.10m => 15,
-            >= 0m => 8,
+            >= 0.20m => 20,
+            >= 0.10m => 12,
+            >= 0m => 6,
             _ => 0
         };
         if (savingsRate < 0) warnings.Add("Negative savings rate");
@@ -111,12 +120,53 @@ public class FinancialIqManager : IFinancialIqResultService
 
         factorScores["ExpenseRatio"] = expenseRatio switch
         {
-            <= 0.40m => 25,
-            <= 0.60m => 15,
-            <= 0.80m => 8,
+            <= 0.40m => 15,
+            <= 0.60m => 9,
+            <= 0.80m => 5,
             _ => 0
         };
         if (expenseRatio > 0.80m) warnings.Add("Overspending relative to income");
+
+        // 5) Risk alignment
+        // compares the self-reported risk preference with the risk the user's numbers can actually carry
+        var behavioralRisk = GetBehavioralRiskCapacity(cashReserveMonths, debtRatio, savingsRate);
+        var levelGap = Array.IndexOf(RiskLevels, r.RiskPreference) - Array.IndexOf(RiskLevels, behavioralRisk);
+        //levelGap > 0 means the user claims more risk than their finances allow
+        //example lets say stated is HIGH (2) and behavioral is LOW (0), then levelGap = 2 .meaning two levels overstated
+
+        factorScores["RiskAlignment"] = Math.Abs(levelGap) switch
+        {
+            0 => 15,
+            1 => 8,
+            _ => 0
+        };
+        if (levelGap > 0) warnings.Add("Stated risk preference exceeds financial capacity");
+
+        // the inconsistency flag the AI coach reads to say "you say HIGH, your numbers say LOW"
+        var riskProfile = new
+        {
+            stated = r.RiskPreference,
+            behavioral = behavioralRisk,
+            inconsistent = levelGap != 0,
+            direction = levelGap switch
+            {
+                > 0 => "OVERSTATED",
+                < 0 => "UNDERSTATED",
+                _ => "ALIGNED"
+            }
+        };
+
+        // 6) Impatience
+        // self-reported 1-5, present bias: preferring a small reward now over a bigger one later
+        factorScores["Impatience"] = r.ImpatienceLevel switch
+        {
+            1 => 10,
+            2 => 8,
+            3 => 5,
+            4 => 2,
+            _ => 0
+        };
+        if (r.ImpatienceLevel >= 4) warnings.Add("High impatience");
 
         var totalScore = (int)factorScores.Values.Sum();
 
@@ -127,9 +177,21 @@ public class FinancialIqManager : IFinancialIqResultService
             _ => "LOW"
         };
         // bundle scores + warnings into one JSON string so the AI/RAG service can explain "why" this score, not just "what"
-        var breakdown = new { factors = factorScores, warnings };
+        var breakdown = new { factors = factorScores, warnings, riskProfile };
         var factorBreakdownJson = JsonSerializer.Serialize(breakdown);
         return (totalScore, segment, factorBreakdownJson);
+    }
+
+    // thresholds reuse the warning lines of factors 1-3, so LOW means at least one of those warnings fired
+    internal static string GetBehavioralRiskCapacity(decimal cashReserveMonths, decimal debtRatio, decimal savingsRate)
+    {
+        if (cashReserveMonths < 3 || debtRatio > 0.36m || savingsRate < 0)
+            return "LOW";
+
+        if (cashReserveMonths >= 6 && debtRatio <= 0.20m && savingsRate >= 0.10m)
+            return "HIGH";
+
+        return "MEDIUM";
     }
 
     private static FinancialIqResultResponse MapToResponse(FinancialIqResult entity) => new()
