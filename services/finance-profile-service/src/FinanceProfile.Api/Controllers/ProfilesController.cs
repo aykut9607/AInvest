@@ -1,4 +1,5 @@
 using FinanceProfile.Api.Application.Abstract;
+using FinanceProfile.Api.Application.Constants;
 using FinanceProfile.Api.Domain.Entities;
 using FinanceProfile.Api.DTOs;
 using Microsoft.AspNetCore.Mvc;
@@ -73,7 +74,12 @@ public class ProfilesController : ControllerBase
         var result = await _financialProfileService.CalculateIqAsync(userId);
 
         if (!result.Success)
-            return BadRequest(result);
+        {
+            // missing profile is the caller's problem (404); anything else failed in the IQ service (502 Bad Gateway)
+            return result.Message == Messages.FinancialProfileNotFound
+                ? NotFound(result)
+                : StatusCode(StatusCodes.Status502BadGateway, result);
+        }
 
         return Ok(result);
     }

@@ -28,27 +28,33 @@ public class HealthController : ControllerBase
         });
     }
 
+    // proves the database answers; only the count is returned - health endpoints are unauthenticated,
+    // so they must not list user ids
     [HttpGet("db-check")]
     public async Task<IActionResult> DbCheck()
     {
         var count = await _context.FinancialProfiles.CountAsync();
-        var users = await _context.FinancialProfiles
-            .Select(p => p.UserId)
-            .ToListAsync();
-
-        return Ok(new { count, users });
+        return Ok(new { database = "reachable", profileCount = count });
     }
 
     [HttpGet("iq-check")]
     public async Task<IActionResult> IqCheck()
     {
-       var client = _httpClientFactory.CreateClient();
-       //creates a new instance of HttpClient using the IHttpClientFactory. 
+       // same named client as the real IQ calls, so the base URL comes from FinancialIqService:BaseUrl in appsettings
+       var client = _httpClientFactory.CreateClient("FinancialIqService");
 
-       var response = await client.GetAsync("http://localhost:5109/health");
-       //making a request to the Financial IQ service's health endpoint. It waits for the response asynchronously.Just like in JS.
-       
-       var content = await response.Content.ReadAsStringAsync();
-       return Ok(new { financeCalledIq = true, iqResponse = content });
+       try
+       {
+           var response = await client.GetAsync("/health");
+           //making a request to the Financial IQ service's health endpoint. It waits for the response asynchronously.Just like in JS.
+
+           var content = await response.Content.ReadAsStringAsync();
+           return Ok(new { financeCalledIq = true, iqStatusCode = (int)response.StatusCode, iqResponse = content });
+       }
+       catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+       {
+           return StatusCode(StatusCodes.Status503ServiceUnavailable,
+               new { financeCalledIq = false, iqBaseUrl = client.BaseAddress?.ToString(), error = ex.Message });
+       }
     }
 }

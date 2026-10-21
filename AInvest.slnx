@@ -3,6 +3,7 @@
   <Folder Name="/services/finance-profile-service/" />
   <Folder Name="/services/finance-profile-service/src/">
     <Project Path="services/finance-profile-service/src/FinanceProfile.Api/FinanceProfile.Api.csproj" />
+    <Project Path="services/finance-profile-service/src/FinanceProfile.Tests/FinanceProfile.Tests.csproj" />
   </Folder>
   <Folder Name="/services/financial-iq-service/" />
   <Folder Name="/services/financial-iq-service/src/">
