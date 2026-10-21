@@ -46,12 +46,12 @@ public class AuthService {
         user.setEmail(request.email());
         user.setPasswordHash(passwordEncoder.encode(request.password()));
         user.setCreatedAt(Instant.now());
-        issueNewRefreshToken(user);
+        String rawRefreshToken = issueNewRefreshToken(user);
 
         userRepository.save(user);
 
         String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail(), user.getRole());
-        return new AuthResponse(accessToken, currentRawRefreshToken);
+        return new AuthResponse(accessToken, rawRefreshToken);
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -62,11 +62,11 @@ public class AuthService {
             throw new InvalidCredentialsException();
         }
 
-        issueNewRefreshToken(user);
+        String rawRefreshToken = issueNewRefreshToken(user);
         userRepository.save(user);
 
         String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail(), user.getRole());
-        return new AuthResponse(accessToken, currentRawRefreshToken);
+        return new AuthResponse(accessToken, rawRefreshToken);
     }
 
     public AuthResponse refresh(RefreshRequest request) {
@@ -79,19 +79,20 @@ public class AuthService {
             throw new InvalidRefreshTokenException();
         }
 
-        issueNewRefreshToken(user);
+        String rawRefreshToken = issueNewRefreshToken(user);
         userRepository.save(user);
 
         String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail(), user.getRole());
-        return new AuthResponse(accessToken, currentRawRefreshToken);
+        return new AuthResponse(accessToken, rawRefreshToken);
     }
 
-    private String currentRawRefreshToken;
-
-    private void issueNewRefreshToken(User user) {
-        currentRawRefreshToken = generateRawRefreshToken();
-        user.setRefreshTokenHash(hashToken(currentRawRefreshToken));
+    // returns the raw token instead of keeping it in a field: this service is a singleton shared by all
+    // requests, so a field would let two concurrent logins swap each other's refresh tokens
+    private String issueNewRefreshToken(User user) {
+        String rawRefreshToken = generateRawRefreshToken();
+        user.setRefreshTokenHash(hashToken(rawRefreshToken));
         user.setRefreshTokenExpiry(Instant.now().plusMillis(refreshTokenExpirationMs));
+        return rawRefreshToken;
     }
 
     private String generateRawRefreshToken() {
