@@ -33,6 +33,12 @@ const impatienceHints: Record<number, string> = {
   5: "I want results right away",
 };
 
+// the form keeps digits only, so a saved 1250.50 (possible from web/API) must be loaded as "1251",
+// not "1250.5" - otherwise stripping the dot on save would turn it into 12505
+function toWholeAmount(value: number): string {
+  return String(Math.round(value));
+}
+
 export default function ProfileScreen({ session, onCalculated, onLogout }: Props) {
   const [form, setForm] = useState<ProfileForm>(emptyForm);
   const [loadingProfile, setLoadingProfile] = useState(true);
@@ -46,12 +52,12 @@ export default function ProfileScreen({ session, onCalculated, onLogout }: Props
       .then((profile) => {
         if (!active || !profile) return;
         setForm({
-          monthlyIncome: String(profile.monthlyIncome),
-          monthlyExpenses: String(profile.monthlyExpenses),
-          monthlyDebtPayment: String(profile.monthlyDebtPayment),
-          totalDebt: String(profile.totalDebt),
-          cashReserve: String(profile.cashReserve),
-          investmentAmount: String(profile.investmentAmount),
+          monthlyIncome: toWholeAmount(profile.monthlyIncome),
+          monthlyExpenses: toWholeAmount(profile.monthlyExpenses),
+          monthlyDebtPayment: toWholeAmount(profile.monthlyDebtPayment),
+          totalDebt: toWholeAmount(profile.totalDebt),
+          cashReserve: toWholeAmount(profile.cashReserve),
+          investmentAmount: toWholeAmount(profile.investmentAmount),
           riskPreference: profile.riskPreference,
           impatienceLevel: profile.impatienceLevel,
         });
