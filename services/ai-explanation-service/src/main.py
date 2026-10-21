@@ -30,11 +30,11 @@ class ExplainResponse(BaseModel):
 
 @app.post("/ai/explain-financial-iq")
 def explain(request: ExplainRequest):
+    # keys match the segments the Financial IQ service returns (LOW 0-40, MEDIUM 41-70, HIGH 71-100)
     templates = {
-        "STRONG": "Your financial standing looks strong, your cash reserve comfortably covers your expenses.",
-        "BALANCED": "Your financial standing is balanced, there's room for improvement in some areas such as cash reserve or debt ratio.",
-        "NEEDS_IMPROVEMENT": "Your cash reserve is low relative to your expenses, you might consider increasing your savings.",
-        "HIGH_RISK": "Your financial standing needs attention, your debt ratio and cash reserve may be priority areas to review."
+        "HIGH": "Your financial standing looks strong, your cash reserve comfortably covers your expenses.",
+        "MEDIUM": "Your financial standing is balanced, there's room for improvement in some areas such as cash reserve or debt ratio.",
+        "LOW": "Your financial standing needs attention, your debt ratio and cash reserve may be priority areas to review."
     }
     explanation = templates.get(request.segment, "Your score has been calculated. Consult your advisor for a detailed analysis.")
     return ExplainResponse(
