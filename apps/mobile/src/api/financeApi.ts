@@ -72,8 +72,8 @@ function parseBreakdown(raw: string | undefined): FactorBreakdown | null {
   }
 }
 
-// accepts a comma as the decimal separator (Turkish keyboards); empty fields count as 0
+// the form keeps digits only (see ProfileScreen), so grouping like "30.000" can't shrink to 30; empty fields count as 0
 function toNumber(value: string): number {
-  const parsed = Number(value.replace(",", "."));
+  const parsed = Number(value.replace(/\D/g, ""));
   return Number.isFinite(parsed) ? parsed : 0;
 }

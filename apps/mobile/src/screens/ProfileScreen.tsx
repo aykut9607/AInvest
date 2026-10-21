@@ -63,10 +63,12 @@ export default function ProfileScreen({ session, onCalculated, onLogout }: Props
     };
   }, [session.userId]);
 
-  const update = (key: keyof ProfileForm) => (value: string) => setForm((prev) => ({ ...prev, [key]: value }));
+  // amounts are whole numbers: keep digits only, so "30.000" or "30,000" (Turkish/English grouping) becomes 30000
+  const update = (key: keyof ProfileForm) => (value: string) =>
+    setForm((prev) => ({ ...prev, [key]: value.replace(/\D/g, "") }));
 
   const handleSubmit = async () => {
-    if (!(Number(form.monthlyIncome.replace(",", ".")) > 0)) {
+    if (!(Number(form.monthlyIncome) > 0)) {
       setError("Monthly income must be greater than zero.");
       return;
     }
@@ -102,15 +104,15 @@ export default function ProfileScreen({ session, onCalculated, onLogout }: Props
         </View>
 
         <Card title="Monthly">
-          <Field label="Income" value={form.monthlyIncome} onChangeText={update("monthlyIncome")} keyboardType="numeric" placeholder="e.g. 50000" />
-          <Field label="Expenses" value={form.monthlyExpenses} onChangeText={update("monthlyExpenses")} keyboardType="numeric" placeholder="e.g. 25000" />
-          <Field label="Debt payment" value={form.monthlyDebtPayment} onChangeText={update("monthlyDebtPayment")} keyboardType="numeric" placeholder="e.g. 5000" />
+          <Field label="Income" value={form.monthlyIncome} onChangeText={update("monthlyIncome")} keyboardType="number-pad" placeholder="e.g. 50000" />
+          <Field label="Expenses" value={form.monthlyExpenses} onChangeText={update("monthlyExpenses")} keyboardType="number-pad" placeholder="e.g. 25000" />
+          <Field label="Debt payment" value={form.monthlyDebtPayment} onChangeText={update("monthlyDebtPayment")} keyboardType="number-pad" placeholder="e.g. 5000" />
         </Card>
 
         <Card title="Balances">
-          <Field label="Total debt" value={form.totalDebt} onChangeText={update("totalDebt")} keyboardType="numeric" placeholder="e.g. 100000" />
-          <Field label="Cash reserve" value={form.cashReserve} onChangeText={update("cashReserve")} keyboardType="numeric" placeholder="e.g. 30000" />
-          <Field label="Investments" value={form.investmentAmount} onChangeText={update("investmentAmount")} keyboardType="numeric" placeholder="e.g. 10000" />
+          <Field label="Total debt" value={form.totalDebt} onChangeText={update("totalDebt")} keyboardType="number-pad" placeholder="e.g. 100000" />
+          <Field label="Cash reserve" value={form.cashReserve} onChangeText={update("cashReserve")} keyboardType="number-pad" placeholder="e.g. 30000" />
+          <Field label="Investments" value={form.investmentAmount} onChangeText={update("investmentAmount")} keyboardType="number-pad" placeholder="e.g. 10000" />
         </Card>
 
         <Card title="About you">

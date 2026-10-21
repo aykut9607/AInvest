@@ -24,6 +24,11 @@ export default function AuthScreen({ onAuthenticated }: Props) {
       setError("Email and password are required.");
       return;
     }
+    // same rule as the Identity service (8-72 characters), checked here to save a round trip
+    if (!isLogin && (password.length < 8 || password.length > 72)) {
+      setError("Password must be between 8 and 72 characters.");
+      return;
+    }
 
     setLoading(true);
     setError("");
