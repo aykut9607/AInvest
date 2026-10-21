@@ -42,6 +42,10 @@ public class FinancialProfileManager : IFinancialProfileService
 
    public async Task<IResult> UpsertAsync(string id, UpsertFinancialProfileRequest request)
     {
+        // the id comes from the URL; longer than the column would make the insert fail with a 500
+        if (string.IsNullOrWhiteSpace(id) || id.Length > FinancialProfile.UserIdMaxLength)
+         return new ErrorResult(Messages.InvalidUserId);
+
         if(request.MonthlyIncome <= 0)
          return new ErrorResult(Messages.InvalidMonthlyIncome);
 

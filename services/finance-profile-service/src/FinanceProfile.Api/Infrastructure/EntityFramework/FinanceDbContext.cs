@@ -31,7 +31,7 @@ public class FinanceDbContext : DbContext
             entity.HasIndex(p => p.UserId).IsUnique().HasDatabaseName("financial_profiles_user_id_key");
 
             entity.Property(p => p.Id).HasColumnName("id").HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(p => p.UserId).HasColumnName("user_id").HasMaxLength(100);
+            entity.Property(p => p.UserId).HasColumnName("user_id").HasMaxLength(FinancialProfile.UserIdMaxLength);
             entity.Property(p => p.MonthlyIncome).HasColumnName("monthly_income").HasPrecision(18, 2);
             entity.Property(p => p.MonthlyExpenses).HasColumnName("monthly_expenses").HasPrecision(18, 2);
             entity.Property(p => p.MonthlyDebtPayment).HasColumnName("monthly_debt_payment").HasPrecision(18, 2);

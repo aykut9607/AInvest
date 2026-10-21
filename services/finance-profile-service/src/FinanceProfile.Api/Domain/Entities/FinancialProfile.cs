@@ -4,6 +4,9 @@ namespace FinanceProfile.Api.Domain.Entities;
 
 public class FinancialProfile:IEntity
 {
+    // single source for the user_id column size (DbContext) and the validation rule (FinancialProfileManager)
+    public const int UserIdMaxLength = 100;
+
     public Guid Id { get; set; }
     public string UserId { get; set; } = string.Empty;
     public decimal MonthlyIncome { get; set; }
