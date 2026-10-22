@@ -74,8 +74,6 @@ export default function AuthScreen({ onAuthenticated }: Props) {
             setError("");
           }}
         />
-
-        <Text style={styles.footnote}>Identity Service · Spring Boot · JWT</Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -89,5 +87,4 @@ const styles = StyleSheet.create({
   tagline: { fontSize: 15, color: colors.muted, marginTop: spacing.xs },
   heading: { fontSize: 22, fontWeight: "700", color: colors.text, marginBottom: spacing.lg },
   error: { color: colors.danger, marginBottom: spacing.sm },
-  footnote: { textAlign: "center", color: colors.muted, fontSize: 12, marginTop: spacing.xl },
 });
