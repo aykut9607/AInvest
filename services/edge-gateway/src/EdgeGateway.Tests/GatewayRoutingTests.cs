@@ -69,4 +69,45 @@ public class GatewayRoutingTests : IClassFixture<GatewayFactory>
 
         Assert.Equal("test-123", response.Headers.GetValues("X-Correlation-ID").Single());
     }
+
+    [Theory]
+    [InlineData("has spaces and <script>")]
+    [InlineData("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
+    public async Task UnsafeCorrelationId_IsReplacedWithAFreshOne(string unsafeId)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get, "/health");
+        request.Headers.TryAddWithoutValidation("X-Correlation-ID", unsafeId);
+
+        var response = await _client.SendAsync(request);
+
+        var returned = response.Headers.GetValues("X-Correlation-ID").Single();
+        Assert.NotEqual(unsafeId, returned);
+        Assert.True(Guid.TryParse(returned, out _));
+    }
+
+    [Fact]
+    public async Task BrowserPreflightFromTheReactOrigin_IsAllowed_WithoutAToken()
+    {
+        var preflight = new HttpRequestMessage(HttpMethod.Options, "/api/Profiles/u1");
+        preflight.Headers.Add("Origin", "http://localhost:5173");
+        preflight.Headers.Add("Access-Control-Request-Method", "PUT");
+        preflight.Headers.Add("Access-Control-Request-Headers", "authorization,content-type");
+
+        var response = await _client.SendAsync(preflight);
+
+        Assert.True(response.IsSuccessStatusCode);
+        Assert.Equal("http://localhost:5173", response.Headers.GetValues("Access-Control-Allow-Origin").Single());
+    }
+
+    [Fact]
+    public async Task BrowserPreflightFromAnUnknownOrigin_GetsNoCorsPermission()
+    {
+        var preflight = new HttpRequestMessage(HttpMethod.Options, "/api/Profiles/u1");
+        preflight.Headers.Add("Origin", "http://evil.example");
+        preflight.Headers.Add("Access-Control-Request-Method", "PUT");
+
+        var response = await _client.SendAsync(preflight);
+
+        Assert.False(response.Headers.Contains("Access-Control-Allow-Origin"));
+    }
 }

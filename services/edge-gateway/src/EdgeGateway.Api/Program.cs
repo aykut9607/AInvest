@@ -12,6 +12,9 @@ var jwt = builder.Configuration.GetSection("Jwt");
 var secret = jwt["Secret"];
 if (string.IsNullOrWhiteSpace(secret))
     throw new InvalidOperationException("Jwt:Secret is missing. Set it with: dotnet user-secrets set \"Jwt:Secret\" \"<same value as Identity's JWT_SECRET>\"");
+// HS512 needs a key of at least 64 bytes; a shorter one would only fail later, on every request, with a 500
+if (Encoding.UTF8.GetByteCount(secret) < 64)
+    throw new InvalidOperationException("Jwt:Secret must be at least 64 bytes long for HS512 (same value as Identity's JWT_SECRET).");
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -75,6 +78,15 @@ builder.Services.AddRateLimiter(options =>
     };
 });
 
+// browsers only let a web page on another origin (React on :5173) call the gateway if the gateway allows that origin.
+// This is a browser rule, not a security control: curl or Postman ignore it; the token check above protects the API
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy
+    .WithOrigins(allowedOrigins)
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .WithExposedHeaders(CorrelationIdMiddleware.HeaderName, "Retry-After")));
+
 // YARP reads the routes and clusters from appsettings.json ("ReverseProxy" section)
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
@@ -93,7 +105,9 @@ var app = builder.Build();
 
 app.UseMiddleware<CorrelationIdMiddleware>();
 
-// order matters: first find out who the caller is, then check what they may do, then forward
+// order matters: CORS first, so a browser's preflight (OPTIONS, sent without a token) is answered
+// instead of being rejected as 401; then find out who the caller is, check what they may do, then forward
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseRateLimiter();
