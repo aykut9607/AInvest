@@ -1,17 +1,14 @@
-using System.Linq.Expressions;
 using FinancialIQ.Api.Application.Concrete;
 using FinancialIQ.Api.Application.Constants;
 using FinancialIQ.Api.Domain.Dtos;
-using FinancialIQ.Api.Domain.Entities;
-using FinancialIQ.Api.Infrastructure.Abstract;
 
 namespace FinancialIQ.Tests;
 
-// input checks and result handling of GetHistoryAsync; the trend query itself (dbo.fn_IqTrend) runs in SQL Server
+// input checks and result handling of GetHistoryAsync (query side); the trend query itself (dbo.fn_IqTrend) runs in SQL Server
 public class GetHistoryTests
 {
-    private readonly FakeTrendDal _dal = new();
-    private FinancialIqManager Manager => new(_dal);
+    private readonly FakeReadDal _dal = new();
+    private FinancialIqQueryManager Manager => new(_dal);
 
     [Theory]
     [InlineData(0)]
@@ -54,26 +51,5 @@ public class GetHistoryTests
         Assert.Equal(2, result.Data!.Count);
         Assert.Equal(-68, result.Data[1].ScoreChange);
         Assert.Equal(("u1", 5), (_dal.LastRequestedUserId, _dal.LastRequestedTake));
-    }
-
-    private sealed class FakeTrendDal : IFinancialIqResultDal
-    {
-        public List<IqTrendPointResponse> Points { get; } = new();
-        public string? LastRequestedUserId { get; private set; }
-        public int LastRequestedTake { get; private set; }
-
-        public Task<List<IqTrendPointResponse>> GetTrendAsync(string userId, int take)
-        {
-            LastRequestedUserId = userId;
-            LastRequestedTake = take;
-            return Task.FromResult(Points.ToList());
-        }
-
-        public Task SaveAsync(FinancialIqResult entity) => throw new NotSupportedException();
-        public Task<FinancialIqResult?> GetAsync(Expression<Func<FinancialIqResult, bool>> filter) => throw new NotSupportedException();
-        public Task<List<FinancialIqResult>> GetAllAsync(Expression<Func<FinancialIqResult, bool>>? filter = null) => throw new NotSupportedException();
-        public Task AddAsync(FinancialIqResult entity) => throw new NotSupportedException();
-        public Task UpdateAsync(FinancialIqResult entity) => throw new NotSupportedException();
-        public Task DeleteAsync(FinancialIqResult entity) => throw new NotSupportedException();
     }
 }

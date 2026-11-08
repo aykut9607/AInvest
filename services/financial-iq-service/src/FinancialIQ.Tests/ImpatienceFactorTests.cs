@@ -25,7 +25,7 @@ public class ImpatienceFactorTests
     [InlineData(5, 0)]
     public void ImpatienceLevel_ShouldMapToPoints(int level, int expectedPoints)
     {
-        var (_, _, factorBreakdown) = FinancialIqManager.CalculateScore(WithImpatience(level));
+        var (_, _, factorBreakdown) = FinancialIqCommandManager.CalculateScore(WithImpatience(level));
 
         using var json = JsonDocument.Parse(factorBreakdown);
         var points = json.RootElement.GetProperty("factors").GetProperty("Impatience").GetInt32();
@@ -38,7 +38,7 @@ public class ImpatienceFactorTests
     [InlineData(5, true)]
     public void HighImpatience_ShouldAddWarningFromLevelFour(int level, bool expectWarning)
     {
-        var (_, _, factorBreakdown) = FinancialIqManager.CalculateScore(WithImpatience(level));
+        var (_, _, factorBreakdown) = FinancialIqCommandManager.CalculateScore(WithImpatience(level));
 
         using var json = JsonDocument.Parse(factorBreakdown);
         var warnings = json.RootElement.GetProperty("warnings").EnumerateArray().Select(w => w.GetString());
@@ -58,7 +58,7 @@ public class ImpatienceFactorTests
             CashReserve = 24000
         };
 
-        var (score, _, factorBreakdown) = FinancialIqManager.CalculateScore(request);
+        var (score, _, factorBreakdown) = FinancialIqCommandManager.CalculateScore(request);
 
         using var json = JsonDocument.Parse(factorBreakdown);
         Assert.Equal("MEDIUM", json.RootElement.GetProperty("riskProfile").GetProperty("stated").GetString());

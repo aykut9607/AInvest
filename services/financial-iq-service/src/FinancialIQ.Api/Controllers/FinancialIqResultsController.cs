@@ -9,18 +9,21 @@ namespace FinancialIQ.Api.Controllers;
 [ApiController]
 public class FinancialIqResultsController : ControllerBase
 {
-    private readonly IFinancialIqResultService _service;
+    // CQRS-lite: writes go to the command service, reads to the query service
+    private readonly IFinancialIqCommandService _commands;
+    private readonly IFinancialIqQueryService _queries;
 
-    public FinancialIqResultsController(IFinancialIqResultService service)
+    public FinancialIqResultsController(IFinancialIqCommandService commands, IFinancialIqQueryService queries)
     {
-        _service = service;
+        _commands = commands;
+        _queries = queries;
     }
 
     // Command — calculates and saves the score
     [HttpPost("calculate")]
     public async Task<IActionResult> Calculate(CalculateRequest request)
     {
-        var result = await _service.CalculateAsync(request);
+        var result = await _commands.CalculateAsync(request);
 
         if (!result.Success)
             return BadRequest(result);
@@ -32,10 +35,12 @@ public class FinancialIqResultsController : ControllerBase
     [HttpGet("{userId}/latest")]
     public async Task<IActionResult> GetLatest(string userId)
     {
-        var result = await _service.GetLatestAsync(userId);
+        var result = await _queries.GetLatestAsync(userId);
 
         if (!result.Success)
-            return NotFound(result);
+            return result.Message == Messages.FinancialIqResultNotFound
+                ? NotFound(result)
+                : BadRequest(result);
 
         return Ok(result);
     }
@@ -44,7 +49,7 @@ public class FinancialIqResultsController : ControllerBase
     [HttpGet("{userId}/history")]
     public async Task<IActionResult> GetHistory(string userId, [FromQuery] int take = 12)
     {
-        var result = await _service.GetHistoryAsync(userId, take);
+        var result = await _queries.GetHistoryAsync(userId, take);
 
         if (!result.Success)
             return result.Message == Messages.FinancialIqHistoryNotFound

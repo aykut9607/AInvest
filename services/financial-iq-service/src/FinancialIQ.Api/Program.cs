@@ -11,8 +11,11 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<FinancialIqDbContext >(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("FinancialIqDb")));
 
+// CQRS-lite: write side (command) and read side (query) are registered separately
 builder.Services.AddScoped<IFinancialIqResultDal, EfFinancialIqResultDal>();
-builder.Services.AddScoped<IFinancialIqResultService, FinancialIqManager>();
+builder.Services.AddScoped<IFinancialIqCommandService, FinancialIqCommandManager>();
+builder.Services.AddScoped<IFinancialIqReadDal, EfFinancialIqReadDal>();
+builder.Services.AddScoped<IFinancialIqQueryService, FinancialIqQueryManager>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

@@ -19,7 +19,7 @@ public class FinancialIqManagerTests
             CashReserve = 60000
         };
 
-        var (score, segment, factorBreakdown) = FinancialIqManager.CalculateScore(request);
+        var (score, segment, factorBreakdown) = FinancialIqCommandManager.CalculateScore(request);
 
         Assert.Equal("MEDIUM", segment);
     }
@@ -36,7 +36,7 @@ public class FinancialIqManagerTests
             CashReserve = 5000
         };
 
-        var (score, segment, factorBreakdown) = FinancialIqManager.CalculateScore(request);
+        var (score, segment, factorBreakdown) = FinancialIqCommandManager.CalculateScore(request);
 
         Assert.Equal("LOW", segment);
     }
@@ -53,7 +53,7 @@ public class FinancialIqManagerTests
             CashReserve = 5000   // 5000/20000 = 0.25 months - less than 1 month
         };
 
-        var (score, segment, factorBreakdown) = FinancialIqManager.CalculateScore(request);
+        var (score, segment, factorBreakdown) = FinancialIqCommandManager.CalculateScore(request);
 
         // checking the specific factor directly, not the overall segment -
         // the other 3 factors can be strong enough to offset a weak cash reserve in the total score
@@ -74,7 +74,7 @@ public class FinancialIqManagerTests
             CashReserve = 30000
         };
 
-        var exception = Record.Exception(() => FinancialIqManager.CalculateScore(request));
+        var exception = Record.Exception(() => FinancialIqCommandManager.CalculateScore(request));
 
         Assert.Null(exception);
     }
@@ -92,7 +92,7 @@ public class FinancialIqManagerTests
             RiskPreference = "HIGH"
         };
 
-        var (_, _, factorBreakdown) = FinancialIqManager.CalculateScore(request);
+        var (_, _, factorBreakdown) = FinancialIqCommandManager.CalculateScore(request);
 
         // previously 0 expenses meant "0 months of reserve": cash factor 0, capacity LOW and a false OVERSTATED flag
         using var json = JsonDocument.Parse(factorBreakdown);
@@ -116,7 +116,7 @@ public class FinancialIqManagerTests
             ImpatienceLevel = 1
         };
 
-        var (score, segment, factorBreakdown) = FinancialIqManager.CalculateScore(request);
+        var (score, segment, factorBreakdown) = FinancialIqCommandManager.CalculateScore(request);
 
         Assert.Equal(100, score);
         Assert.Equal("HIGH", segment);

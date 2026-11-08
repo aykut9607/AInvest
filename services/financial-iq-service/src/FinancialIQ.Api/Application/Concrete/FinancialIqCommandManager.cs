@@ -8,43 +8,17 @@ using System.Text.Json;
 
 namespace FinancialIQ.Api.Application.Concrete;
 
-public class FinancialIqManager : IFinancialIqResultService
+// CQRS-lite write side: validation, the scoring rules and saving. The reads are in FinancialIqQueryManager.
+public class FinancialIqCommandManager : IFinancialIqCommandService
 {
     private readonly IFinancialIqResultDal _dal;
 
     // ordered low -> high, the index is used as the risk "level" when comparing stated vs behavioral risk
     private static readonly string[] RiskLevels = { "LOW", "MEDIUM", "HIGH" };
 
-    // upper limit for one history request, so a caller cannot ask for an unbounded result set
-    private const int MaxHistoryTake = 100;
-
-    public FinancialIqManager(IFinancialIqResultDal dal)
+    public FinancialIqCommandManager(IFinancialIqResultDal dal)
     {
         _dal = dal;
-    }
-
-    public async Task<IDataResult<FinancialIqResultResponse>> GetLatestAsync(string userId)
-    {
-        var result = await _dal.GetAsync(x => x.UserId == userId);
-        if (result == null)
-            return new ErrorDataResult<FinancialIqResultResponse>(Messages.FinancialIqResultNotFound);
-
-        return new SuccessDataResult<FinancialIqResultResponse>(MapToResponse(result), Messages.FinancialIqResultRetrieved);
-    }
-
-    public async Task<IDataResult<List<IqTrendPointResponse>>> GetHistoryAsync(string userId, int take)
-    {
-        if (string.IsNullOrWhiteSpace(userId) || userId.Length > FinancialIqResult.UserIdMaxLength)
-            return new ErrorDataResult<List<IqTrendPointResponse>>(Messages.InvalidUserId);
-
-        if (take < 1 || take > MaxHistoryTake)
-            return new ErrorDataResult<List<IqTrendPointResponse>>(Messages.InvalidHistoryTake);
-
-        var points = await _dal.GetTrendAsync(userId, take);
-        if (points.Count == 0)
-            return new ErrorDataResult<List<IqTrendPointResponse>>(Messages.FinancialIqHistoryNotFound);
-
-        return new SuccessDataResult<List<IqTrendPointResponse>>(points, Messages.FinancialIqHistoryRetrieved);
     }
 
     public async Task<IDataResult<FinancialIqResultResponse>> CalculateAsync(CalculateRequest request)
