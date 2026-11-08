@@ -1,4 +1,5 @@
 using System.Data;
+using FinancialIQ.Api.Domain.Dtos;
 using FinancialIQ.Api.Domain.Entities;
 using FinancialIQ.Api.Infrastructure.Abstract;
 using Microsoft.Data.SqlClient;
@@ -28,5 +29,22 @@ public class EfFinancialIqResultDal : EfEntityRepositoryBase<FinancialIqResult, 
         await _context.Database.ExecuteSqlRawAsync(
             "EXEC dbo.usp_SaveIqResult @UserId, @Score, @Segment, @FactorBreakdown",
             parameters);
+    }
+
+    public async Task<List<IqTrendPointResponse>> GetTrendAsync(string userId, int take)
+    {
+        // the interpolated values become SQL parameters (@p0, @p1), not text. The aliases match the DTO's property
+        // names so EF can fill it; the extra ORDER BY is composed on top because the function itself returns a set
+        return await _context.Database
+            .SqlQuery<IqTrendPointResponse>($@"
+                SELECT calculated_at AS CalculatedAt,
+                       score         AS Score,
+                       segment       AS Segment,
+                       score_change  AS ScoreChange,
+                       moving_avg_3  AS MovingAverage3
+                FROM dbo.fn_IqTrend({userId})
+                WHERE recency_rank <= {take}")
+            .OrderBy(p => p.CalculatedAt)
+            .ToListAsync();
     }
 }

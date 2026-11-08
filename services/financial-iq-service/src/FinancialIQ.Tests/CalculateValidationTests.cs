@@ -81,6 +81,7 @@ public class CalculateValidationTests
         public Task<List<FinancialIqResult>> GetAllAsync(Expression<Func<FinancialIqResult, bool>>? filter = null)
             => Task.FromResult(filter == null ? Stored.ToList() : Stored.AsQueryable().Where(filter).ToList());
 
+        public Task<List<IqTrendPointResponse>> GetTrendAsync(string userId, int take) => throw new NotSupportedException();
         public Task AddAsync(FinancialIqResult entity) => throw new NotSupportedException();
         public Task UpdateAsync(FinancialIqResult entity) => throw new NotSupportedException();
         public Task DeleteAsync(FinancialIqResult entity) => throw new NotSupportedException();

@@ -10,4 +10,7 @@ public static class Messages
     public const string InvalidUserId = "User id is required and must be at most 100 characters.";
     public const string InvalidRiskPreference = "Risk preference must be one of LOW, MEDIUM, HIGH.";
     public const string InvalidImpatienceLevel = "Impatience level must be between 1 and 5.";
+    public const string FinancialIqHistoryNotFound = "No Financial IQ history found for this user.";
+    public const string FinancialIqHistoryRetrieved = "Financial IQ history retrieved successfully.";
+    public const string InvalidHistoryTake = "Take must be between 1 and 100.";
 }

@@ -7,4 +7,5 @@ public interface IFinancialIqResultService
 {
     Task<IDataResult<FinancialIqResultResponse>> GetLatestAsync(string userId);
     Task<IDataResult<FinancialIqResultResponse>> CalculateAsync(CalculateRequest request);
+    Task<IDataResult<List<IqTrendPointResponse>>> GetHistoryAsync(string userId, int take);
 }

@@ -1,4 +1,5 @@
 using FinancialIQ.Api.Application.Abstract;
+using FinancialIQ.Api.Application.Constants;
 using FinancialIQ.Api.Domain.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
@@ -35,6 +36,20 @@ public class FinancialIqResultsController : ControllerBase
 
         if (!result.Success)
             return NotFound(result);
+
+        return Ok(result);
+    }
+
+    // Query — score history for a trend chart, oldest first
+    [HttpGet("{userId}/history")]
+    public async Task<IActionResult> GetHistory(string userId, [FromQuery] int take = 12)
+    {
+        var result = await _service.GetHistoryAsync(userId, take);
+
+        if (!result.Success)
+            return result.Message == Messages.FinancialIqHistoryNotFound
+                ? NotFound(result)
+                : BadRequest(result);
 
         return Ok(result);
     }
