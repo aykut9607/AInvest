@@ -1,0 +1,19 @@
+@MarketData = http://localhost:8082
+
+### 1. USD -> TRY (200)
+GET {{MarketData}}/api/market/fx?base=USD&symbol=TRY
+
+### 2. lower case is accepted (200, EUR/USD)
+GET {{MarketData}}/api/market/fx?base=eur&symbol=usd
+
+### 3. bad code: rejected before any outside call (400)
+GET {{MarketData}}/api/market/fx?base=US1&symbol=TRY
+
+### 4. unknown currency: the provider answers 404, not retried (400)
+GET {{MarketData}}/api/market/fx?base=USD&symbol=XYZ
+
+### 5. circuit breaker state (CLOSED / OPEN / HALF_OPEN) inside health
+GET {{MarketData}}/actuator/health
+
+### 6. circuit breaker details
+GET {{MarketData}}/actuator/circuitbreakers

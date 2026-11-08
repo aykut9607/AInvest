@@ -27,14 +27,12 @@ public class HealthController : ControllerBase
     }
 
 
+    // proves the database answers; only the count is returned - health endpoints are unauthenticated,
+    // so they must not list user ids (same rule as Finance Profile's db-check)
     [HttpGet("db-check")]
     public async Task<IActionResult> DbCheck()
     {
         var count = await _context.FinancialIqResults.CountAsync();
-        var users = await _context.FinancialIqResults
-            .Select(p => p.UserId)
-            .ToListAsync();
-
-        return Ok(new { count, users });
+        return Ok(new { database = "reachable", resultCount = count });
     }
 }

@@ -10,6 +10,7 @@ import com.ainvest.identity.exception.EmailAlreadyExistsException;
 import com.ainvest.identity.exception.InvalidCredentialsException;
 import com.ainvest.identity.exception.InvalidRefreshTokenException;
 import com.ainvest.identity.infrastructure.repository.UserRepository;
+import com.ainvest.identity.logging.SecurityEventLogger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,18 +28,22 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final SecurityEventLogger securityEvents;
 
     @Value("${jwt.refresh-token-expiration-ms}")
     private long refreshTokenExpirationMs;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService,
+                       SecurityEventLogger securityEvents) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.securityEvents = securityEvents;
     }
 
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.findByEmail(request.email()).isPresent()) {
+            securityEvents.registrationRejected(request.email(), "email-already-registered");
             throw new EmailAlreadyExistsException(request.email());
         }
 
@@ -49,21 +54,27 @@ public class AuthService {
         String rawRefreshToken = issueNewRefreshToken(user);
 
         userRepository.save(user);
+        securityEvents.registered(user.getId(), user.getEmail());
 
         String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail(), user.getRole());
         return new AuthResponse(accessToken, rawRefreshToken);
     }
 
     public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.email())
-                .orElseThrow(InvalidCredentialsException::new);
+        User user = userRepository.findByEmail(request.email()).orElse(null);
+        if (user == null) {
+            securityEvents.loginFailed(request.email(), "unknown-email");
+            throw new InvalidCredentialsException();
+        }
 
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+            securityEvents.loginFailed(request.email(), "wrong-password");
             throw new InvalidCredentialsException();
         }
 
         String rawRefreshToken = issueNewRefreshToken(user);
         userRepository.save(user);
+        securityEvents.loginSucceeded(user.getId(), user.getEmail());
 
         String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail(), user.getRole());
         return new AuthResponse(accessToken, rawRefreshToken);
@@ -72,15 +83,20 @@ public class AuthService {
     public AuthResponse refresh(RefreshRequest request) {
         String incomingHash = hashToken(request.refreshToken());
 
-        User user = userRepository.findByRefreshTokenHash(incomingHash)
-                .orElseThrow(InvalidRefreshTokenException::new);
+        User user = userRepository.findByRefreshTokenHash(incomingHash).orElse(null);
+        if (user == null) {
+            securityEvents.refreshRejected("unknown-or-already-rotated-token");
+            throw new InvalidRefreshTokenException();
+        }
 
         if (user.getRefreshTokenExpiry() == null || Instant.now().isAfter(user.getRefreshTokenExpiry())) {
+            securityEvents.refreshRejected("expired-token");
             throw new InvalidRefreshTokenException();
         }
 
         String rawRefreshToken = issueNewRefreshToken(user);
         userRepository.save(user);
+        securityEvents.refreshSucceeded(user.getId());
 
         String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail(), user.getRole());
         return new AuthResponse(accessToken, rawRefreshToken);

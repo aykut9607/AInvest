@@ -11,7 +11,7 @@ namespace FinancialIQ.Tests;
 public class CalculateValidationTests
 {
     private readonly FakeResultDal _dal = new();
-    private FinancialIqManager Manager => new(_dal);
+    private FinancialIqCommandManager Manager => new(_dal);
 
     private static CalculateRequest Request(string userId) => new()
     {
@@ -68,7 +68,7 @@ public class CalculateValidationTests
     {
         public List<FinancialIqResult> Stored { get; } = new();
 
-        public Task UpsertAsync(FinancialIqResult entity)
+        public Task SaveAsync(FinancialIqResult entity)
         {
             Stored.RemoveAll(r => r.UserId == entity.UserId);
             Stored.Add(entity);

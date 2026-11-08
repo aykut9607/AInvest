@@ -44,7 +44,8 @@ namespace FinancialIQ.Api.Migrations
 
                     b.Property<string>("Segment")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
                         .HasColumnName("segment");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -53,12 +54,67 @@ namespace FinancialIQ.Api.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("user_id");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_financial_iq_results_user_id");
+
                     b.ToTable("financial_iq_results", (string)null);
+                });
+
+            modelBuilder.Entity("FinancialIQ.Api.Domain.Entities.IqHistory", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CalculatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2(3)")
+                        .HasColumnName("calculated_at")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
+
+                    b.Property<string>("FactorBreakdown")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("factor_breakdown");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int")
+                        .HasColumnName("score");
+
+                    b.Property<string>("Segment")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasColumnName("segment");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "CalculatedAt")
+                        .IsDescending(false, true)
+                        .HasDatabaseName("IX_iq_history_user_id_calculated_at");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("UserId", "CalculatedAt"), new[] { "Score", "Segment" });
+
+                    b.ToTable("iq_history", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_iq_history_score", "[score] BETWEEN 0 AND 100");
+                        });
                 });
 #pragma warning restore 612, 618
         }

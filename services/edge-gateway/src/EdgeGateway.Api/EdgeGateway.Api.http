@@ -1,0 +1,57 @@
+@Gateway = http://localhost:5000
+@Email = gateway-demo@ainvest.dev
+@Password = GatewayDemo!2026
+
+### 1) Register through the gateway (anonymous route); run once, later use 2) login
+POST {{Gateway}}/auth/register
+Content-Type: application/json
+
+{ "email": "{{Email}}", "password": "{{Password}}" }
+
+### 2) Login through the gateway (rate limited: 5 per minute per IP, the 6th gets 429)
+# @name login
+POST {{Gateway}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{Email}}", "password": "{{Password}}" }
+
+###
+# the token comes from the login response above. The user id is the token's "sub":
+# paste the access token into jwt.io (or decode the middle part) and copy "sub" here
+@Token = {{login.response.body.accessToken}}
+@UserId = paste-sub-from-the-token-here
+
+### 3) Save own profile (sameUser policy: the {userId} must be the token's sub)
+PUT {{Gateway}}/api/Profiles/{{UserId}}
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "monthlyIncome": 30000,
+  "monthlyExpenses": 25000,
+  "monthlyDebtPayment": 7000,
+  "totalDebt": 90000,
+  "cashReserve": 3000,
+  "investmentAmount": 10000,
+  "riskPreference": "HIGH",
+  "impatienceLevel": 5
+}
+
+### 4) Calculate IQ: gateway -> Finance -> (Polly) -> IQ -> usp_SaveIqResult
+POST {{Gateway}}/api/Profiles/{{UserId}}/calculate-iq
+Authorization: Bearer {{Token}}
+
+### 5) Score history (fn_IqTrend: LAG, moving average)
+GET {{Gateway}}/api/financial-iq/{{UserId}}/history?take=12
+Authorization: Bearer {{Token}}
+
+### 6) Someone else's profile with my token -> 403 (BOLA protection)
+GET {{Gateway}}/api/Profiles/demo-user-1
+Authorization: Bearer {{Token}}
+
+### 7) No token -> 401
+GET {{Gateway}}/api/Profiles/{{UserId}}
+
+### 8) Listing every profile is not routed -> 404
+GET {{Gateway}}/api/Profiles
+Authorization: Bearer {{Token}}

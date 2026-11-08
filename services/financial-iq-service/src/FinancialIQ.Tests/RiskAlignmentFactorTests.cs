@@ -31,7 +31,7 @@ public class RiskAlignmentFactorTests
 
     private static JsonElement Breakdown(CalculateRequest request)
     {
-        var (_, _, factorBreakdown) = FinancialIqManager.CalculateScore(request);
+        var (_, _, factorBreakdown) = FinancialIqCommandManager.CalculateScore(request);
         return JsonDocument.Parse(factorBreakdown).RootElement.Clone();
     }
 
@@ -87,7 +87,7 @@ public class RiskAlignmentFactorTests
     [InlineData(6, 0.20, 0.10, "HIGH")]     // exactly on every HIGH threshold
     public void BehavioralCapacity_ShouldFollowThresholds(double months, double debtRatio, double savingsRate, string expected)
     {
-        var capacity = FinancialIqManager.GetBehavioralRiskCapacity((decimal)months, (decimal)debtRatio, (decimal)savingsRate);
+        var capacity = FinancialIqCommandManager.GetBehavioralRiskCapacity((decimal)months, (decimal)debtRatio, (decimal)savingsRate);
 
         Assert.Equal(expected, capacity);
     }

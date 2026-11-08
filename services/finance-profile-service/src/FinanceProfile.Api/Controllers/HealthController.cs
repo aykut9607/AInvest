@@ -1,6 +1,8 @@
 using FinanceProfile.Api.Infrastructure.EntityFramework;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Polly.CircuitBreaker;
+using Polly.Timeout;
 
 namespace FinanceProfile.Api.Controllers;
 
@@ -51,7 +53,10 @@ public class HealthController : ControllerBase
            var content = await response.Content.ReadAsStringAsync();
            return Ok(new { financeCalledIq = true, iqStatusCode = (int)response.StatusCode, iqResponse = content });
        }
-       catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+       // the named client goes through the Polly pipeline, so "IQ unreachable" can also arrive as a timeout
+       // after the retries or as an open circuit - all of them mean 503 here, not a crash (500)
+       catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
+                                      or TimeoutRejectedException or BrokenCircuitException)
        {
            return StatusCode(StatusCodes.Status503ServiceUnavailable,
                new { financeCalledIq = false, iqBaseUrl = client.BaseAddress?.ToString(), error = ex.Message });

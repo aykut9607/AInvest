@@ -8,34 +8,23 @@ using System.Text.Json;
 
 namespace FinancialIQ.Api.Application.Concrete;
 
-public class FinancialIqManager : IFinancialIqResultService
+// CQRS-lite write side: validation, the scoring rules and saving. The reads are in FinancialIqQueryManager.
+public class FinancialIqCommandManager : IFinancialIqCommandService
 {
     private readonly IFinancialIqResultDal _dal;
 
     // ordered low -> high, the index is used as the risk "level" when comparing stated vs behavioral risk
     private static readonly string[] RiskLevels = { "LOW", "MEDIUM", "HIGH" };
 
-    // same limit as Finance Profile's user_id column; the IQ column itself gets its size in the T-SQL phase
-    private const int UserIdMaxLength = 100;
-
-    public FinancialIqManager(IFinancialIqResultDal dal)
+    public FinancialIqCommandManager(IFinancialIqResultDal dal)
     {
         _dal = dal;
-    }
-
-    public async Task<IDataResult<FinancialIqResultResponse>> GetLatestAsync(string userId)
-    {
-        var result = await _dal.GetAsync(x => x.UserId == userId);
-        if (result == null)
-            return new ErrorDataResult<FinancialIqResultResponse>(Messages.FinancialIqResultNotFound);
-
-        return new SuccessDataResult<FinancialIqResultResponse>(MapToResponse(result), Messages.FinancialIqResultRetrieved);
     }
 
     public async Task<IDataResult<FinancialIqResultResponse>> CalculateAsync(CalculateRequest request)
     {
         // without a user id the result could not be found again (and empty ids would all share one row)
-        if (string.IsNullOrWhiteSpace(request.UserId) || request.UserId.Length > UserIdMaxLength)
+        if (string.IsNullOrWhiteSpace(request.UserId) || request.UserId.Length > FinancialIqResult.UserIdMaxLength)
             return new ErrorDataResult<FinancialIqResultResponse>(Messages.InvalidUserId);
 
         if (request.MonthlyIncome <= 0)
@@ -59,7 +48,7 @@ public class FinancialIqManager : IFinancialIqResultService
             UpdatedAt = DateTime.UtcNow
         };
 
-        await _dal.UpsertAsync(entity);
+        await _dal.SaveAsync(entity);
 
         var saved = await _dal.GetAsync(x => x.UserId == request.UserId);
         return new SuccessDataResult<FinancialIqResultResponse>(MapToResponse(saved!), Messages.FinancialIqResultCalculated);
