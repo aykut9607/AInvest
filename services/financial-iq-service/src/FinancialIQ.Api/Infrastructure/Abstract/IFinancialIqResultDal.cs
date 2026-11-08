@@ -4,5 +4,6 @@ namespace FinancialIQ.Api.Infrastructure.Abstract;
 
 public interface IFinancialIqResultDal:IEntityRepository<FinancialIqResult>
 {     
-       Task UpsertAsync(FinancialIqResult entity);
+       // insert-or-update the latest result and append a history row (dbo.usp_SaveIqResult)
+       Task SaveAsync(FinancialIqResult entity);
 }

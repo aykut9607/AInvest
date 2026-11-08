@@ -68,7 +68,7 @@ public class CalculateValidationTests
     {
         public List<FinancialIqResult> Stored { get; } = new();
 
-        public Task UpsertAsync(FinancialIqResult entity)
+        public Task SaveAsync(FinancialIqResult entity)
         {
             Stored.RemoveAll(r => r.UserId == entity.UserId);
             Stored.Add(entity);

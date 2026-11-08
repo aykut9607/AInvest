@@ -56,7 +56,7 @@ public class FinancialIqManager : IFinancialIqResultService
             UpdatedAt = DateTime.UtcNow
         };
 
-        await _dal.UpsertAsync(entity);
+        await _dal.SaveAsync(entity);
 
         var saved = await _dal.GetAsync(x => x.UserId == request.UserId);
         return new SuccessDataResult<FinancialIqResultResponse>(MapToResponse(saved!), Messages.FinancialIqResultCalculated);
