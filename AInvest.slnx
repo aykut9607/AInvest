@@ -1,5 +1,10 @@
 <Solution>
   <Folder Name="/services/" />
+  <Folder Name="/services/edge-gateway/" />
+  <Folder Name="/services/edge-gateway/src/">
+    <Project Path="services/edge-gateway/src/EdgeGateway.Api/EdgeGateway.Api.csproj" />
+    <Project Path="services/edge-gateway/src/EdgeGateway.Tests/EdgeGateway.Tests.csproj" />
+  </Folder>
   <Folder Name="/services/finance-profile-service/" />
   <Folder Name="/services/finance-profile-service/src/">
     <Project Path="services/finance-profile-service/src/FinanceProfile.Api/FinanceProfile.Api.csproj" />
