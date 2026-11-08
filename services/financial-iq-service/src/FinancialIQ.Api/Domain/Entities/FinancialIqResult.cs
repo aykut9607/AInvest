@@ -3,6 +3,13 @@ namespace FinancialIQ.Api.Domain.Entities;
 
 public class FinancialIqResult : IEntity
 {
+    // single source for the user_id column size (DbContext) and the validation rule (FinancialIqManager),
+    // same limit as Finance Profile's user_id
+    public const int UserIdMaxLength = 100;
+
+    // LOW / MEDIUM / HIGH
+    public const int SegmentMaxLength = 10;
+
     public Guid Id { get; set; }
     public string UserId { get; set; } = string.Empty;
     public int Score { get; set; }
