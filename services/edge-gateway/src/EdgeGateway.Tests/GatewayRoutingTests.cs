@@ -21,7 +21,7 @@ public class GatewayRoutingTests : IClassFixture<GatewayFactory>
     [InlineData("/ai/explain-financial-iq", "http://ai.test/ai/explain-financial-iq")]
     public async Task PublicRoute_IsForwardedToTheRightService(string path, string expectedDownstreamUrl)
     {
-        var response = await _client.GetAsync(path);
+        var response = await _client.SendAsync(TestTokens.Get(path, TestTokens.Create("u1")));
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal($"GET {expectedDownstreamUrl}", await response.Content.ReadAsStringAsync());
@@ -30,7 +30,7 @@ public class GatewayRoutingTests : IClassFixture<GatewayFactory>
     [Fact]
     public async Task ListingAllProfiles_IsNotReachableThroughTheGateway()
     {
-        var response = await _client.GetAsync("/api/Profiles");
+        var response = await _client.SendAsync(TestTokens.Get("/api/Profiles", TestTokens.Create("u1")));
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -38,7 +38,13 @@ public class GatewayRoutingTests : IClassFixture<GatewayFactory>
     [Fact]
     public async Task InternalIqCalculate_IsNotReachableThroughTheGateway()
     {
-        var response = await _client.PostAsync("/api/financial-iq/calculate", new StringContent("{}"));
+        var request = new HttpRequestMessage(HttpMethod.Post, "/api/financial-iq/calculate")
+        {
+            Content = new StringContent("{}")
+        };
+        request.Headers.Authorization = new("Bearer", TestTokens.Create("u1"));
+
+        var response = await _client.SendAsync(request);
 
         // the IQ route only accepts GET, so this POST never reaches the fake downstream
         Assert.False(response.IsSuccessStatusCode);
