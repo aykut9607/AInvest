@@ -10,6 +10,7 @@ import com.ainvest.identity.exception.EmailAlreadyExistsException;
 import com.ainvest.identity.exception.InvalidCredentialsException;
 import com.ainvest.identity.exception.InvalidRefreshTokenException;
 import com.ainvest.identity.infrastructure.repository.UserRepository;
+import com.ainvest.identity.logging.SecurityEventLogger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,12 +23,15 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 // plain unit tests: the repository is mocked, so no database is needed
 class AuthServiceTest {
 
     private UserRepository userRepository;
+    private SecurityEventLogger securityEvents;
     private AuthService authService;
 
     // the single "row" the mocked repository knows about
@@ -41,7 +45,8 @@ class AuthServiceTest {
         ReflectionTestUtils.setField(jwtService, "secret", "test-only-secret-key-that-is-long-enough-for-hs512-signing-1234567890");
         ReflectionTestUtils.setField(jwtService, "accessTokenExpirationMs", 900_000L);
 
-        authService = new AuthService(userRepository, new BCryptPasswordEncoder(), jwtService);
+        securityEvents = mock(SecurityEventLogger.class);
+        authService = new AuthService(userRepository, new BCryptPasswordEncoder(), jwtService, securityEvents);
         ReflectionTestUtils.setField(authService, "refreshTokenExpirationMs", 604_800_000L);
 
         // save() plays the database: assigns an id and remembers the user
@@ -113,5 +118,58 @@ class AuthServiceTest {
         assertNotEquals(registered.refreshToken(), refreshed.refreshToken());
         assertThrows(InvalidRefreshTokenException.class,
                 () -> authService.refresh(new RefreshRequest(registered.refreshToken())));
+    }
+
+    // --- security events: each outcome is reported once, with the reason that a SIEM rule can use ---
+
+    @Test
+    void login_Success_IsReported() {
+        authService.register(new RegisterRequest("user@ainvest.dev", "Secret123"));
+
+        authService.login(new LoginRequest("user@ainvest.dev", "Secret123"));
+
+        verify(securityEvents).loginSucceeded(storedUser.getId(), "user@ainvest.dev");
+    }
+
+    @Test
+    void login_WrongPassword_IsReportedAsFailure_WithoutThePassword() {
+        authService.register(new RegisterRequest("user@ainvest.dev", "Secret123"));
+
+        assertThrows(InvalidCredentialsException.class,
+                () -> authService.login(new LoginRequest("user@ainvest.dev", "Wrong-Guess-1")));
+
+        verify(securityEvents).loginFailed("user@ainvest.dev", "wrong-password");
+        verify(securityEvents, never()).loginSucceeded(any(), any());
+    }
+
+    @Test
+    void login_UnknownEmail_IsReportedWithItsOwnReason() {
+        assertThrows(InvalidCredentialsException.class,
+                () -> authService.login(new LoginRequest("nobody@ainvest.dev", "Whatever1")));
+
+        verify(securityEvents).loginFailed("nobody@ainvest.dev", "unknown-email");
+    }
+
+    @Test
+    void refresh_ReusingARotatedToken_IsReportedAsRejected() {
+        AuthResponse registered = authService.register(new RegisterRequest("user@ainvest.dev", "Secret123"));
+        authService.refresh(new RefreshRequest(registered.refreshToken()));
+
+        assertThrows(InvalidRefreshTokenException.class,
+                () -> authService.refresh(new RefreshRequest(registered.refreshToken())));
+
+        verify(securityEvents).refreshSucceeded(storedUser.getId());
+        verify(securityEvents).refreshRejected("unknown-or-already-rotated-token");
+    }
+
+    @Test
+    void register_DuplicateEmail_IsReportedAsRejected() {
+        authService.register(new RegisterRequest("user@ainvest.dev", "Secret123"));
+
+        assertThrows(EmailAlreadyExistsException.class,
+                () -> authService.register(new RegisterRequest("user@ainvest.dev", "Another123")));
+
+        verify(securityEvents).registered(storedUser.getId(), "user@ainvest.dev");
+        verify(securityEvents).registrationRejected("user@ainvest.dev", "email-already-registered");
     }
 }
