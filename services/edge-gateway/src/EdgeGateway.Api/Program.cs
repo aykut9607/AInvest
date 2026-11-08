@@ -1,4 +1,5 @@
 using System.Text;
+using System.Threading.RateLimiting;
 using EdgeGateway.Api.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -46,6 +47,34 @@ builder.Services.AddAuthorization(options =>
             userIdInUrl == context.User.FindFirst("sub")?.Value));
 });
 
+// brute-force protection for the login endpoint (the route uses RateLimiterPolicy "login" in appsettings.json):
+// at most N attempts per client IP per window; the next one gets 429 before it ever reaches Identity
+var loginLimit = builder.Configuration.GetSection("RateLimiting:Login");
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.AddPolicy("login", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            // one counter per caller IP
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = loginLimit.GetValue("PermitLimit", 5),
+                Window = TimeSpan.FromSeconds(loginLimit.GetValue("WindowSeconds", 60)),
+                // reject at once instead of making the extra attempts wait in a queue
+                QueueLimit = 0
+            }));
+
+    // tell the client how long to wait before trying again
+    options.OnRejected = (context, _) =>
+    {
+        if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+            context.HttpContext.Response.Headers.RetryAfter = ((int)retryAfter.TotalSeconds).ToString();
+        return ValueTask.CompletedTask;
+    };
+});
+
 // YARP reads the routes and clusters from appsettings.json ("ReverseProxy" section)
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
@@ -67,6 +96,7 @@ app.UseMiddleware<CorrelationIdMiddleware>();
 // order matters: first find out who the caller is, then check what they may do, then forward
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 // the gateway's own liveness check; everything else is forwarded
 app.MapGet("/health", () => Results.Ok(new { service = "EdgeGateway.Api", status = "Healthy", timestamp = DateTime.UtcNow }));

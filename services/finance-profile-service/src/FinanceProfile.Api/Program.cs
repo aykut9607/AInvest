@@ -22,7 +22,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient("FinancialIqService", client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["FinancialIqService:BaseUrl"]!);
-});
+})
+// timeout + retry + circuit breaker for every call to IQ (see FinancialIqResilience)
+.AddFinancialIqResilience();
 
 builder.Services.AddCors(options =>
 {

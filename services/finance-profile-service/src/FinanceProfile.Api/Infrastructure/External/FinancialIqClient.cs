@@ -3,6 +3,8 @@ using FinanceProfile.Api.Application.Constants;
 using FinanceProfile.Api.Application.Results;
 using FinanceProfile.Api.DTOs;
 using FinanceProfile.Api.Infrastructure.Abstract;
+using Polly.CircuitBreaker;
+using Polly.Timeout;
 
 
 namespace FinanceProfile.Api.Infrastructure.External;
@@ -25,9 +27,11 @@ public class FinancialIqClient: IFinancialIqClient
         {
             response = await client.PostAsJsonAsync("/api/financial-iq/calculate", request);
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
+                                       or TimeoutRejectedException or BrokenCircuitException)
         {
-            // IQ is down or did not answer in time - without this catch the caller would get a 500
+            // IQ is down, did not answer in time (also after the retries) or the circuit breaker is open -
+            // without this catch the caller would get a 500
             return new ErrorDataResult<FinancialIqCalculateResponse>(Messages.FinancialIqServiceUnavailable);
         }
 
