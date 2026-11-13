@@ -14,10 +14,10 @@
     "typescript": "~6.0.3"
   },
   "scripts": {
-    "start": "expo start --port 8099 --localhost",
-    "android": "expo start --android --port 8099 --localhost",
+    "start": "set NODE_OPTIONS=--dns-result-order=ipv4first&& expo start --port 8099 --localhost",
+    "android": "set NODE_OPTIONS=--dns-result-order=ipv4first&& expo start --android --port 8099 --localhost",
     "ios": "expo start --ios --port 8099",
-    "ports": "%ANDROID_HOME%\\platform-tools\\adb reverse tcp:8081 tcp:8081 && %ANDROID_HOME%\\platform-tools\\adb reverse tcp:5293 tcp:5293 && %ANDROID_HOME%\\platform-tools\\adb reverse tcp:8001 tcp:8001",
+    "ports": "%ANDROID_HOME%\\platform-tools\\adb reverse tcp:5000 tcp:5000",
     "typecheck": "tsc --noEmit"
   },
   "private": true

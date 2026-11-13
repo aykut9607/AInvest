@@ -1,9 +1,9 @@
-import { API } from "../config";
 import type { Explanation, Segment } from "../types";
-import { ApiError, messageFrom, request } from "./http";
+import { authorizedRequest } from "./authorizedRequest";
+import { ApiError, messageFrom } from "./http";
 
 export async function explainScore(score: number, segment: Segment): Promise<Explanation> {
-  const { status, body } = await request<Explanation>(`${API.ai}/ai/explain-financial-iq`, {
+  const { status, body } = await authorizedRequest<Explanation>("/ai/explain-financial-iq", {
     method: "POST",
     body: { score, segment },
   });

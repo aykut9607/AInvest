@@ -7,10 +7,21 @@ export class ApiError extends Error {
 }
 
 // small fetch wrapper: JSON in/out, timeout, and readable error messages for every service
-export async function request<T>(
-  url: string,
-  options: { method?: string; body?: unknown } = {}
-): Promise<{ status: number; body: T | null }> {
+export interface RequestOptions {
+  method?: string;
+  body?: unknown;
+  // e.g. the Authorization header for calls that need a token
+  headers?: Record<string, string>;
+}
+
+export interface ApiResponse<T> {
+  status: number;
+  body: T | null;
+  // seconds from the Retry-After header (the gateway sends it with 429), null when absent
+  retryAfterSeconds: number | null;
+}
+
+export async function request<T>(url: string, options: RequestOptions = {}): Promise<ApiResponse<T>> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
@@ -18,7 +29,7 @@ export async function request<T>(
   try {
     response = await fetch(url, {
       method: options.method ?? "GET",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...options.headers },
       body: options.body === undefined ? undefined : JSON.stringify(options.body),
       signal: controller.signal,
     });
@@ -42,7 +53,19 @@ export async function request<T>(
     }
   }
 
-  return { status: response.status, body: body as T | null };
+  // an empty 502/503/504 comes from the gateway itself: the service behind it is down or not answering
+  // (a service's own 502, e.g. Finance when IQ fails, has a body with a message and is passed on as usual)
+  if (body === null && [502, 503, 504].includes(response.status)) {
+    const path = url.replace(/^https?:\/\/[^/]+/, "");
+    throw new ApiError(`The service behind ${path} is not responding (${response.status}). Is it running?`, response.status);
+  }
+
+  const retryAfter = Number(response.headers.get("Retry-After"));
+  return {
+    status: response.status,
+    body: body as T | null,
+    retryAfterSeconds: Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : null,
+  };
 }
 
 // both the .NET Result envelope and the Identity ErrorResponse carry a "message" field

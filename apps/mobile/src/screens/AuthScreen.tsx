@@ -8,14 +8,16 @@ import type { AuthSession } from "../types";
 
 interface Props {
   onAuthenticated: (session: AuthSession) => void;
+  // message carried over from the previous screen, e.g. "session expired"
+  notice?: string;
 }
 
-export default function AuthScreen({ onAuthenticated }: Props) {
+export default function AuthScreen({ onAuthenticated, notice = "" }: Props) {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(notice);
 
   const isLogin = mode === "login";
 
