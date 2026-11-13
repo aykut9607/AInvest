@@ -22,6 +22,14 @@ const FACTORS: { key: string; label: string; max: number }[] = [
   { key: "Impatience", label: "Patience", max: 10 },
 ];
 
+// thresholds live in the Financial IQ service (ScoringRules.cs); these texts only explain them
+const RULE_TEXT: Record<"VERY_HIGH_INCOME" | "EXTREME_DEBT", string> = {
+  VERY_HIGH_INCOME:
+    "Your monthly income is 1,000,000 or more and your debt (minus cash and investments) is at most one year of income. At this level a cash reserve builds up quickly, so the score is set to 100.",
+  EXTREME_DEBT:
+    "Your debt minus your cash and investments is 100,000,000 or more, which your income cannot carry. The score is set to 0.",
+};
+
 export default function ResultScreen({ result, onEditProfile }: Props) {
   const [explanation, setExplanation] = useState<Explanation | null>(null);
   const [explaining, setExplaining] = useState(false);
@@ -54,6 +62,12 @@ export default function ResultScreen({ result, onEditProfile }: Props) {
         </View>
         <Text style={styles.caption}>Financial IQ</Text>
       </View>
+
+      {breakdown?.appliedRule ? (
+        <Card title="How this score was set">
+          <Text style={styles.ruleText}>{RULE_TEXT[breakdown.appliedRule]}</Text>
+        </Card>
+      ) : null}
 
       {breakdown?.riskProfile ? <RiskProfileCard profile={breakdown.riskProfile} /> : null}
 
@@ -157,6 +171,7 @@ const styles = StyleSheet.create({
   warningRow: { flexDirection: "row", alignItems: "center", marginBottom: spacing.sm },
   warningDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.warning, marginRight: spacing.sm },
   warningText: { color: colors.text, flex: 1 },
+  ruleText: { color: colors.text, lineHeight: 20 },
   explanation: { color: colors.text, fontSize: 15, lineHeight: 22 },
   disclaimer: { color: colors.muted, fontSize: 12, marginTop: spacing.sm, fontStyle: "italic" },
   muted: { color: colors.muted },

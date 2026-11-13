@@ -52,6 +52,11 @@ public class FinancialProfileManager : IFinancialProfileService
         if (request.MonthlyExpenses < 0 || request.MonthlyDebtPayment < 0 || request.TotalDebt < 0 || request.CashReserve < 0 || request.InvestmentAmount < 0)
          return new ErrorResult(Messages.NegativeAmountNotAllowed);
 
+        // technical limit of the database columns, not a scoring rule (see FinancialProfile.MaxAmount)
+        var amounts = new[] { request.MonthlyIncome, request.MonthlyExpenses, request.MonthlyDebtPayment, request.TotalDebt, request.CashReserve, request.InvestmentAmount };
+        if (amounts.Any(amount => amount > FinancialProfile.MaxAmount))
+         return new ErrorResult(Messages.AmountTooLarge);
+
         var allowedRisks = new[] { "LOW", "MEDIUM", "HIGH" };
         if (!allowedRisks.Contains(request.RiskPreference))
          return new ErrorResult(Messages.InvalidRiskPreference);
@@ -119,6 +124,10 @@ public class FinancialProfileManager : IFinancialProfileService
             MonthlyExpenses = profile.MonthlyExpenses,
             MonthlyDebtPayment = profile.MonthlyDebtPayment,
             CashReserve = profile.CashReserve,
+            // IQ uses both: net debt (debt - cash - investments) for the extreme-debt rule,
+            // and half of the investments as emergency reserve
+            TotalDebt = profile.TotalDebt,
+            InvestmentAmount = profile.InvestmentAmount,
             RiskPreference = profile.RiskPreference,
             ImpatienceLevel = profile.ImpatienceLevel
         };

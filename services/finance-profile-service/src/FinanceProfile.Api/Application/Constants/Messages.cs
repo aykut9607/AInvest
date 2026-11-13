@@ -15,6 +15,7 @@ public static class Messages
     // Validation / business rules
     public const string InvalidMonthlyIncome = "Monthly income must be greater than zero.";
     public const string NegativeAmountNotAllowed = "Monetary fields cannot be negative.";
+    public const string AmountTooLarge = "Monetary fields must be at most 999,999,999,999,999.";
     public const string InvalidRiskPreference = "Risk preference must be one of the allowed values.";
     public const string InvalidImpatienceLevel = "Impatience level must be between 1 and 5.";
     public const string InvalidUserId = "User id is required and must be at most 100 characters.";
