@@ -11,6 +11,7 @@ What happens between the raw files and the rules (every step deterministic and u
      its low from the old one, a fake ~1.8% range). Daily and weekly candles are kept (one switch, no mixing).
        S&P (ES=F): the third Friday of March, June, September, December (expiry day)
        gold (GC=F): a day in the last week of Jan/Mar/May/Jul/Sep/Nov after which the volume jumps >= 3x
+       both: any day with a > 0.4% jump between back-to-back 1h candles inside a session (median gap ~0.004%)
 Prices are NOT back-adjusted: the series matches an unadjusted continuous chart (TradingView GC1!/ES1! default).
 """
 
@@ -33,6 +34,7 @@ ASSETS = {
 TIMEFRAMES = ["15m", "30m", "45m", "1h", "4h", "1d", "1w"]
 GOLD_CLEAN_FROM = datetime(2012, 1, 1, tzinfo=timezone.utc)
 ROLL_VOLUME_JUMP = 3.0
+JUMP_THRESHOLD = 0.004   # 0.4% between back-to-back candles inside a session
 
 
 @dataclass(frozen=True)
@@ -143,6 +145,20 @@ def gold_roll_days(daily: list[Candle]) -> set[date]:
     return days
 
 
+def jump_days(candles: list[Candle], max_step: timedelta = timedelta(hours=1), threshold: float = JUMP_THRESHOLD) -> set[date]:
+    """Days with a jump between two back-to-back candles of a continuous session (no break between them).
+    In a liquid, nearly 24-hour market the next candle opens at the previous close: on Yahoo's GC=F/ES=F 1h data
+    the median gap is ~0.004%. A gap above 0.4% (100x the median) is a contract mix-up or a bad tick, not trading.
+    example lets say gold 2025-07-30 07:00 closes 3383.0 and 08:00 opens 3383.2, 09:00 opens 3329.3 after an
+    08:00 close of 3386.9 -> -1.7% inside the session -> 2025-07-30 is flagged"""
+    days = set()
+    for previous, current in zip(candles, candles[1:]):
+        if current.time - previous.time <= max_step and previous.close > 0 \
+                and abs(current.open / previous.close - 1) > threshold:
+            days.add(current.time.date())
+    return days
+
+
 def without_days(candles: list[Candle], days: set[date]) -> tuple[list[Candle], int]:
     kept = [c for c in candles if c.time.date() not in days]
     return kept, len(candles) - len(kept)
@@ -156,11 +172,17 @@ def _raw(asset: str, timeframe: str, raw_dir: Path) -> list[Candle]:
 
 
 def _roll_days(asset: str, raw_dir: Path) -> set[date]:
+    """Days whose intraday futures candles are not trusted: the calendar/volume roll days plus every day with an
+    in-session jump in the 1h data (catches the mixed-contract hours and Yahoo's occasional bad ticks; in 2026
+    Yahoo switched gold contracts at the session open without mixing, so the volume rule alone missed nothing
+    harmful but also found no roll there)."""
     if asset == "ES":
-        return es_roll_days(2000, datetime.now(timezone.utc).year + 1)
-    if asset == "GC":
-        return gold_roll_days(_raw("GC", "1d", raw_dir))
-    return set()
+        calendar = es_roll_days(2000, datetime.now(timezone.utc).year + 1)
+    elif asset == "GC":
+        calendar = gold_roll_days(_raw("GC", "1d", raw_dir))
+    else:
+        return set()
+    return calendar | jump_days(_raw(asset, "1h", raw_dir))
 
 
 def load_series(asset: str, timeframe: str, raw_dir: Path = RAW_DIR) -> Series:

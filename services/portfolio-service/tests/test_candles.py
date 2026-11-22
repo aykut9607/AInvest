@@ -7,6 +7,7 @@ from signals.data.candles import (
     es_roll_days,
     gold_roll_days,
     is_consistent,
+    jump_days,
     load_series,
     resample,
     third_friday,
@@ -81,6 +82,18 @@ def test_a_volume_jump_outside_the_roll_window_is_not_a_roll():
              candle(datetime(2025, 6, 27, tzinfo=UTC), v=1000), candle(datetime(2025, 6, 30, tzinfo=UTC), v=9000)]
 
     assert gold_roll_days(daily) == set()
+
+
+def test_an_in_session_jump_flags_the_day_but_a_session_break_does_not():
+    t = datetime(2025, 7, 30, 7, tzinfo=UTC)
+    hours = [candle(t, o=3323.6, c=3383.0, h=3386.4, l=3322.8),
+             candle(t + timedelta(hours=1), o=3383.2, c=3386.9, h=3388.2, l=3325.6),
+             candle(t + timedelta(hours=2), o=3329.3, c=3386.6, h=3389.3, l=3327.4)]   # -1.7% from 3386.9: mixed contracts
+    weekend = [candle(datetime(2026, 2, 27, 21, tzinfo=UTC), c=100.0),
+               candle(datetime(2026, 3, 1, 23, tzinfo=UTC), o=102.2)]                  # +2.2% over a weekend: real gap
+
+    assert jump_days(hours) == {date(2025, 7, 30)}
+    assert jump_days(weekend) == set()
 
 
 def test_candles_of_roll_days_are_removed():
