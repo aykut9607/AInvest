@@ -64,6 +64,30 @@ public class CalculateValidationTests
         Assert.Equal(Messages.InvalidRiskPreference, result.Message);
     }
 
+    [Fact]
+    public async Task NegativeTotalDebt_IsRejected_AndNothingIsStored()
+    {
+        var request = Request("u1");
+        request.TotalDebt = -1;
+
+        var result = await Manager.CalculateAsync(request);
+
+        Assert.Equal(Messages.NegativeAmountNotAllowed, result.Message);
+        Assert.Empty(_dal.Stored);
+    }
+
+    [Fact]
+    public async Task NegativeInvestmentAmount_IsRejected_AndNothingIsStored()
+    {
+        var request = Request("u1");
+        request.InvestmentAmount = -1;
+
+        var result = await Manager.CalculateAsync(request);
+
+        Assert.Equal(Messages.NegativeAmountNotAllowed, result.Message);
+        Assert.Empty(_dal.Stored);
+    }
+
     private sealed class FakeResultDal : IFinancialIqResultDal
     {
         public List<FinancialIqResult> Stored { get; } = new();

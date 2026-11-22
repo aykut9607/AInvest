@@ -84,6 +84,32 @@ public class FinancialProfileManagerTests
         Assert.Equal(Messages.NegativeAmountNotAllowed, result.Message);
     }
 
+    [Fact]
+    public async Task Upsert_WithVeryLargeButStorableAmounts_IsSaved()
+    {
+        // amounts are not capped for scoring: a salary of 1,000,000 or a debt of 100,000,000 must be accepted
+        var request = ValidRequest();
+        request.MonthlyIncome = 1_000_000;
+        request.TotalDebt = 100_000_000;
+        request.CashReserve = FinancialProfile.MaxAmount;
+
+        var result = await Manager.UpsertAsync("u1", request);
+
+        Assert.True(result.Success);
+    }
+
+    [Fact]
+    public async Task Upsert_WithAmountTheColumnCannotHold_IsRejected_AndNothingIsSaved()
+    {
+        var request = ValidRequest();
+        request.TotalDebt = FinancialProfile.MaxAmount + 1;
+
+        var result = await Manager.UpsertAsync("u1", request);
+
+        Assert.Equal(Messages.AmountTooLarge, result.Message);
+        Assert.Empty(_dal.Saved);
+    }
+
     [Theory]
     [InlineData("high")]
     [InlineData("EXTREME")]
@@ -132,6 +158,9 @@ public class FinancialProfileManagerTests
         Assert.Equal("HIGH", _iqClient.LastRequest.RiskPreference);
         Assert.Equal(5, _iqClient.LastRequest.ImpatienceLevel);
         Assert.Equal(30000, _iqClient.LastRequest.MonthlyIncome);
+        // IQ needs both for the net-debt rule and the reserve (half of the investments)
+        Assert.Equal(90000, _iqClient.LastRequest.TotalDebt);
+        Assert.Equal(10000, _iqClient.LastRequest.InvestmentAmount);
     }
 
     private sealed class FakeProfileDal : IFinancialProfileDal

@@ -45,6 +45,8 @@ export interface FactorBreakdown {
   factors: Record<string, number>;
   warnings: string[];
   riskProfile?: RiskProfile;
+  // set when an extreme amount decided the score instead of the 6 factors; null/absent otherwise
+  appliedRule?: "VERY_HIGH_INCOME" | "EXTREME_DEBT" | null;
 }
 
 export interface IqResult {

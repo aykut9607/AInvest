@@ -7,6 +7,10 @@ public class FinancialProfile:IEntity
     // single source for the user_id column size (DbContext) and the validation rule (FinancialProfileManager)
     public const int UserIdMaxLength = 100;
 
+    // NOT a business limit (any realistic income or debt is accepted and scored): the amount columns are
+    // numeric(18,2), which can't hold 10^16 or more, and a bigger value would fail in Postgres with a 500
+    public const decimal MaxAmount = 999_999_999_999_999m;
+
     public Guid Id { get; set; }
     public string UserId { get; set; } = string.Empty;
     public decimal MonthlyIncome { get; set; }
