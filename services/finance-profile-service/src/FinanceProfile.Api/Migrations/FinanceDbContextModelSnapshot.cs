@@ -68,7 +68,6 @@ namespace FinanceProfile.Api.Migrations
                         .HasColumnName("monthly_income");
 
                     b.Property<string>("RiskPreference")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
                         .HasColumnName("risk_preference");

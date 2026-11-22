@@ -69,14 +69,16 @@ public class FinancialIqClientTests
     public async Task IqSucceeds_ReturnsScoreSegmentAndBreakdown()
     {
         var client = ClientReturning(_ => Json(HttpStatusCode.OK,
-            """{"data":{"score":88,"segment":"HIGH","factorBreakdown":"{\"factors\":{}}"},"success":true,"message":"ok"}"""));
+            """{"data":{"score":88,"segment":"HIGH","factorBreakdown":{"version":"v2","factors":{}}},"success":true,"message":"ok"}"""));
 
         var result = await client.CalculateAsync(Request);
 
         Assert.True(result.Success);
         Assert.Equal(88, result.Data!.Score);
         Assert.Equal("HIGH", result.Data.Segment);
-        Assert.Equal("""{"factors":{}}""", result.Data.FactorBreakdown);
+        // passed through as a JSON object (contract v2)
+        Assert.Equal(System.Text.Json.JsonValueKind.Object, result.Data.FactorBreakdown.ValueKind);
+        Assert.Equal("v2", result.Data.FactorBreakdown.GetProperty("version").GetString());
     }
 
     private sealed class StubHandler(Func<HttpRequestMessage, HttpResponseMessage> respond) : HttpMessageHandler

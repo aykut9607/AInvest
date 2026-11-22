@@ -57,8 +57,9 @@ public class FinancialProfileManager : IFinancialProfileService
         if (amounts.Any(amount => amount > FinancialProfile.MaxAmount))
          return new ErrorResult(Messages.AmountTooLarge);
 
+        // optional now; only a value that is sent has to be valid
         var allowedRisks = new[] { "LOW", "MEDIUM", "HIGH" };
-        if (!allowedRisks.Contains(request.RiskPreference))
+        if (request.RiskPreference != null && !allowedRisks.Contains(request.RiskPreference))
          return new ErrorResult(Messages.InvalidRiskPreference);
 
         if (request.ImpatienceLevel < 1 || request.ImpatienceLevel > 5)
@@ -128,7 +129,7 @@ public class FinancialProfileManager : IFinancialProfileService
             // and half of the investments as emergency reserve
             TotalDebt = profile.TotalDebt,
             InvestmentAmount = profile.InvestmentAmount,
-            RiskPreference = profile.RiskPreference,
+            // the risk preference is not sent: scoring v2 does not use a self-reported risk
             ImpatienceLevel = profile.ImpatienceLevel
         };
         return await _financialIqClient.CalculateAsync(iqRequest);

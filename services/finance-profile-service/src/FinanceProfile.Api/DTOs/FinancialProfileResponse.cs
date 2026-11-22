@@ -19,7 +19,7 @@ public class FinancialProfileResponse: IDto
 
     public decimal InvestmentAmount { get; set; }
 
-    public string RiskPreference { get; set; } = "MEDIUM";
+    public string? RiskPreference { get; set; }
 
     public int ImpatienceLevel { get; set; }
 

@@ -9,6 +9,5 @@ public class FinancialIqCalculateRequest
     public decimal CashReserve { get; set; }
     public decimal TotalDebt { get; set; }
     public decimal InvestmentAmount { get; set; }
-    public string RiskPreference { get; set; } = "MEDIUM";
     public int ImpatienceLevel { get; set; } = 3;
 }

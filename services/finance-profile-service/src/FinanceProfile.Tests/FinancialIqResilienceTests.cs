@@ -13,7 +13,7 @@ namespace FinanceProfile.Tests;
 public class FinancialIqResilienceTests
 {
     private const string SuccessBody =
-        """{"data":{"score":72,"segment":"HIGH","factorBreakdown":"{}"},"success":true,"message":"ok"}""";
+        """{"data":{"score":72,"segment":"HIGH","factorBreakdown":{}},"success":true,"message":"ok"}""";
 
     private static readonly FinancialIqCalculateRequest Request = new() { UserId = "u1", MonthlyIncome = 10000 };
 

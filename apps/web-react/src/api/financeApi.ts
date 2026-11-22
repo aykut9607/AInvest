@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { FinancialProfileFormData } from "../types/finance";
+import type { FactorBreakdown, FinancialProfileFormData, FinancialScoreResult } from "../types/finance";
 
 const BASE_URL = import.meta.env.VITE_FINANCE_API_BASE_URL as string;
 
@@ -12,12 +12,14 @@ interface ApiResult<T> {
 interface FinancialIqCalculateResponse {
   score: number;
   segment: "LOW" | "MEDIUM" | "HIGH";
+  // contract v2 sends an object; a v1 server sent the same JSON as a string
+  factorBreakdown: FactorBreakdown | string | null;
 }
 
 export async function saveAndCalculateFinancialScore(
   userId: string,
   form: FinancialProfileFormData
-): Promise<FinancialIqCalculateResponse> {
+): Promise<FinancialScoreResult> {
   const upsertBody = {
     monthlyIncome: Number(form.monthlyIncome),
     monthlyExpenses: Number(form.monthlyExpenses),
@@ -25,7 +27,6 @@ export async function saveAndCalculateFinancialScore(
     totalDebt: Number(form.totalDebt),
     cashReserve: Number(form.cashReserve),
     investmentAmount: Number(form.investmentAmount),
-    riskPreference: form.riskPreference,
     impatienceLevel: Number(form.impatienceLevel),
   };
 
@@ -44,9 +45,21 @@ export async function saveAndCalculateFinancialScore(
       throw new Error(response.data.message || "Failed to calculate financial IQ.");
     }
 
-    return response.data.data;
+    const data = response.data.data;
+    return { score: data.score, segment: data.segment, factorBreakdown: parseBreakdown(data.factorBreakdown) };
   } catch (err) {
     throw new Error(extractErrorMessage(err, "Failed to calculate financial IQ."), { cause: err });
+  }
+}
+
+// v2: already an object; a string (v1 server) is still parsed so both work
+function parseBreakdown(raw: FactorBreakdown | string | null | undefined): FactorBreakdown | null {
+  if (!raw) return null;
+  if (typeof raw !== "string") return raw;
+  try {
+    return JSON.parse(raw) as FactorBreakdown;
+  } catch {
+    return null;
   }
 }
 

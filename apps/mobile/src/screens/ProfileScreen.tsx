@@ -6,7 +6,7 @@ import OptionGroup from "../components/OptionGroup";
 import PrimaryButton from "../components/PrimaryButton";
 import { calculateIq, getProfile, saveProfile } from "../api/financeApi";
 import { colors, spacing } from "../theme";
-import type { AuthSession, IqResult, ProfileForm, RiskLevel } from "../types";
+import type { AuthSession, IqResult, ProfileForm } from "../types";
 
 interface Props {
   session: AuthSession;
@@ -21,7 +21,6 @@ const emptyForm: ProfileForm = {
   totalDebt: "",
   cashReserve: "",
   investmentAmount: "",
-  riskPreference: "MEDIUM",
   impatienceLevel: 3,
 };
 
@@ -62,7 +61,6 @@ export default function ProfileScreen({ session, onCalculated, onLogout }: Props
           totalDebt: toWholeAmount(profile.totalDebt),
           cashReserve: toWholeAmount(profile.cashReserve),
           investmentAmount: toWholeAmount(profile.investmentAmount),
-          riskPreference: profile.riskPreference,
           impatienceLevel: profile.impatienceLevel,
         });
       })
@@ -126,16 +124,6 @@ export default function ProfileScreen({ session, onCalculated, onLogout }: Props
         </Card>
 
         <Card title="About you">
-          <OptionGroup<RiskLevel>
-            label="Risk preference"
-            value={form.riskPreference}
-            onChange={(riskPreference) => setForm((prev) => ({ ...prev, riskPreference }))}
-            options={[
-              { value: "LOW", label: "Low" },
-              { value: "MEDIUM", label: "Medium" },
-              { value: "HIGH", label: "High" },
-            ]}
-          />
           <OptionGroup<number>
             label="How long can you wait to see a return?"
             value={form.impatienceLevel}

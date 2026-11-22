@@ -9,7 +9,7 @@ namespace FinancialIQ.Tests;
 // factor 2 takes the worse of two measures: installment / income and net debt / yearly income
 public class DebtLoadTests
 {
-    // income 40,000 a month = 480,000 a year; installment 2,000 (5%) -> 20 points on the installment alone
+    // income 40,000 a month = 480,000 a year; installment 2,000 (5%) -> 25 points on the installment alone
     private static CalculateRequest Profile(decimal totalDebt, decimal cash = 0, decimal investments = 0) => new()
     {
         UserId = "test-user",
@@ -19,7 +19,6 @@ public class DebtLoadTests
         TotalDebt = totalDebt,
         CashReserve = cash,
         InvestmentAmount = investments,
-        RiskPreference = "MEDIUM",
         ImpatienceLevel = 1
     };
 
@@ -36,11 +35,11 @@ public class DebtLoadTests
         Breakdown(request).GetProperty("warnings").EnumerateArray().Select(w => w.GetString()!).ToArray();
 
     [Theory]
-    [InlineData(0, 20)]            // no debt
-    [InlineData(240_000, 20)]      // 0.5 year of income
-    [InlineData(240_001, 12)]      // just over half a year
-    [InlineData(480_000, 12)]      // 1 year
-    [InlineData(1_440_000, 6)]     // 3 years
+    [InlineData(0, 25)]            // no debt
+    [InlineData(240_000, 25)]      // 0.5 year of income
+    [InlineData(240_001, 15)]      // just over half a year
+    [InlineData(480_000, 15)]      // 1 year
+    [InlineData(1_440_000, 8)]     // 3 years
     [InlineData(1_440_001, 0)]     // just over 3 years
     public void NetDebtInYearsOfIncome_SetsTheDebtPoints(decimal totalDebt, int expectedPoints)
     {
@@ -50,12 +49,11 @@ public class DebtLoadTests
     [Fact]
     public void SmallInstallment_DoesNotHideALargeDebt()
     {
-        // 2,000,000 owed (over 4 years of income) with a 5% installment: the installment alone would give 20
+        // 2,000,000 owed (over 4 years of income) with a 5% installment: the installment alone would give 25
         var request = Profile(totalDebt: 2_000_000);
 
         Assert.Equal(0, DebtPoints(request));
         Assert.Contains(ScoringRules.HighTotalDebtWarning, Warnings(request));
-        Assert.Equal("LOW", Breakdown(request).GetProperty("riskProfile").GetProperty("behavioral").GetString());
     }
 
     [Fact]
@@ -75,19 +73,8 @@ public class DebtLoadTests
         // 2,000,000 owed, 500,000 cash + 1,600,000 invested -> net debt below zero
         var request = Profile(totalDebt: 2_000_000, cash: 500_000, investments: 1_600_000);
 
-        Assert.Equal(20, DebtPoints(request));
+        Assert.Equal(25, DebtPoints(request));
         Assert.DoesNotContain(ScoringRules.HighTotalDebtWarning, Warnings(request));
-    }
-
-    [Fact]
-    public void HighCapacityNeedsTheNetDebtWithinOneYearOfIncome()
-    {
-        // 6+ months reserve (cash 120,000 / 16,000 = 7.5 months), low installment, good savings
-        var withinOneYear = Profile(totalDebt: 600_000, cash: 120_000);      // net 480,000 = 1 year
-        var overOneYear = Profile(totalDebt: 600_001, cash: 120_000);
-
-        Assert.Equal("HIGH", Breakdown(withinOneYear).GetProperty("riskProfile").GetProperty("behavioral").GetString());
-        Assert.Equal("MEDIUM", Breakdown(overOneYear).GetProperty("riskProfile").GetProperty("behavioral").GetString());
     }
 
     [Fact]
@@ -102,15 +89,14 @@ public class DebtLoadTests
             MonthlyDebtPayment = 100_000,
             TotalDebt = 150_000_000,
             CashReserve = 0,
-            RiskPreference = "MEDIUM",
             ImpatienceLevel = 2
         };
 
         var (score, segment, factorBreakdown) = FinancialIqCommandManager.CalculateScore(request);
         var breakdown = JsonDocument.Parse(factorBreakdown).RootElement;
 
-        // reserve 0 + debt 0 + savings 20 + expenses 15 + risk 8 (MEDIUM vs LOW) + patience 8
-        Assert.Equal(51, score);
+        // reserve 0 + debt 0 + savings 25 + expenses 15 + patience 8 (v1: 51 with the risk factor)
+        Assert.Equal(48, score);
         Assert.Equal("MEDIUM", segment);
         Assert.Equal(0, breakdown.GetProperty("factors").GetProperty("DebtToIncomeRatio").GetInt32());
         Assert.Equal(JsonValueKind.Null, breakdown.GetProperty("appliedRule").ValueKind);

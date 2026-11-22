@@ -38,7 +38,8 @@ public class FinanceDbContext : DbContext
             entity.Property(p => p.TotalDebt).HasColumnName("total_debt").HasPrecision(18, 2);
             entity.Property(p => p.CashReserve).HasColumnName("cash_reserve").HasPrecision(18, 2);
             entity.Property(p => p.InvestmentAmount).HasColumnName("investment_amount").HasPrecision(18, 2);
-            entity.Property(p => p.RiskPreference).HasColumnName("risk_preference").HasMaxLength(20);
+            // nullable since scoring v2 (optional answer, see FinancialProfile.RiskPreference)
+            entity.Property(p => p.RiskPreference).HasColumnName("risk_preference").HasMaxLength(20).IsRequired(false);
             // default 3 (neutral) also fills existing rows when the column is added
             entity.Property(p => p.ImpatienceLevel).HasColumnName("impatience_level").HasDefaultValue(3).HasSentinel(0);
             entity.Property(p => p.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("now()");
