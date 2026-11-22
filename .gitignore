@@ -25,3 +25,5 @@ logs/
 Thumbs.db
 
 go-playground/
+# Portfolio Service: downloaded market history (Binance / Yahoo data is not ours to publish)
+services/portfolio-service/data/
