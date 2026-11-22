@@ -5,5 +5,6 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" <<-EOSQL
     CREATE DATABASE finance_db;
     CREATE DATABASE notification_db;
     CREATE DATABASE ai_db;
+    CREATE DATABASE portfolio_db;
 EOSQL
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname ai_db -c "CREATE EXTENSION IF NOT EXISTS vector;"

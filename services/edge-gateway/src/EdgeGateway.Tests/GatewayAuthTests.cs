@@ -66,6 +66,7 @@ public class GatewayAuthTests : IClassFixture<GatewayFactory>
     [InlineData("/api/Profiles/u2")]
     [InlineData("/api/Profiles/u2/calculate-iq")]
     [InlineData("/api/financial-iq/u2/latest")]
+    [InlineData("/api/portfolio/u2/proposal")]
     public async Task ValidTokenForAnotherUser_Is403(string otherUsersPath)
     {
         var response = await _client.SendAsync(TestTokens.Get(otherUsersPath, TestTokens.Create("u1")));
@@ -76,6 +77,7 @@ public class GatewayAuthTests : IClassFixture<GatewayFactory>
     [Theory]
     [InlineData("/ai/explain-financial-iq")]
     [InlineData("/api/market/fx?base=USD&symbol=TRY")]
+    [InlineData("/api/portfolio/market/ainvest-view")]
     public async Task AiAndMarketData_NeedAToken(string path)
     {
         var response = await _client.SendAsync(TestTokens.Get(path));
