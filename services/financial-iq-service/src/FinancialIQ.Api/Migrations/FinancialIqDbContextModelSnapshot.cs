@@ -67,6 +67,13 @@ namespace FinancialIQ.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UpdatedAt")
+                        .IsDescending()
+                        .HasDatabaseName("IX_financial_iq_results_low_segment")
+                        .HasFilter("[segment] = N'LOW'");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("UpdatedAt"), new[] { "UserId", "Score" });
+
                     b.HasIndex("UserId")
                         .IsUnique()
                         .HasDatabaseName("UX_financial_iq_results_user_id");

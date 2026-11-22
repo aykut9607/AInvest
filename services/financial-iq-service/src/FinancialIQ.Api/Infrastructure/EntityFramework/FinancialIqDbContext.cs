@@ -33,6 +33,16 @@ public class FinancialIqDbContext  : DbContext
             entity.HasIndex(p => p.UserId)
                   .IsUnique()
                   .HasDatabaseName("UX_financial_iq_results_user_id");
+
+            // filtered index: only the LOW rows are in it ("users at risk, most recently calculated first", for
+            // Notification / Ops). It reads as fast as a full (segment, updated_at) index but holds ~1/5 of the
+            // rows, and writes of MEDIUM/HIGH results never touch it. Measured in perf/filtered-index.md.
+            // A query only uses it when the filter is written as the literal N'LOW' (see usp_GetLowSegmentResults)
+            entity.HasIndex(p => p.UpdatedAt)
+                  .IsDescending()
+                  .HasFilter("[segment] = N'LOW'")
+                  .IncludeProperties(p => new { p.UserId, p.Score })
+                  .HasDatabaseName("IX_financial_iq_results_low_segment");
         });
 
         modelBuilder.Entity<IqHistory>(entity =>
