@@ -11,4 +11,7 @@ public interface IFinancialIqQueryService
     Task<IDataResult<FinancialIqResultResponse>> GetLatestAsync(string userId);
 
     Task<IDataResult<List<IqTrendPointResponse>>> GetHistoryAsync(string userId, int take);
+
+    // read-only calculation (nothing is stored): how many months until the debt is paid, month by month
+    Task<IDataResult<DebtPayoffResponse>> GetDebtPayoffAsync(DebtPayoffRequest request);
 }

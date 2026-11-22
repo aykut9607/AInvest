@@ -25,4 +25,9 @@ public static class Messages
     public const string FinancialIqCalculationFailed = "Financial IQ service could not calculate the score.";
     public const string FinancialIqEmptyResult = "Financial IQ service returned an empty result.";
     public const string FinancialIqCalculated = "Financial IQ calculation successful.";
+
+    // debt payoff schedule (computed by the IQ service)
+    public const string InvalidMonthlyInterestRate = "Monthly interest rate must be between 0 and 1 (0.035 = 3.5% a month).";
+    public const string DebtPayoffFailed = "Financial IQ service could not calculate the debt payoff.";
+    public const string DebtPayoffCalculated = "Debt payoff schedule calculated successfully.";
 }

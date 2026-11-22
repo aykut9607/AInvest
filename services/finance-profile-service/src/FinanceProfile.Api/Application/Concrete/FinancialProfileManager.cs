@@ -134,4 +134,24 @@ public class FinancialProfileManager : IFinancialProfileService
         };
         return await _financialIqClient.CalculateAsync(iqRequest);
     }
+
+    public async Task<IDataResult<System.Text.Json.JsonElement?>> GetDebtPayoffAsync(string userId, decimal? monthlyInterestRate)
+    {
+        // checked here as well as in IQ: a wrong rate is the caller's mistake (400), while anything IQ rejects
+        // reaches the client as 502 (an upstream failure)
+        if (monthlyInterestRate is < 0 or > 1)
+            return new ErrorDataResult<System.Text.Json.JsonElement?>(Messages.InvalidMonthlyInterestRate);
+
+        var profile = await _financialProfileDal.GetAsync(x => x.UserId == userId);
+        if (profile == null)
+            return new ErrorDataResult<System.Text.Json.JsonElement?>(Messages.FinancialProfileNotFound);
+
+        // the profile's own numbers: the total debt and the installment paid towards it every month
+        return await _financialIqClient.GetDebtPayoffAsync(new FinancialIqDebtPayoffRequest
+        {
+            TotalDebt = profile.TotalDebt,
+            MonthlyPayment = profile.MonthlyDebtPayment,
+            MonthlyInterestRate = monthlyInterestRate
+        });
+    }
 }

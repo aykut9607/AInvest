@@ -16,6 +16,7 @@ public class GatewayRoutingTests : IClassFixture<GatewayFactory>
     [InlineData("/auth/login", "http://identity.test/auth/login")]
     [InlineData("/api/Profiles/u1", "http://finance.test/api/Profiles/u1")]
     [InlineData("/api/Profiles/u1/calculate-iq", "http://finance.test/api/Profiles/u1/calculate-iq")]
+    [InlineData("/api/Profiles/u1/debt-payoff?monthlyInterestRate=0.03", "http://finance.test/api/Profiles/u1/debt-payoff?monthlyInterestRate=0.03")]
     [InlineData("/api/financial-iq/u1/latest", "http://iq.test/api/financial-iq/u1/latest")]
     [InlineData("/api/financial-iq/u1/history?take=5", "http://iq.test/api/financial-iq/u1/history?take=5")]
     [InlineData("/ai/explain-financial-iq", "http://ai.test/ai/explain-financial-iq")]
@@ -36,10 +37,12 @@ public class GatewayRoutingTests : IClassFixture<GatewayFactory>
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
-    [Fact]
-    public async Task InternalIqCalculate_IsNotReachableThroughTheGateway()
+    [Theory]
+    [InlineData("/api/financial-iq/calculate")]
+    [InlineData("/api/financial-iq/debt-payoff")]
+    public async Task InternalIqPosts_AreNotReachableThroughTheGateway(string path)
     {
-        var request = new HttpRequestMessage(HttpMethod.Post, "/api/financial-iq/calculate")
+        var request = new HttpRequestMessage(HttpMethod.Post, path)
         {
             Content = new StringContent("{}")
         };

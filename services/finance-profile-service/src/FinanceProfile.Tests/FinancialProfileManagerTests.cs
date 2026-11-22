@@ -174,6 +174,52 @@ public class FinancialProfileManagerTests
         Assert.Equal(10000, _iqClient.LastRequest.InvestmentAmount);
     }
 
+    [Fact]
+    public async Task DebtPayoff_SendsTheProfilesDebtAndInstallment_AndTheRate()
+    {
+        await Manager.UpsertAsync("u1", ValidRequest());
+
+        var result = await Manager.GetDebtPayoffAsync("u1", 0.02m);
+
+        Assert.True(result.Success);
+        Assert.NotNull(_iqClient.LastDebtPayoffRequest);
+        Assert.Equal(90000, _iqClient.LastDebtPayoffRequest!.TotalDebt);
+        Assert.Equal(7000, _iqClient.LastDebtPayoffRequest.MonthlyPayment);
+        Assert.Equal(0.02m, _iqClient.LastDebtPayoffRequest.MonthlyInterestRate);
+    }
+
+    [Fact]
+    public async Task DebtPayoff_WithoutRate_LeavesTheDefaultToIq()
+    {
+        await Manager.UpsertAsync("u1", ValidRequest());
+
+        await Manager.GetDebtPayoffAsync("u1", null);
+
+        Assert.Null(_iqClient.LastDebtPayoffRequest!.MonthlyInterestRate);
+    }
+
+    [Fact]
+    public async Task DebtPayoff_WithoutProfile_ReturnsNotFound_AndNeverCallsIq()
+    {
+        var result = await Manager.GetDebtPayoffAsync("nobody", null);
+
+        Assert.Equal(Messages.FinancialProfileNotFound, result.Message);
+        Assert.Null(_iqClient.LastDebtPayoffRequest);
+    }
+
+    [Theory]
+    [InlineData(-0.01)]
+    [InlineData(1.01)]
+    public async Task DebtPayoff_WithRateOutOfRange_IsRejected_AndNeverCallsIq(double rate)
+    {
+        await Manager.UpsertAsync("u1", ValidRequest());
+
+        var result = await Manager.GetDebtPayoffAsync("u1", (decimal)rate);
+
+        Assert.Equal(Messages.InvalidMonthlyInterestRate, result.Message);
+        Assert.Null(_iqClient.LastDebtPayoffRequest);
+    }
+
     private sealed class FakeProfileDal : IFinancialProfileDal
     {
         public List<FinancialProfile> Saved { get; } = new();
@@ -205,6 +251,16 @@ public class FinancialProfileManagerTests
             LastRequest = request;
             IDataResult<FinancialIqCalculateResponse> result =
                 new SuccessDataResult<FinancialIqCalculateResponse>(new FinancialIqCalculateResponse { Score = 6, Segment = "LOW" }, "ok");
+            return Task.FromResult(result);
+        }
+
+        public FinancialIqDebtPayoffRequest? LastDebtPayoffRequest { get; private set; }
+
+        public Task<IDataResult<System.Text.Json.JsonElement?>> GetDebtPayoffAsync(FinancialIqDebtPayoffRequest request)
+        {
+            LastDebtPayoffRequest = request;
+            IDataResult<System.Text.Json.JsonElement?> result = new SuccessDataResult<System.Text.Json.JsonElement?>(
+                System.Text.Json.JsonDocument.Parse("""{"paidOff":true,"months":13}""").RootElement.Clone(), "ok");
             return Task.FromResult(result);
         }
     }

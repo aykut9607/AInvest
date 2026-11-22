@@ -76,4 +76,37 @@ public class EfFinancialIqReadDal : IFinancialIqReadDal
             .OrderBy(p => p.CalculatedAt)
             .ToListAsync();
     }
+
+    // OPTION (MAXRECURSION) must be the last clause of the statement and only takes a literal, not a parameter,
+    // so the SQL is a constant (no LINQ on top: EF would wrap it in another SELECT). Without the option SQL Server
+    // stops a recursive CTE after 100 levels (error 530), i.e. any debt longer than 100 months would fail
+    private const int MaxRecursion = 600;
+    private const string DebtPayoffScheduleSql = @"
+        SELECT month_no        AS Month,
+               opening_balance AS OpeningBalance,
+               interest        AS Interest,
+               payment         AS Payment,
+               principal       AS Principal,
+               closing_balance AS ClosingBalance
+        FROM dbo.fn_DebtPayoffSchedule(@TotalDebt, @MonthlyPayment, @MonthlyRate, @MaxMonths)
+        ORDER BY month_no
+        OPTION (MAXRECURSION 600)";
+
+    public async Task<List<DebtPayoffMonth>> GetDebtPayoffScheduleAsync(decimal totalDebt, decimal monthlyPayment, decimal monthlyRate, int maxMonths)
+    {
+        // the function stops at @MaxMonths, the recursion limit must allow that many months
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(maxMonths, MaxRecursion);
+
+        var parameters = new[]
+        {
+            new SqlParameter("@TotalDebt", SqlDbType.Decimal) { Precision = 18, Scale = 2, Value = totalDebt },
+            new SqlParameter("@MonthlyPayment", SqlDbType.Decimal) { Precision = 18, Scale = 2, Value = monthlyPayment },
+            new SqlParameter("@MonthlyRate", SqlDbType.Decimal) { Precision = 9, Scale = 6, Value = monthlyRate },
+            new SqlParameter("@MaxMonths", SqlDbType.Int) { Value = maxMonths }
+        };
+
+        return await _context.Database
+            .SqlQueryRaw<DebtPayoffMonth>(DebtPayoffScheduleSql, parameters)
+            .ToListAsync();
+    }
 }

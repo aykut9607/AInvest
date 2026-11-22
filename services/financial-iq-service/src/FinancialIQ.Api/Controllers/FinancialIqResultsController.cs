@@ -31,6 +31,19 @@ public class FinancialIqResultsController : ControllerBase
         return Ok(result);
     }
 
+    // Query — debt payoff schedule (recursive CTE); computes, stores nothing. Called by Finance Profile with the
+    // profile's debt and installment; not routed by the gateway (its IQ route is GET /{userId}/... only)
+    [HttpPost("debt-payoff")]
+    public async Task<IActionResult> DebtPayoff(DebtPayoffRequest request)
+    {
+        var result = await _queries.GetDebtPayoffAsync(request);
+
+        if (!result.Success)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
     // Query — only reads the latest saved result
     [HttpGet("{userId}/latest")]
     public async Task<IActionResult> GetLatest(string userId)
