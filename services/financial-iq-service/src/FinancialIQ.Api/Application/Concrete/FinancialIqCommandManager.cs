@@ -15,13 +15,15 @@ public class FinancialIqCommandManager : IFinancialIqCommandService
 
     // the most each factor can give (sum = 100); used when a rule in ScoringRules decides the score.
     // v2: the self-reported risk (RiskAlignment, 15 points) is gone, its points went to the first three factors
+    // Read from the scales in ScoringRules, so a changed tier changes the maximum too
     internal static readonly IReadOnlyDictionary<string, decimal> FactorMaximums = new Dictionary<string, decimal>
     {
-        ["CashReserveMonths"] = 25,
-        ["DebtToIncomeRatio"] = 25,
-        ["SavingsRate"] = 25,
-        ["ExpenseRatio"] = 15,
-        ["Impatience"] = 10
+        ["CashReserveMonths"] = ScoringRules.CashReserveMonths.MaxPoints,
+        // the factor is the worse of the two parts, so it can never be more than the smaller maximum
+        ["DebtToIncomeRatio"] = Math.Min(ScoringRules.InstallmentToIncome.MaxPoints, ScoringRules.NetDebtYearsOfIncome.MaxPoints),
+        ["SavingsRate"] = ScoringRules.SavingsRate.MaxPoints,
+        ["ExpenseRatio"] = ScoringRules.ExpenseRatio.MaxPoints,
+        ["Impatience"] = ScoringRules.Impatience.MaxPoints
     };
 
     public FinancialIqCommandManager(IFinancialIqResultDal dal)
@@ -53,6 +55,7 @@ public class FinancialIqCommandManager : IFinancialIqCommandService
             Score = score,
             Segment = segment,
             FactorBreakdown = factorBreakdown,
+            ScoringVersion = ScoringRules.ScoringVersion,
             UpdatedAt = DateTime.UtcNow
         };
 
@@ -99,42 +102,24 @@ public class FinancialIqCommandManager : IFinancialIqCommandService
         //cashReserveMonths is calculated by dividing the reserve by monthly expenses
         //example lets say the reserve is 6000 and monthly expenses is 2000, then cashReserveMonths = 6000 / 2000 = 3 .meaning the user has 3 months of reserve
 
-        factorScores["CashReserveMonths"] = cashReserveMonths switch
-        //switch expression used to determine the score based on cash reserve months
-        {
-            >= 6 => 25,
-            //if cash reserve months is greater than or equal to 6, then the score is 25.
-
-            >= 3 => 15,
-            >= 1 => 8,
-            _ => 0
-        };
-        if (cashReserveMonths < 3) warnings.Add("Low cash reserve");
+        // points from the scale in ScoringRules: >= 6 months 25, >= 3 months 15, >= 1 month 8, otherwise 0
+        //example lets say cashReserveMonths is 4.2 -> the first step reached is ">= 3", so 15 points
+        Score("CashReserveMonths", ScoringRules.CashReserveMonths, cashReserveMonths, factorScores, warnings);
 
         // 2) Debt-to-income ratio
         var debtRatio = r.MonthlyDebtPayment / r.MonthlyIncome;
         //debtRatio is calculated by dividing the monthly debt payment by monthly income
         //example lets say monthly debt payment is 500 and monthly income is 5000, then debtRatio = 500 / 5000 = 0.1 .meaning the user has a debt-to-income ratio of 10%
 
-        var paymentPoints = debtRatio switch
-        {
-            <= 0.10m => 25,
-            <= 0.20m => 15,
-            <= 0.36m => 8,
-            _ => 0
-        };
-        if (debtRatio > 0.36m) warnings.Add("High debt burden");
+        // <= 10% 25, <= 20% 15, <= 36% 8, otherwise 0 (and the "High debt burden" warning above 36%)
+        var paymentPoints = ScoringRules.InstallmentToIncome.Points(debtRatio);
+        AddWarning(ScoringRules.InstallmentToIncome, debtRatio, warnings);
 
         // the installment alone hides a large debt with a small or long-term payment, so the size of the
         // net debt compared with a year of income is scored too, and the factor takes the worse of the two
-        var debtLoadPoints = netDebtYears switch
-        {
-            <= 0.5m => 25,
-            <= 1m => 15,
-            <= ScoringRules.HighNetDebtYears => 8,
-            _ => 0
-        };
-        if (netDebtYears > ScoringRules.HighNetDebtYears) warnings.Add(ScoringRules.HighTotalDebtWarning);
+        // <= 0.5 years 25, <= 1 year 15, <= 3 years 8, otherwise 0 (and "High total debt" above 3 years)
+        var debtLoadPoints = ScoringRules.NetDebtYearsOfIncome.Points(netDebtYears);
+        AddWarning(ScoringRules.NetDebtYearsOfIncome, netDebtYears, warnings);
         //example lets say the installment is 5% of income (25 points) but the net debt is 6.25 years of income (0 points) -> factor = 0
 
         factorScores["DebtToIncomeRatio"] = Math.Min(paymentPoints, debtLoadPoints);
@@ -145,40 +130,21 @@ public class FinancialIqCommandManager : IFinancialIqCommandService
         //example lets say monthly income is 5000, monthly expenses is 2000, and monthly debt payment is 500,
         // then savingsRate = (5000 - 2000 - 500) / 5000 = 2500 / 5000 = 0.5 .meaning the user has a savings rate of 50%
 
-        factorScores["SavingsRate"] = savingsRate switch
-        {
-            >= 0.20m => 25,
-            >= 0.10m => 15,
-            >= 0m => 8,
-            _ => 0
-        };
-        if (savingsRate < 0) warnings.Add("Negative savings rate");
+        // >= 20% 25, >= 10% 15, >= 0 8, negative 0 (and the "Negative savings rate" warning)
+        Score("SavingsRate", ScoringRules.SavingsRate, savingsRate, factorScores, warnings);
 
         // 4) Expense ratio
         var expenseRatio = r.MonthlyExpenses / r.MonthlyIncome;
         //expenseRatio is calculated by dividing monthly expenses by monthly income
         //example lets say monthly expenses is 2000 and monthly income is 5000, then expenseRatio = 2000 / 5000 = 0.4 .meaning the user has an expense ratio of 40%
 
-        factorScores["ExpenseRatio"] = expenseRatio switch
-        {
-            <= 0.40m => 15,
-            <= 0.60m => 9,
-            <= 0.80m => 5,
-            _ => 0
-        };
-        if (expenseRatio > 0.80m) warnings.Add("Overspending relative to income");
+        // <= 40% 15, <= 60% 9, <= 80% 5, otherwise 0 (and "Overspending relative to income" above 80%)
+        Score("ExpenseRatio", ScoringRules.ExpenseRatio, expenseRatio, factorScores, warnings);
 
         // 5) Impatience
         // self-reported 1-5, present bias: preferring a small reward now over a bigger one later
-        factorScores["Impatience"] = r.ImpatienceLevel switch
-        {
-            1 => 10,
-            2 => 8,
-            3 => 5,
-            4 => 2,
-            _ => 0
-        };
-        if (r.ImpatienceLevel >= 4) warnings.Add("High impatience");
+        // level 1 -> 10, 2 -> 8, 3 -> 5, 4 -> 2, 5 -> 0 (and "High impatience" from level 4)
+        Score("Impatience", ScoringRules.Impatience, r.ImpatienceLevel, factorScores, warnings);
 
         // the rule replaces the factor points, so the bars in the apps still add up to the score
         if (appliedRule is ScoringRules.VeryHighIncomeRule or ScoringRules.VeryHighWealthRule)
@@ -197,8 +163,8 @@ public class FinancialIqCommandManager : IFinancialIqCommandService
 
         var segment = totalScore switch
         {
-            >= 71 => "HIGH",
-            >= 41 => "MEDIUM",
+            >= ScoringRules.HighSegmentMinScore => "HIGH",
+            >= ScoringRules.MediumSegmentMinScore => "MEDIUM",
             _ => "LOW"
         };
         // bundle scores + warnings into one JSON document so the AI/RAG service can explain "why" this score, not just "what"
@@ -206,6 +172,17 @@ public class FinancialIqCommandManager : IFinancialIqCommandService
         var breakdown = new { version = ScoringRules.ScoringVersion, factors = factorScores, warnings, appliedRule };
         var factorBreakdownJson = JsonSerializer.Serialize(breakdown);
         return (totalScore, segment, factorBreakdownJson);
+    }
+
+    private static void Score(string factor, ScoreScale scale, decimal value, Dictionary<string, decimal> factorScores, HashSet<string> warnings)
+    {
+        factorScores[factor] = scale.Points(value);
+        AddWarning(scale, value, warnings);
+    }
+
+    private static void AddWarning(ScoreScale scale, decimal value, HashSet<string> warnings)
+    {
+        if (scale.Warning is { } warning && warning.Fires(value)) warnings.Add(warning.Text);
     }
 
     // very high income -> 100 only while the net debt is small (at most 1 year of income);
@@ -233,6 +210,7 @@ public class FinancialIqCommandManager : IFinancialIqCommandService
         Segment = entity.Segment,
         FactorBreakdown = FactorBreakdownJson.ToElement(entity.FactorBreakdown),
         CreatedAt = entity.CreatedAt,
-        UpdatedAt = entity.UpdatedAt
+        UpdatedAt = entity.UpdatedAt,
+        ResultVersion = ResultVersion.FromRowVersion(entity.RowVersion)
     };
 }

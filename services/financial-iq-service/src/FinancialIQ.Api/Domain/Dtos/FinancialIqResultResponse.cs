@@ -13,4 +13,8 @@ public class FinancialIqResultResponse : IDto
     public JsonElement FactorBreakdown { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+    // changes every time this user's result is written again (from the row's rowversion, see ResultVersion).
+    // Something built on a result (a portfolio proposal) keeps this number; if /latest returns another one,
+    // the result has been recalculated since and that thing is out of date. Optional, added 22 Nov 2026
+    public long ResultVersion { get; set; }
 }

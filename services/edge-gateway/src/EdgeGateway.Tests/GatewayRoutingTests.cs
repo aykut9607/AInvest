@@ -16,9 +16,13 @@ public class GatewayRoutingTests : IClassFixture<GatewayFactory>
     [InlineData("/auth/login", "http://identity.test/auth/login")]
     [InlineData("/api/Profiles/u1", "http://finance.test/api/Profiles/u1")]
     [InlineData("/api/Profiles/u1/calculate-iq", "http://finance.test/api/Profiles/u1/calculate-iq")]
+    [InlineData("/api/Profiles/u1/debt-payoff?monthlyInterestRate=0.03", "http://finance.test/api/Profiles/u1/debt-payoff?monthlyInterestRate=0.03")]
     [InlineData("/api/financial-iq/u1/latest", "http://iq.test/api/financial-iq/u1/latest")]
     [InlineData("/api/financial-iq/u1/history?take=5", "http://iq.test/api/financial-iq/u1/history?take=5")]
+    [InlineData("/api/financial-iq/scoring-rules", "http://iq.test/api/financial-iq/scoring-rules")]
+    [InlineData("/api/financial-iq/scoring-rules/current", "http://iq.test/api/financial-iq/scoring-rules/current")]
     [InlineData("/ai/explain-financial-iq", "http://ai.test/ai/explain-financial-iq")]
+    [InlineData("/api/market/fx?base=USD&symbol=TRY", "http://market.test/api/market/fx?base=USD&symbol=TRY")]
     public async Task PublicRoute_IsForwardedToTheRightService(string path, string expectedDownstreamUrl)
     {
         var response = await _client.SendAsync(TestTokens.Get(path, TestTokens.Create("u1")));
@@ -35,10 +39,12 @@ public class GatewayRoutingTests : IClassFixture<GatewayFactory>
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
-    [Fact]
-    public async Task InternalIqCalculate_IsNotReachableThroughTheGateway()
+    [Theory]
+    [InlineData("/api/financial-iq/calculate")]
+    [InlineData("/api/financial-iq/debt-payoff")]
+    public async Task InternalIqPosts_AreNotReachableThroughTheGateway(string path)
     {
-        var request = new HttpRequestMessage(HttpMethod.Post, "/api/financial-iq/calculate")
+        var request = new HttpRequestMessage(HttpMethod.Post, path)
         {
             Content = new StringContent("{}")
         };
@@ -47,6 +53,25 @@ public class GatewayRoutingTests : IClassFixture<GatewayFactory>
         var response = await _client.SendAsync(request);
 
         // the IQ route only accepts GET, so this POST never reaches the fake downstream
+        Assert.False(response.IsSuccessStatusCode);
+    }
+
+    [Fact]
+    public async Task MarketDataActuator_IsNotReachableThroughTheGateway()
+    {
+        var response = await _client.SendAsync(TestTokens.Get("/actuator/health", TestTokens.Create("u1")));
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task MarketData_IsReadOnly()
+    {
+        var request = new HttpRequestMessage(HttpMethod.Post, "/api/market/fx") { Content = new StringContent("{}") };
+        request.Headers.Authorization = new("Bearer", TestTokens.Create("u1"));
+
+        var response = await _client.SendAsync(request);
+
         Assert.False(response.IsSuccessStatusCode);
     }
 

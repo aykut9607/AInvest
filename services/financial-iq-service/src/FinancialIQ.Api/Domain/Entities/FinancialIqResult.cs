@@ -17,4 +17,12 @@ public class FinancialIqResult : IEntity
     public string FactorBreakdown { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+    // SQL Server rowversion: 8 bytes the database sets itself on every INSERT and UPDATE of the row (never written
+    // by us). It changes whenever the result changes, so "is the result I based something on still the current one?"
+    // is a cheap equality check (see ResultVersion). For EF it is also the concurrency token of this entity
+    public byte[] RowVersion { get; set; } = [];
+
+    // the scoring_rule_versions row this score was calculated with (same value as factorBreakdown.version)
+    public string ScoringVersion { get; set; } = string.Empty;
 }

@@ -57,6 +57,15 @@ public class CalculateValidationTests
     }
 
     [Fact]
+    public async Task StoredResult_SaysWhichScoringVersionProducedIt()
+    {
+        await Manager.CalculateAsync(Request("u1"));
+
+        // the procedure writes it into financial_iq_results and iq_history (foreign key to scoring_rule_versions)
+        Assert.Equal(ScoringRules.ScoringVersion, Assert.Single(_dal.Stored).ScoringVersion);
+    }
+
+    [Fact]
     public async Task NegativeTotalDebt_IsRejected_AndNothingIsStored()
     {
         var request = Request("u1");

@@ -12,4 +12,6 @@ public interface IFinancialProfileService
     Task<IResult> UpsertAsync(string id, UpsertFinancialProfileRequest request);
     Task<IResult>DeleteAsync(string id);
     Task<IDataResult<FinancialIqCalculateResponse>> CalculateIqAsync(string userId);
+    // month-by-month payoff of the profile's total debt with its monthly installment (computed by IQ)
+    Task<IDataResult<System.Text.Json.JsonElement?>> GetDebtPayoffAsync(string userId, decimal? monthlyInterestRate);
 }

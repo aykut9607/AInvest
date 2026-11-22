@@ -10,4 +10,10 @@ public interface IFinancialIqReadDal
 
     // the user's last `take` calculations, oldest first (dbo.fn_IqTrend)
     Task<List<IqTrendPointResponse>> GetTrendAsync(string userId, int take);
+
+    // month-by-month payoff of a debt, first month first (dbo.fn_DebtPayoffSchedule, recursive CTE)
+    Task<List<DebtPayoffMonth>> GetDebtPayoffScheduleAsync(decimal totalDebt, decimal monthlyPayment, decimal monthlyRate, int maxMonths);
+
+    // every scoring version, the active one first, then newest first (scoring_rule_versions)
+    Task<List<ScoringRulesResponse>> GetScoringRulesAsync();
 }

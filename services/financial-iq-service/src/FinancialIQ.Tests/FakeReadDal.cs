@@ -23,4 +23,18 @@ internal sealed class FakeReadDal : IFinancialIqReadDal
         LastRequestedTake = take;
         return Task.FromResult(Points.ToList());
     }
+
+    // what the "database" returns for a payoff schedule, and the rate it was asked with (null = never asked)
+    public List<DebtPayoffMonth> Schedule { get; } = new();
+    public decimal? LastRequestedRate { get; private set; }
+
+    public List<ScoringRulesResponse> ScoringVersions { get; } = new();
+
+    public Task<List<ScoringRulesResponse>> GetScoringRulesAsync() => Task.FromResult(ScoringVersions.ToList());
+
+    public Task<List<DebtPayoffMonth>> GetDebtPayoffScheduleAsync(decimal totalDebt, decimal monthlyPayment, decimal monthlyRate, int maxMonths)
+    {
+        LastRequestedRate = monthlyRate;
+        return Task.FromResult(Schedule.ToList());
+    }
 }

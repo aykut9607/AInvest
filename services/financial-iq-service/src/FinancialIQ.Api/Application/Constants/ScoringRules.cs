@@ -40,7 +40,57 @@ public static class ScoringRules
 
     public const string ExtremeDebtWarning = "Extreme total debt";
 
-    // written into factorBreakdown.version; raise it whenever a factor, threshold or rule changes so stored results
-    // can be told apart (v1 = 6 factors incl. RiskAlignment, v2 = 5 factors, no self-reported risk)
+    // written into factorBreakdown.version and the scoring_version column; raise it whenever a factor, threshold or
+    // rule changes so stored results can be told apart (v1 = 6 factors incl. RiskAlignment, v2 = 5 factors, no
+    // self-reported risk). Each version's full rule set is stored in scoring_rule_versions (ScoringRuleSnapshots);
+    // ScoringRuleDocumentTests fails when a number below changes without a new version
     public const string ScoringVersion = "v2";
+
+    // --- the 5 factors (v2). Maximums: 25 / 25 / 25 / 15 / 10 = 100 ---
+
+    // 1) months the reserve (cash + half of the investments) covers the monthly expenses
+    public static readonly ScoreScale CashReserveMonths = new(
+        "(cash + 50% of investments) / monthly expenses, in months",
+        ScoreScale.AtLeast,
+        [new(6m, 25), new(3m, 15), new(1m, 8)], 0,
+        new WarningRule("Low cash reserve", WarningRule.Below, 3m));
+
+    // 2a) monthly installment / monthly income
+    public static readonly ScoreScale InstallmentToIncome = new(
+        "monthly debt payment / monthly income",
+        ScoreScale.AtMost,
+        [new(0.10m, 25), new(0.20m, 15), new(0.36m, 8)], 0,
+        new WarningRule("High debt burden", WarningRule.Above, 0.36m));
+
+    // 2b) net debt (total debt - cash - investments) in years of income; factor 2 takes the worse of 2a and 2b
+    public static readonly ScoreScale NetDebtYearsOfIncome = new(
+        "(total debt - cash - investments) / (monthly income x 12), in years",
+        ScoreScale.AtMost,
+        [new(0.5m, 25), new(1m, 15), new(HighNetDebtYears, 8)], 0,
+        new WarningRule(HighTotalDebtWarning, WarningRule.Above, HighNetDebtYears));
+
+    // 3) (income - expenses - installment) / income
+    public static readonly ScoreScale SavingsRate = new(
+        "(monthly income - expenses - debt payment) / monthly income",
+        ScoreScale.AtLeast,
+        [new(0.20m, 25), new(0.10m, 15), new(0m, 8)], 0,
+        new WarningRule("Negative savings rate", WarningRule.Below, 0m));
+
+    // 4) expenses / income
+    public static readonly ScoreScale ExpenseRatio = new(
+        "monthly expenses / monthly income",
+        ScoreScale.AtMost,
+        [new(0.40m, 15), new(0.60m, 9), new(0.80m, 5)], 0,
+        new WarningRule("Overspending relative to income", WarningRule.Above, 0.80m));
+
+    // 5) self-reported impatience 1-5 (present bias); level 1 -> 10 ... level 5 -> 0
+    public static readonly ScoreScale Impatience = new(
+        "self-reported impatience level, 1 (patient) to 5 (impatient)",
+        ScoreScale.AtMost,
+        [new(1m, 10), new(2m, 8), new(3m, 5), new(4m, 2)], 0,
+        new WarningRule("High impatience", WarningRule.Above, 3m));
+
+    // segment from the total score
+    public const int HighSegmentMinScore = 71;
+    public const int MediumSegmentMinScore = 41;
 }

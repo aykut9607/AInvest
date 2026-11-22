@@ -22,11 +22,13 @@ public class EfFinancialIqResultDal : EfEntityRepositoryBase<FinancialIqResult, 
             new SqlParameter("@Score", SqlDbType.Int) { Value = entity.Score },
             new SqlParameter("@Segment", SqlDbType.NVarChar, FinancialIqResult.SegmentMaxLength) { Value = entity.Segment },
             // size -1 = nvarchar(max)
-            new SqlParameter("@FactorBreakdown", SqlDbType.NVarChar, -1) { Value = entity.FactorBreakdown }
+            new SqlParameter("@FactorBreakdown", SqlDbType.NVarChar, -1) { Value = entity.FactorBreakdown },
+            // must exist in scoring_rule_versions (foreign key), otherwise the procedure fails and nothing is saved
+            new SqlParameter("@ScoringVersion", SqlDbType.NVarChar, ScoringRuleVersion.VersionMaxLength) { Value = entity.ScoringVersion }
         };
 
         await _context.Database.ExecuteSqlRawAsync(
-            "EXEC dbo.usp_SaveIqResult @UserId, @Score, @Segment, @FactorBreakdown",
+            "EXEC dbo.usp_SaveIqResult @UserId, @Score, @Segment, @FactorBreakdown, @ScoringVersion",
             parameters);
     }
 }

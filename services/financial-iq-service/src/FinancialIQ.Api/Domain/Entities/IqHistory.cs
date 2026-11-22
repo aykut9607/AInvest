@@ -11,4 +11,6 @@ public class IqHistory : IEntity
     public string Segment { get; set; } = string.Empty;
     public string FactorBreakdown { get; set; } = string.Empty;
     public DateTime CalculatedAt { get; set; }
+    // the scoring_rule_versions row this score was calculated with
+    public string ScoringVersion { get; set; } = string.Empty;
 }
