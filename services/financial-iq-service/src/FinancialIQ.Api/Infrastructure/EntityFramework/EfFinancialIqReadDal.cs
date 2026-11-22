@@ -77,6 +77,25 @@ public class EfFinancialIqReadDal : IFinancialIqReadDal
             .ToListAsync();
     }
 
+    public async Task<List<ScoringRulesResponse>> GetScoringRulesAsync()
+    {
+        // a handful of small rows: plain EF, read-only (AsNoTracking), JSON text turned into an object afterwards
+        var rows = await _context.ScoringRuleVersions
+            .AsNoTracking()
+            .OrderByDescending(v => v.IsActive)
+            .ThenByDescending(v => v.EffectiveFrom)
+            .ToListAsync();
+
+        return rows.Select(v => new ScoringRulesResponse
+        {
+            Version = v.Version,
+            Description = v.Description,
+            EffectiveFrom = v.EffectiveFrom,
+            IsActive = v.IsActive,
+            Rules = FactorBreakdownJson.ToElement(v.RulesJson)
+        }).ToList();
+    }
+
     // OPTION (MAXRECURSION) must be the last clause of the statement and only takes a literal, not a parameter,
     // so the SQL is a constant (no LINQ on top: EF would wrap it in another SELECT). Without the option SQL Server
     // stops a recursive CTE after 100 levels (error 530), i.e. any debt longer than 100 months would fail

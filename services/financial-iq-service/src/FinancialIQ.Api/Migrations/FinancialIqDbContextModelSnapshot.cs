@@ -49,6 +49,12 @@ namespace FinancialIQ.Api.Migrations
                         .HasColumnType("int")
                         .HasColumnName("score");
 
+                    b.Property<string>("ScoringVersion")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasColumnName("scoring_version");
+
                     b.Property<string>("Segment")
                         .IsRequired()
                         .HasMaxLength(10)
@@ -66,6 +72,8 @@ namespace FinancialIQ.Api.Migrations
                         .HasColumnName("user_id");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ScoringVersion");
 
                     b.HasIndex("UpdatedAt")
                         .IsDescending()
@@ -105,6 +113,12 @@ namespace FinancialIQ.Api.Migrations
                         .HasColumnType("int")
                         .HasColumnName("score");
 
+                    b.Property<string>("ScoringVersion")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasColumnName("scoring_version");
+
                     b.Property<string>("Segment")
                         .IsRequired()
                         .HasMaxLength(10)
@@ -119,6 +133,8 @@ namespace FinancialIQ.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ScoringVersion");
+
                     b.HasIndex("UserId", "CalculatedAt")
                         .IsDescending(false, true)
                         .HasDatabaseName("IX_iq_history_user_id_calculated_at");
@@ -129,6 +145,63 @@ namespace FinancialIQ.Api.Migrations
                         {
                             t.HasCheckConstraint("CK_iq_history_score", "[score] BETWEEN 0 AND 100");
                         });
+                });
+
+            modelBuilder.Entity("FinancialIQ.Api.Domain.Entities.ScoringRuleVersion", b =>
+                {
+                    b.Property<string>("Version")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasColumnName("version");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("description");
+
+                    b.Property<DateTime>("EffectiveFrom")
+                        .HasColumnType("datetime2(3)")
+                        .HasColumnName("effective_from");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("RulesJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("rules_json");
+
+                    b.HasKey("Version");
+
+                    b.HasIndex("IsActive")
+                        .IsUnique()
+                        .HasDatabaseName("UX_scoring_rule_versions_single_active")
+                        .HasFilter("[is_active] = 1");
+
+                    b.ToTable("scoring_rule_versions", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_scoring_rule_versions_rules_json", "ISJSON([rules_json]) = 1");
+                        });
+                });
+
+            modelBuilder.Entity("FinancialIQ.Api.Domain.Entities.FinancialIqResult", b =>
+                {
+                    b.HasOne("FinancialIQ.Api.Domain.Entities.ScoringRuleVersion", null)
+                        .WithMany()
+                        .HasForeignKey("ScoringVersion")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FinancialIQ.Api.Domain.Entities.IqHistory", b =>
+                {
+                    b.HasOne("FinancialIQ.Api.Domain.Entities.ScoringRuleVersion", null)
+                        .WithMany()
+                        .HasForeignKey("ScoringVersion")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

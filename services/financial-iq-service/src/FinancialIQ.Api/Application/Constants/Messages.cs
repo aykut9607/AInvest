@@ -18,5 +18,7 @@ public static class Messages
     public const string DebtPayoffCalculated = "Debt payoff schedule calculated successfully.";
     public const string NoDebtToPayOff = "There is no debt to pay off.";
     public const string PaymentDoesNotCoverInterest = "The monthly payment does not cover the monthly interest, so the debt never gets smaller.";
+    public const string ScoringRulesRetrieved = "Scoring rules retrieved successfully.";
+    public const string ScoringVersionNotFound = "Scoring version not found.";
     public const string DebtNotPaidOffWithinLimit = "The debt is not paid off within 600 months (50 years) with this payment.";
 }

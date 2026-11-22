@@ -96,6 +96,25 @@ public class FinancialIqQueryManager : IFinancialIqQueryService
             response.PaidOff ? Messages.DebtPayoffCalculated : Messages.DebtNotPaidOffWithinLimit);
     }
 
+    public async Task<IDataResult<List<ScoringRulesResponse>>> GetScoringRulesAsync()
+    {
+        var versions = await _readDal.GetScoringRulesAsync();
+        return new SuccessDataResult<List<ScoringRulesResponse>>(versions, Messages.ScoringRulesRetrieved);
+    }
+
+    public async Task<IDataResult<ScoringRulesResponse>> GetScoringRulesAsync(string version)
+    {
+        // "current" = whatever version is active; otherwise the exact version name (v1, v2, ...)
+        var versions = await _readDal.GetScoringRulesAsync();
+        var match = version.Equals("current", StringComparison.OrdinalIgnoreCase)
+            ? versions.FirstOrDefault(v => v.IsActive)
+            : versions.FirstOrDefault(v => v.Version.Equals(version, StringComparison.OrdinalIgnoreCase));
+
+        return match == null
+            ? new ErrorDataResult<ScoringRulesResponse>(Messages.ScoringVersionNotFound)
+            : new SuccessDataResult<ScoringRulesResponse>(match, Messages.ScoringRulesRetrieved);
+    }
+
     private const decimal MaxAmount = 999_999_999_999_999m;
 
     // same limit as the column (nvarchar(100)); checked before the database is asked

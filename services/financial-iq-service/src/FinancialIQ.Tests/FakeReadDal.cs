@@ -28,6 +28,10 @@ internal sealed class FakeReadDal : IFinancialIqReadDal
     public List<DebtPayoffMonth> Schedule { get; } = new();
     public decimal? LastRequestedRate { get; private set; }
 
+    public List<ScoringRulesResponse> ScoringVersions { get; } = new();
+
+    public Task<List<ScoringRulesResponse>> GetScoringRulesAsync() => Task.FromResult(ScoringVersions.ToList());
+
     public Task<List<DebtPayoffMonth>> GetDebtPayoffScheduleAsync(decimal totalDebt, decimal monthlyPayment, decimal monthlyRate, int maxMonths)
     {
         LastRequestedRate = monthlyRate;

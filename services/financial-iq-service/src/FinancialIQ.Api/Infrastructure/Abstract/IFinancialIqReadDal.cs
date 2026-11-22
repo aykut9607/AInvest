@@ -13,4 +13,7 @@ public interface IFinancialIqReadDal
 
     // month-by-month payoff of a debt, first month first (dbo.fn_DebtPayoffSchedule, recursive CTE)
     Task<List<DebtPayoffMonth>> GetDebtPayoffScheduleAsync(decimal totalDebt, decimal monthlyPayment, decimal monthlyRate, int maxMonths);
+
+    // every scoring version, the active one first, then newest first (scoring_rule_versions)
+    Task<List<ScoringRulesResponse>> GetScoringRulesAsync();
 }
