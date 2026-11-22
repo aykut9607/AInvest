@@ -53,6 +53,9 @@ builder.Services.AddAuthorization(options =>
 // brute-force protection for the login endpoint (the route uses RateLimiterPolicy "login" in appsettings.json):
 // at most N attempts per client IP per window; the next one gets 429 before it ever reaches Identity
 var loginLimit = builder.Configuration.GetSection("RateLimiting:Login");
+// AI calls run a local LLM (Ollama) on the same laptop: a few seconds of CPU each. One user (or a buggy client
+// in a retry loop) must not be able to keep the model busy for everyone else, so /ai gets its own per-user budget
+var aiLimit = builder.Configuration.GetSection("RateLimiting:Ai");
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -66,6 +69,20 @@ builder.Services.AddRateLimiter(options =>
                 PermitLimit = loginLimit.GetValue("PermitLimit", 5),
                 Window = TimeSpan.FromSeconds(loginLimit.GetValue("WindowSeconds", 60)),
                 // reject at once instead of making the extra attempts wait in a queue
+                QueueLimit = 0
+            }));
+
+    options.AddPolicy("ai", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            // one counter per user (token "sub"), not per IP: on a shared network many users share one IP.
+            // The rate limiter runs after authorization, so on this route the token is already validated
+            partitionKey: httpContext.User.FindFirst("sub")?.Value
+                          ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                          ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = aiLimit.GetValue("PermitLimit", 10),
+                Window = TimeSpan.FromSeconds(aiLimit.GetValue("WindowSeconds", 60)),
                 QueueLimit = 0
             }));
 

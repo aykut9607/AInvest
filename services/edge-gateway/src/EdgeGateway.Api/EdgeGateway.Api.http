@@ -55,3 +55,14 @@ GET {{Gateway}}/api/Profiles/{{UserId}}
 ### 8) Listing every profile is not routed -> 404
 GET {{Gateway}}/api/Profiles
 Authorization: Bearer {{Token}}
+
+### 9) AI explanation (any valid token; 10 per user per minute, the 11th gets 429 + Retry-After)
+POST {{Gateway}}/ai/explain-financial-iq
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{ "score": 62, "segment": "MEDIUM" }
+
+### 10) Market data: exchange rate (any valid token, GET only; Market Data on :8082 must be running, needs internet)
+GET {{Gateway}}/api/market/fx?base=USD&symbol=TRY
+Authorization: Bearer {{Token}}
