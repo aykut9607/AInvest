@@ -6,10 +6,10 @@ using Xunit;
 
 namespace FinancialIQ.Tests;
 
-// the two rules above the 6 factors (ScoringRules): very high income -> 100, extreme net debt -> 0
+// the rules above the 5 factors (ScoringRules): very high income or net worth -> 100, extreme net debt -> 0
 public class ExtremeAmountRuleTests
 {
-    // no cash at all, spends most of the income, impatient and claims LOW risk: the factors alone would score low
+    // no cash at all, spends most of the income and impatient: the factors alone would score low
     private static CalculateRequest NoReserve(decimal monthlyIncome, decimal totalDebt = 0) => new()
     {
         UserId = "test-user",
@@ -18,7 +18,6 @@ public class ExtremeAmountRuleTests
         MonthlyDebtPayment = 0,
         CashReserve = 0,
         TotalDebt = totalDebt,
-        RiskPreference = "LOW",
         ImpatienceLevel = 5
     };
 
@@ -33,7 +32,6 @@ public class ExtremeAmountRuleTests
         CashReserve = 96000,
         TotalDebt = totalDebt,
         InvestmentAmount = investments,
-        RiskPreference = "MEDIUM",
         ImpatienceLevel = 1
     };
 
@@ -59,7 +57,6 @@ public class ExtremeAmountRuleTests
         // the bars in the apps must still add up to the score
         Assert.Equal(100, FactorSum(breakdown));
         Assert.Empty(breakdown.GetProperty("warnings").EnumerateArray());
-        Assert.Equal("HIGH", breakdown.GetProperty("riskProfile").GetProperty("behavioral").GetString());
     }
 
     [Fact]
@@ -104,7 +101,6 @@ public class ExtremeAmountRuleTests
         Assert.Equal(ScoringRules.ExtremeDebtRule, AppliedRule(breakdown));
         Assert.Equal(0, FactorSum(breakdown));
         Assert.Contains(ScoringRules.ExtremeDebtWarning, breakdown.GetProperty("warnings").EnumerateArray().Select(w => w.GetString()));
-        Assert.Equal("LOW", breakdown.GetProperty("riskProfile").GetProperty("behavioral").GetString());
     }
 
     [Fact]
@@ -119,11 +115,12 @@ public class ExtremeAmountRuleTests
     [Fact]
     public void LargeDebtCoveredByInvestments_IsNotExtreme()
     {
-        // 150,000,000 owed but 500,000,000 invested: the net position is positive, so no zero score
+        // 150,000,000 owed but 500,000,000 invested: the net position is +350,000,000, so no zero score -
+        // it is even a very high net worth (>= 10,000,000) -> 100
         var (score, _, breakdown) = Score(HealthyRatios(150_000_000, investments: 500_000_000));
 
-        Assert.Null(AppliedRule(breakdown));
-        Assert.True(score > 0);
+        Assert.Equal(ScoringRules.VeryHighWealthRule, AppliedRule(breakdown));
+        Assert.Equal(100, score);
     }
 
     [Fact]
@@ -155,7 +152,7 @@ public class ExtremeAmountRuleTests
     [Fact]
     public void OlderCallersWithoutTotalDebt_KeepTheirScore()
     {
-        // same numbers as demo-user-4 in the docs (score 6); TotalDebt defaults to 0
+        // same numbers as demo-user-4 in the docs (v1 score 6, v2 score 8); TotalDebt defaults to 0
         var request = new CalculateRequest
         {
             UserId = "test-user",
@@ -163,13 +160,69 @@ public class ExtremeAmountRuleTests
             MonthlyExpenses = 25000,
             MonthlyDebtPayment = 7000,
             CashReserve = 3000,
-            RiskPreference = "HIGH",
             ImpatienceLevel = 5
         };
 
         var (score, _, breakdown) = Score(request);
 
-        Assert.Equal(6, score);
+        Assert.Equal(8, score);
         Assert.Null(AppliedRule(breakdown));
+    }
+
+    // small salary, spends almost all of it, impatient - but owns a lot. Net worth = cash + investments - debt
+    private static CalculateRequest Wealthy(decimal cash, decimal investments, decimal totalDebt) => new()
+    {
+        UserId = "test-user",
+        MonthlyIncome = 30000,
+        MonthlyExpenses = 29000,
+        MonthlyDebtPayment = 0,
+        CashReserve = cash,
+        InvestmentAmount = investments,
+        TotalDebt = totalDebt,
+        ImpatienceLevel = 5
+    };
+
+    [Fact]
+    public void VeryHighNetWorth_WithSmallSalary_Scores100()
+    {
+        // 2,000,000 cash + 9,000,000 invested - 1,000,000 debt = 10,000,000 net worth (exactly the threshold)
+        var (score, segment, breakdown) = Score(Wealthy(2_000_000, 9_000_000, 1_000_000));
+
+        Assert.Equal(100, score);
+        Assert.Equal("HIGH", segment);
+        Assert.Equal(ScoringRules.VeryHighWealthRule, AppliedRule(breakdown));
+        Assert.Equal(100, FactorSum(breakdown));
+        Assert.Empty(breakdown.GetProperty("warnings").EnumerateArray());
+    }
+
+    [Fact]
+    public void NetWorthJustBelowTheThreshold_IsScoredByTheFactors()
+    {
+        // one unit more debt -> 9,999,999 net worth
+        var (score, _, breakdown) = Score(Wealthy(2_000_000, 9_000_000, 1_000_001));
+
+        Assert.Null(AppliedRule(breakdown));
+        Assert.True(score < 100);
+    }
+
+    [Fact]
+    public void DebtCountsAgainstTheWealth()
+    {
+        // 12,000,000 assets but 5,000,000 owed -> 7,000,000 net: not "very wealthy"
+        var (_, _, breakdown) = Score(Wealthy(3_000_000, 9_000_000, 5_000_000));
+
+        Assert.Null(AppliedRule(breakdown));
+    }
+
+    [Fact]
+    public void VeryHighIncomeAndVeryHighNetWorth_ReportsTheIncomeRule()
+    {
+        var request = NoReserve(ScoringRules.VeryHighMonthlyIncome);
+        request.InvestmentAmount = ScoringRules.VeryHighNetWorth;
+
+        var (score, _, breakdown) = Score(request);
+
+        Assert.Equal(100, score);
+        Assert.Equal(ScoringRules.VeryHighIncomeRule, AppliedRule(breakdown));
     }
 }

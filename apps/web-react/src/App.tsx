@@ -21,7 +21,6 @@ function App() {
     totalDebt: "",
     cashReserve: "",
     investmentAmount: "",
-    riskPreference: "MEDIUM",
     impatienceLevel: "3",
   });
 
@@ -76,7 +75,7 @@ function App() {
     setExplainError("");
 
     try {
-      const explainResult = await explainFinancialScore(result.score, result.segment);
+      const explainResult = await explainFinancialScore(result.score, result.segment, result.factorBreakdown);
       setExplanation(explainResult.explanation);
       setExplanationDisclaimer(explainResult.disclaimer);
     } catch {

@@ -103,19 +103,6 @@
         </div>
 
         <div>
-          <label>Risk Preference</label>
-          <select
-            name="riskPreference"
-            value={form.riskPreference}
-            onChange={onChange}
-          >
-            <option value="LOW">Low</option>
-            <option value="MEDIUM">Medium</option>
-            <option value="HIGH">High</option>
-          </select>
-        </div>
-
-        <div>
           <label>How long can you wait to see a return?</label>
           <select
             name="impatienceLevel"

@@ -19,7 +19,9 @@ public class FinancialProfile:IEntity
     public decimal TotalDebt { get; set; }
     public decimal CashReserve { get; set; }
     public decimal InvestmentAmount { get; set; }
-    public string RiskPreference { get; set; } = "MEDIUM";
+    // optional since scoring v2: no longer an IQ input. The risk level the user may choose moves to the
+    // Portfolio Service (capped by the score); the column stays until then so existing answers are not lost
+    public string? RiskPreference { get; set; }
     // self-reported, 1 = can wait years for a return, 5 = wants results right away
     public int ImpatienceLevel { get; set; } = 3;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

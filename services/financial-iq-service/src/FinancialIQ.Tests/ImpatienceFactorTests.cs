@@ -48,7 +48,7 @@ public class ImpatienceFactorTests
     [Fact]
     public void RequestWithoutNewFields_ShouldUseNeutralDefaults()
     {
-        // older callers only send the 4 money fields
+        // older callers only send the 4 money fields (and maybe the old risk preference, which is ignored now)
         var request = new CalculateRequest
         {
             UserId = "test-user",
@@ -61,9 +61,8 @@ public class ImpatienceFactorTests
         var (score, _, factorBreakdown) = FinancialIqCommandManager.CalculateScore(request);
 
         using var json = JsonDocument.Parse(factorBreakdown);
-        Assert.Equal("MEDIUM", json.RootElement.GetProperty("riskProfile").GetProperty("stated").GetString());
         Assert.Equal(5, json.RootElement.GetProperty("factors").GetProperty("Impatience").GetInt32());
-        // 75 from the money factors + 8 (MEDIUM vs HIGH capacity) + 5 (impatience 3)
-        Assert.Equal(88, score);
+        // 90 from the money factors (25 + 25 + 25 + 15) + 5 (impatience 3)
+        Assert.Equal(95, score);
     }
 }

@@ -26,10 +26,35 @@ public class EfFinancialIqReadDal : IFinancialIqReadDal
         // EXEC cannot be wrapped in another SELECT, so no LINQ on top (FirstOrDefault would try that):
         // read the (at most one) row as a list, then pick it in memory
         var rows = await _context.Database
-            .SqlQueryRaw<FinancialIqResultResponse>("EXEC dbo.usp_GetLatestIqResult @UserId", userIdParameter)
+            .SqlQueryRaw<LatestIqResultRow>("EXEC dbo.usp_GetLatestIqResult @UserId", userIdParameter)
             .ToListAsync();
 
-        return rows.FirstOrDefault();
+        var row = rows.FirstOrDefault();
+        if (row == null) return null;
+
+        // the column holds JSON text; the response carries it as a JSON object (contract v2)
+        return new FinancialIqResultResponse
+        {
+            Id = row.Id,
+            UserId = row.UserId,
+            Score = row.Score,
+            Segment = row.Segment,
+            FactorBreakdown = FactorBreakdownJson.ToElement(row.FactorBreakdown),
+            CreatedAt = row.CreatedAt,
+            UpdatedAt = row.UpdatedAt
+        };
+    }
+
+    // the shape usp_GetLatestIqResult returns (same aliases), with the breakdown still as text
+    private sealed class LatestIqResultRow
+    {
+        public Guid Id { get; set; }
+        public string UserId { get; set; } = string.Empty;
+        public int Score { get; set; }
+        public string Segment { get; set; } = string.Empty;
+        public string FactorBreakdown { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
     }
 
     public async Task<List<IqTrendPointResponse>> GetTrendAsync(string userId, int take)

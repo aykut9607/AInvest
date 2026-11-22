@@ -50,18 +50,10 @@ public class CalculateValidationTests
 
         Assert.True(result.Success);
         Assert.Equal("u1", Assert.Single(_dal.Stored).UserId);
-        Assert.Equal(88, result.Data!.Score);
-    }
-
-    [Fact]
-    public async Task InvalidRiskPreference_IsRejected()
-    {
-        var request = Request("u1");
-        request.RiskPreference = "high";
-
-        var result = await Manager.CalculateAsync(request);
-
-        Assert.Equal(Messages.InvalidRiskPreference, result.Message);
+        Assert.Equal(95, result.Data!.Score);
+        // contract v2: the breakdown is a JSON object in the response, not a string
+        Assert.Equal(System.Text.Json.JsonValueKind.Object, result.Data.FactorBreakdown.ValueKind);
+        Assert.Equal("v2", result.Data.FactorBreakdown.GetProperty("version").GetString());
     }
 
     [Fact]

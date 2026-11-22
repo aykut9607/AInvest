@@ -147,7 +147,19 @@ public class FinancialProfileManagerTests
     }
 
     [Fact]
-    public async Task CalculateIq_ForwardsRiskPreferenceAndImpatienceToIq()
+    public async Task Upsert_WithoutRiskPreference_IsAccepted()
+    {
+        var request = ValidRequest();
+        request.RiskPreference = null;
+
+        var result = await Manager.UpsertAsync("u1", request);
+
+        Assert.True(result.Success);
+        Assert.Null(Assert.Single(_dal.Saved).RiskPreference);
+    }
+
+    [Fact]
+    public async Task CalculateIq_ForwardsTheScoringInputsToIq()
     {
         await Manager.UpsertAsync("u1", ValidRequest());
 
@@ -155,7 +167,6 @@ public class FinancialProfileManagerTests
 
         Assert.NotNull(_iqClient.LastRequest);
         Assert.Equal("u1", _iqClient.LastRequest!.UserId);
-        Assert.Equal("HIGH", _iqClient.LastRequest.RiskPreference);
         Assert.Equal(5, _iqClient.LastRequest.ImpatienceLevel);
         Assert.Equal(30000, _iqClient.LastRequest.MonthlyIncome);
         // IQ needs both for the net-debt rule and the reserve (half of the investments)
