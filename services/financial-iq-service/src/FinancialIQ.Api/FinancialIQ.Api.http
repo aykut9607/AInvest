@@ -1,72 +1,143 @@
 @FinancialIQ.Api_HostAddress = http://localhost:5109
 
-### 1) Calculate - create new result (near-perfect scores)
+# Direct calls to the IQ service (dev only; clients go through the gateway, see EdgeGateway.Api.http).
+# POST /calculate and POST /debt-payoff are internal: Finance Profile calls them, the gateway does not route them.
+
+### 1) Calculate - healthy profile (expect 100, HIGH: every factor at its maximum, no warnings)
 POST {{FinancialIQ.Api_HostAddress}}/api/financial-iq/calculate
 Content-Type: application/json
 
 {
-  "userId": "test-createdat-iq-user",
+  "userId": "http-sample-user",
   "monthlyIncome": 10000,
   "monthlyExpenses": 4000,
   "monthlyDebtPayment": 1000,
-  "cashReserve": 24000
-}
-
-### 2) GetLatest - record CreatedAt (T1)
-GET {{FinancialIQ.Api_HostAddress}}/api/financial-iq/test-createdat-iq-user/latest
-
-### 3) Calculate - SAME user, much weaker numbers
-POST {{FinancialIQ.Api_HostAddress}}/api/financial-iq/calculate
-Content-Type: application/json
-
-{
-  "userId": "test-createdat-iq-user",
-  "monthlyIncome": 10000,
-  "monthlyExpenses": 8000,
-  "monthlyDebtPayment": 3500,
-  "cashReserve": 2000
-}
-
-### 4) GetLatest - verify CreatedAt unchanged (T2)
-GET {{FinancialIQ.Api_HostAddress}}/api/financial-iq/test-createdat-iq-user/latest
-
-### 5) Calculate - 6 factors, perfect case (expect score 100, riskProfile ALIGNED)
-POST {{FinancialIQ.Api_HostAddress}}/api/financial-iq/calculate
-Content-Type: application/json
-
-{
-  "userId": "test-6factor-user",
-  "monthlyIncome": 10000,
-  "monthlyExpenses": 4000,
-  "monthlyDebtPayment": 1000,
+  "totalDebt": 0,
   "cashReserve": 24000,
-  "riskPreference": "HIGH",
+  "investmentAmount": 0,
   "impatienceLevel": 1
 }
 
-### 6) Calculate - inconsistency: says HIGH, numbers say LOW (demo-user-4 values, expect OVERSTATED)
+### 2) Latest result - note createdAt and resultVersion
+GET {{FinancialIQ.Api_HostAddress}}/api/financial-iq/http-sample-user/latest
+
+### 3) Calculate - SAME user, much weaker numbers (expect 18, LOW: "Low cash reserve", "Negative savings rate")
 POST {{FinancialIQ.Api_HostAddress}}/api/financial-iq/calculate
 Content-Type: application/json
 
 {
-  "userId": "test-6factor-user",
+  "userId": "http-sample-user",
+  "monthlyIncome": 10000,
+  "monthlyExpenses": 8000,
+  "monthlyDebtPayment": 3500,
+  "totalDebt": 0,
+  "cashReserve": 2000,
+  "investmentAmount": 0,
+  "impatienceLevel": 3
+}
+
+### 4) Latest again - createdAt unchanged (MERGE updated the row), resultVersion changed (rowversion)
+GET {{FinancialIQ.Api_HostAddress}}/api/financial-iq/http-sample-user/latest
+
+### 5) History - both calculations, oldest first, with scoreChange and movingAverage3 (fn_IqTrend)
+GET {{FinancialIQ.Api_HostAddress}}/api/financial-iq/http-sample-user/history?take=12
+
+### 6) Sample weak profile (expect 8, LOW, 4 warnings)
+POST {{FinancialIQ.Api_HostAddress}}/api/financial-iq/calculate
+Content-Type: application/json
+
+{
+  "userId": "http-weak-user",
   "monthlyIncome": 30000,
   "monthlyExpenses": 25000,
   "monthlyDebtPayment": 7000,
+  "totalDebt": 90000,
   "cashReserve": 3000,
-  "riskPreference": "HIGH",
+  "investmentAmount": 10000,
   "impatienceLevel": 5
 }
 
-### 7) Calculate - invalid impatience level (expect error message)
+### 7) Rule VERY_HIGH_INCOME (expect 100, appliedRule VERY_HIGH_INCOME)
 POST {{FinancialIQ.Api_HostAddress}}/api/financial-iq/calculate
 Content-Type: application/json
 
 {
-  "userId": "test-6factor-user",
+  "userId": "http-rule-income-user",
+  "monthlyIncome": 1000000,
+  "monthlyExpenses": 900000,
+  "monthlyDebtPayment": 0,
+  "totalDebt": 0,
+  "cashReserve": 0,
+  "investmentAmount": 0,
+  "impatienceLevel": 1
+}
+
+### 8) Rule VERY_HIGH_WEALTH (expect 100: net worth 2,000,000 + 9,000,000 - 1,000,000 = 10,000,000)
+POST {{FinancialIQ.Api_HostAddress}}/api/financial-iq/calculate
+Content-Type: application/json
+
+{
+  "userId": "http-rule-wealth-user",
+  "monthlyIncome": 30000,
+  "monthlyExpenses": 29000,
+  "monthlyDebtPayment": 0,
+  "totalDebt": 1000000,
+  "cashReserve": 2000000,
+  "investmentAmount": 9000000,
+  "impatienceLevel": 1
+}
+
+### 9) Rule EXTREME_DEBT (expect 0; warnings "High total debt" + "Extreme total debt": the rule keeps the true warnings)
+POST {{FinancialIQ.Api_HostAddress}}/api/financial-iq/calculate
+Content-Type: application/json
+
+{
+  "userId": "http-rule-debt-user",
+  "monthlyIncome": 40000,
+  "monthlyExpenses": 16000,
+  "monthlyDebtPayment": 4000,
+  "totalDebt": 120000000,
+  "cashReserve": 96000,
+  "investmentAmount": 10000000,
+  "impatienceLevel": 1
+}
+
+### 10) Invalid impatience level (expect 400 "Impatience level must be between 1 and 5.")
+POST {{FinancialIQ.Api_HostAddress}}/api/financial-iq/calculate
+Content-Type: application/json
+
+{
+  "userId": "http-sample-user",
   "monthlyIncome": 10000,
   "monthlyExpenses": 4000,
   "monthlyDebtPayment": 1000,
   "cashReserve": 24000,
   "impatienceLevel": 9
 }
+
+### 11) Debt payoff (recursive CTE): 10,000 at 1,000/month, default 3.5% -> 13 months, last month 526.51
+POST {{FinancialIQ.Api_HostAddress}}/api/financial-iq/debt-payoff
+Content-Type: application/json
+
+{ "totalDebt": 10000, "monthlyPayment": 1000 }
+
+### 12) Debt payoff that never ends: 3,500 = the first month's interest (expect paidOff false, no database call)
+POST {{FinancialIQ.Api_HostAddress}}/api/financial-iq/debt-payoff
+Content-Type: application/json
+
+{ "totalDebt": 100000, "monthlyPayment": 3500 }
+
+### 13) Long schedule: more than 100 months needs OPTION (MAXRECURSION 600) (expect 202 months)
+POST {{FinancialIQ.Api_HostAddress}}/api/financial-iq/debt-payoff
+Content-Type: application/json
+
+{ "totalDebt": 1000000, "monthlyPayment": 10000, "monthlyInterestRate": 0.008 }
+
+### 14) IQ rule table: every scoring version (v2 active, v1 kept for old results)
+GET {{FinancialIQ.Api_HostAddress}}/api/financial-iq/scoring-rules
+
+### 15) The active rule set only (thresholds, points, warnings, special rules)
+GET {{FinancialIQ.Api_HostAddress}}/api/financial-iq/scoring-rules/current
+
+### 16) The old v1 rule set (6 factors incl. RiskAlignment)
+GET {{FinancialIQ.Api_HostAddress}}/api/financial-iq/scoring-rules/v1
