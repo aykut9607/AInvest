@@ -41,7 +41,8 @@ public class EfFinancialIqReadDal : IFinancialIqReadDal
             Segment = row.Segment,
             FactorBreakdown = FactorBreakdownJson.ToElement(row.FactorBreakdown),
             CreatedAt = row.CreatedAt,
-            UpdatedAt = row.UpdatedAt
+            UpdatedAt = row.UpdatedAt,
+            ResultVersion = row.ResultVersion
         };
     }
 
@@ -55,6 +56,8 @@ public class EfFinancialIqReadDal : IFinancialIqReadDal
         public string FactorBreakdown { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        // CONVERT(bigint, row_version) in the procedure
+        public long ResultVersion { get; set; }
     }
 
     public async Task<List<IqTrendPointResponse>> GetTrendAsync(string userId, int take)

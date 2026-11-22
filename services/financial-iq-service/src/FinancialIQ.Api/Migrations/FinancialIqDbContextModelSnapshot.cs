@@ -38,6 +38,13 @@ namespace FinancialIQ.Api.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("factor_breakdown");
 
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion")
+                        .HasColumnName("row_version");
+
                     b.Property<int>("Score")
                         .HasColumnType("int")
                         .HasColumnName("score");

@@ -233,6 +233,7 @@ public class FinancialIqCommandManager : IFinancialIqCommandService
         Segment = entity.Segment,
         FactorBreakdown = FactorBreakdownJson.ToElement(entity.FactorBreakdown),
         CreatedAt = entity.CreatedAt,
-        UpdatedAt = entity.UpdatedAt
+        UpdatedAt = entity.UpdatedAt,
+        ResultVersion = ResultVersion.FromRowVersion(entity.RowVersion)
     };
 }
