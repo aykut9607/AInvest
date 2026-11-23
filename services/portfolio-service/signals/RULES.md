@@ -33,6 +33,7 @@ Altın/S&P'de 15–45m yalnızca son ~60 gün var; uzun backtest'te LTF onayı b
 - Boğa, iki mum: mum dibin altında kapanır, **hemen sonraki mum** dibin üstünde kapanır.
 - Ayı: tersi (son tepenin üstü). Bir dip/tepe en fazla bir SFP üretir; altında/üstünde kapanıp ertesi mum geri
   dönmezse gerçek kırılım sayılır ve o seviye düşer.
+- **Açık seviye SFP'si** (PR-60a): en son tepe değil, oluştuğundan beri geçilmemiş **her** tepe/dip (`find_open_sfps`); HTF planında bu kullanılır.
 
 **Uyumsuzluk** — SERS41 RSI Divergence göstergesinin (© SERS41, MPL-2.0) birebir karşılığı, aynı dilimde:
 - RSI 14 (Wilder, kapanış). Dip/tepe **RSI üzerinde** pivotla (5/5) bulunur; fiyat o mumların low/high'ından okunur.

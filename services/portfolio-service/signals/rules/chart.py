@@ -52,7 +52,7 @@ def candle_svg(candles: Sequence[Candle], overlay: Overlay, first: int = 0, log:
         price = math.exp(value) if log else value
         out.append(f'<line x1="{LEFT}" x2="{W - RIGHT}" y1="{y(price):.1f}" y2="{y(price):.1f}" style="stroke:var(--grid)"/>'
                    f'<text class="ax" x="{W - RIGHT + 5}" y="{y(price) + 4:.1f}">{price:,.0f}</text>')
-    for k in range(5):
+    for k in range(5 if date else 0):
         i = int(k * (n - 1) / 4)
         anchor = "start" if k == 0 else "end" if k == 4 else "middle"
         out.append(f'<text class="ax" x="{x(first + i):.1f}" y="{H - 8}" text-anchor="{anchor}">{candles[i].time:{date}}</text>')

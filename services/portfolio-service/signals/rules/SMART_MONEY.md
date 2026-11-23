@@ -1,4 +1,4 @@
-# İleri düzey kural listesi: likidite ve bölgeler (v1 taslak, 24 Kasım 2026)
+# İleri düzey kural listesi: likidite ve bölgeler (v1, 24 Kasım 2026)
 
 Görseller: [smc-visuals.html](smc-visuals.html) — üstte kuralın çizimi, altta **kodun kendi verimizde bulduğu en yeni örnek** (başarılı olana göre
 seçilmedi). Uyuşmazsa kural yanlış anlaşılmıştır; doğru görselle birlikte düzeltilir. Kod: `smc_detect.py` (her nesne `known_at` taşır).
@@ -20,7 +20,7 @@ Tür: **K** kesin tanım · **R** kılavuz. Kaynak: **N** ders notu · **V** vid
 | SM-10 | K | Güçlü hareketin başladığı **taban** (rally-base-rally, drop-base-drop). Kod: 1–3 küçük mum (gövde ≤ 0,6 ATR) + güçlü mum (≥ 1,5 ATR); bölge tabanın tamamı | N + Ö |
 | SM-11 | R | Taze (hiç dönülmemiş) bölge en güçlü; hızlı oluşan ve güçlü hareket başlatan daha iyi | N |
 | SM-12 | R | Giriş ilk dokunuş, stop bölgenin dışı, hedef karşı bölge ya da 2–3R; trend yönünde | N |
-| SM-13 | K | **HTF CHoCH + LTF MSB:** bölgede yalnız küçük dilimde MSB yetmez; büyük dilimin karakteri de dönmeli. Videodaki örnekte LTF MSB oldu, HTF CHoCH olmadığı için bölge kırıldı | V, **?1** |
+| SM-13 | K | **HTF CHoCH + LTF MSB:** bölgede yalnız küçük dilimde MSB yetmez; büyük dilimin karakteri de dönmeli. Videodaki örnekte LTF MSB oldu, HTF CHoCH olmadığı için bölge kırıldı | V, A onayı |
 
 ## 3. Range
 | No | Tür | Kural | Kaynak |
@@ -51,7 +51,7 @@ Tür: **K** kesin tanım · **R** kılavuz. Kaynak: **N** ders notu · **V** vid
 | No | Tür | Kural | Kaynak |
 |---|---|---|---|
 | SM-50 | K | Kırılan destek direnç, kırılan direnç destek olur. Videodaki çizim: **HH'yi yapan dip** kırılır, geri gelişte satılır (MSB + retest) | N, V |
-| SM-51 | K | Bölge: kırılan uçtan o mumun gövdesine kadar | Ö, **?2** |
+| SM-51 | K | Bölge: kırılan uçtan (fitil) o mumun gövdesine kadar | A onayı |
 | SM-52 | R | Giriş retest, stop bölgenin öbür tarafı, hedef sonraki yapısal seviye | N, V (R/R 1,95 örneği) |
 
 ## 7. OTE
@@ -88,17 +88,17 @@ Tür: **K** kesin tanım · **R** kılavuz. Kaynak: **N** ders notu · **V** vid
 | No | Tür | Kural | Kaynak |
 |---|---|---|---|
 | SM-90 | K | Birikim (aralık) → manipülasyon (bir uç süpürülür) → dağıtım (ters yönde asıl hareket) | N, V |
-| SM-91 | R | Asya birikim, Londra manipülasyon, New York dağıtım. Saatler UTC 00–08 / 08–13 / 13–21 | N + Ö, **?3** |
+| SM-91 | R | Asya birikim, Londra manipülasyon, New York dağıtım. Saatler UTC 00–08 / 08–13 / 13–21 (TSİ 03–11 / 11–16 / 16–24) | N, A onayı |
 | SM-92 | R | Manipülasyon HTF bölgesine denk gelmeli (videoda mor bölgeler); haber gününde dikkat; her gün olmaz | V, N |
 | SM-93 | – | Aykut: "Pazartesi manipülasyon günü" aynı fikrin haftalık hali | A |
 
-## 12. Open interest (veri yok)
+## 12. Open interest
 | No | Kural | Kaynak |
 |---|---|---|
 | SM-95 | OI↑ fiyat↑ güçlü yükseliş · OI↑ fiyat↓ güçlü düşüş · OI↓ fiyat↑ zayıf yükseliş (short kapanışı) · OI↓ fiyat↓ zayıf düşüş | N |
 | SM-96 | Yüksek OI + aşırı pozitif/negatif funding = kalabalık; tersi riski | N |
 | SM-97 | Yatay fiyatta OI sıçraması = büyük hareket yakın | N |
-| SM-98 | **Veri:** elimizde OI/funding yok. Binance public data'da BTC OI (günlük dosya) ve funding var; indirme **Aykut'un onayıyla** | Ö, **?4** |
+| SM-98 | **Veri (24 Kas indirildi):** Binance public data, BTC perp OI (2020-09-01'den, saatlik) ve funding (2020-01'den, 8 saatlik); `signals/data/derivatives.py`. Ölçüm: PROFESSIONAL.md 10 | Ö |
 
 ## 13. İlk ölçüm (kalibrasyon dönemi; BTC + altın + S&P, 1D + 4h; ücretsiz, onaysız)
 Bölgeler: dersin girişi, stop bölgenin ötesi, hedef **2R** (yazı-tura %33). Aynı mumda stop önce.
@@ -118,11 +118,8 @@ Bölgeler: dersin girişi, stop bölgenin ötesi, hedef **2R** (yazı-tura %33).
 yaratıyor (OB'de 4 puan, SFP'de 2, FVG'de yok). 24 karşılaştırma yapıldı, birkaçının şansa böyle çıkması beklenir: **hipotez**. "HTF > LTF" kuralı
 (PA-07, E-97) birleşik ölçümde ilk sınanacak şey.
 
-## 14. Onay bekleyenler
-1. **SM-13:** "HTF CHoCH, LTF MSB" okumam doğru mu (iki dilim birlikte)? Yoksa CHoCH ile MSB arasında başka bir fark mı var?
-2. **SM-51:** breaker bölgesi hangi mum ve neresi?
-3. **SM-91:** PO3 saatleri (Türkiye saatiyle Asya 03–11, Londra 11–16, New York 16–24) uygun mu?
-4. **SM-98:** OI ve funding verisini indireyim mi?
+## 14. Kararlar (24 Kas)
+HTF CHoCH + LTF MSB birlikte · breaker bölgesi fitilden gövdeye · PO3 saatleri · OI/funding indirildi. Hepsi Aykut'un onayı.
 
 ## 15. Kayıt
 | Ders (İleri) | Not | Video |
