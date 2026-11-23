@@ -50,6 +50,9 @@ Altın/S&P'de 15–45m yalnızca son ~60 gün var; uzun backtest'te LTF onayı b
 - **Tolerans ±%3 göreli** (0,786 → 0,762–0,810). Bölge = birden çok seviyenin üst üste bindiği aralık.
 
 ## 5. Elliott
+> Numaralı tam kural listesi (kesin / kılavuz, kaynak, çelişkiler, kod durumu): [rules/ELLIOTT.md](rules/ELLIOTT.md),
+> görseller: `rules/elliott-visuals.html`. Aşağıdaki özet v0 kodunun kullandığıdır; kod değişince güncellenir.
+
 **Kesin kurallar** (bozulursa aday elenir):
 1. Dalga 2, dalga 1'in başlangıcını geçemez.
 2. Dalga 3, 1-3-5 içinde en kısa olamaz (diyagonaller dahil).
@@ -84,6 +87,8 @@ ters yön (short) planı bu yüzden en sıkı onayı ister: bölge + LTF SFP + N
 ek puan.
 
 ## 6. Harmonik (Carney, harmonictrader.com)
+> Numaralı kurallar, gözden geçirme bulguları ve görseller: [rules/HARMONIC.md](rules/HARMONIC.md). Aşağıdaki tablo v0 kodunundur.
+
 | Formasyon | B (XA) | D (XA) | BC uzatması | AB=CD | Geçersizlik (XA) |
 |---|---|---|---|---|---|
 | Gartley | 0,618 | **0,786** | 1,27–1,618 | ≈ 1,0 | 1,0 (X) |
