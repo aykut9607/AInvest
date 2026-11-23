@@ -188,6 +188,9 @@ def check_triangle(prices: Sequence[float], times: Sequence[float] | None = None
     t = list(times) if times is not None else list(range(6))
     _, p = _normalise(prices)                # A "rises" in this space
     add = v.findings.append
+    if p[2] < p[0]:
+        add(Finding("E-55", GUIDE, f"B ({_n(prices[2])}) A'nın başlangıcını ({_n(prices[0])}) geçti: kaçan üçgen olabilir",
+                    prices[0], 2))
     if p[3] >= p[1]:
         add(Finding("E-52", VIOLATION, f"C ({_n(prices[3])}) A'nın sonunu ({_n(prices[1])}) geçti: daralma yok", prices[1], 3))
     if p[4] <= p[2]:

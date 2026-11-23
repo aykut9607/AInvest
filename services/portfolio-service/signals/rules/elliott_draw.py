@@ -127,6 +127,7 @@ def handbook() -> str:
     imp, dia, zig, flat, tri = ec.check_impulse, ec.check_diagonal, ec.check_zigzag, ec.check_flat, ec.check_triangle
     up, start3 = [50, 70, 60, 98, 82, 104], [50, 70, 60]
     ambiguous, wxy = [60, 90, 72, 104], [100, 84, 92, 76, 88, 72, 80, 64]
+    mixed = [100, 88, 95, 80, 97, 84, 96, 83]
     parts = [
         section("1. İtki: kesin kurallar", [
             judged("Geçerli yükselen itki", imp(up)),
@@ -173,6 +174,9 @@ def handbook() -> str:
             judged("D, B'yi geçti: daralma yok", tri([100, 70, 94, 76, 97, 80])),
             card("W-X-Y (çift zigzag)", None, svg(wxy, LABELS["wxy"], motive_first=False), wxy,
                  "ABC bozuldu diye sonradan WXY yapılmaz. Tür belli değilse: 'düzeltme sürüyor, tür belirsiz' → plan yok."),
+            card("W-X-Y (zigzag + yassı): yatay", None, svg(mixed, LABELS["wxy"], motive_first=False), mixed,
+                 "E-63: X, W'nin b'sinden yüksek olabilir; Y, W'nin sonunu geçmek zorunda değil."),
+            judged("B başlangıcı geçti: kaçan üçgen uyarısı", tri([100, 70, 103, 78, 96, 84])),
         ]),
         section("6. Ölçüm ve kanal", [
             card("3. dalga hedefi (0-1-2 uzatması)", None,

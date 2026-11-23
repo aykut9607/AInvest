@@ -80,6 +80,15 @@ def test_triangle_must_contract():
     assert broken(check_triangle([100, 70, 94, 76, 97, 80])) == ["E-52"]
 
 
+def test_triangle_b_beyond_the_start_is_a_warning():
+    verdict = check_triangle([100, 70, 103, 78, 96, 84])
+    assert verdict.possible and "E-55" in [f.rule for f in verdict.findings if f.level == GUIDE]
+
+
+def test_wave_5_equal_to_an_extended_wave_1_leaves_wave_3_shortest():
+    assert broken(check_impulse([50, 90, 70, 100, 92, 132])) == ["E-03"]         # 40 / 30 / 40
+
+
 def test_judge_puts_possible_models_first_and_rejects_bad_input():
     assert judge(VALID)[0].model == "impulse"
     assert judge([60, 100, 76, 110, 94, 116])[0].model == "diagonal"

@@ -51,9 +51,9 @@ hangi fiyat → hangi yorum elendi → hangi bilgi eksik → alternatif.
 |---|---|---|---|
 | E-10 | R | 2 = 1'in 0,382 / 0,5 / 0,618'i | T, A |
 | E-11 | R | 3 ≈ 1,618 × [1] (2'nin sonundan). Genelde en uzun 3'tür | T, A |
-| E-12 | R | 4 ≈ 3'ün 0,382'si | T, A |
+| E-12 | R | 4 = 3'ün 0,236–0,382'si (ideali 0,382) | T, A |
 | E-13 | R | 5 = [1] ya da 0,618 × [3] (4'ün sonundan); Aykut: 2-3-4 uzatmasında çoğunlukla 0,618 / 1 / 1,618 | T, A |
-| E-14 | R | **Uzama:** biri (bazen birden fazlası) uzar. 3 uzarsa 5 ≈ 1. 1 uzarsa [3] ≈ [5]. 5 uzarsa [1] ≈ [3], [5] = 1,618 × (0→3) ya da 1,618 × [1] | B3, T |
+| E-14 | R | **Uzama:** biri (bazen birden fazlası) uzar. 3 uzarsa 5 ≈ 1. 1 uzarsa [3] ≈ [5]. 5 uzarsa [1] ≈ [3], [5] = 1,618 × (0→3) ya da 1,618 × [1]. **1 uzadığında [5] = [1] hedefi kullanılmaz:** [3] < [1] iken [5] = [1] olursa 3 en kısa kalır (E-03); üst sınır [5] ≤ [3] | B3, T, hesap |
 | E-15 | R | **Alternasyon:** 2 ile 4 biçim, derinlik, süre ya da karmaşıklıkta farklıdır (derinlik: 2'yi 1'e, 4'ü 3'e oranla) | B3, T |
 | E-16 | R | [3] > 2,618 × [1] ise güdük 5 riski | T |
 | E-17 | R | **Güdük 5:** 3'ün sonunu geçmez ama içi tamamlanmış beşlidir; bitmemiş hareketi "güdük" diye kapatma | B3 |
@@ -72,6 +72,7 @@ hangi fiyat → hangi yorum elendi → hangi bilgi eksik → alternatif.
 | E-25 | R | 4'ün 1 ile örtüşmesi diyagonalin özelliğidir ama **tek başına yeterli değildir** | F | B4, B10 |
 | E-26 | K | 1–3 ve 2–4 çizgileri yakınsar, yapı kesişmeden önce biter | F+zaman | B4 |
 | E-27 | R | 5 çizgiyi aşabilir (throw-over, 1–3 çizgisine göre); güdüklük 3'ün sonuna göre. İkisi ayrı ölçüdür | B4 |
+| E-29 | R | Diyagonalden sonra trend sürebilir ya da dönebilir; trend sonunda dönüş uyarısıdır | T |
 | E-28 | R | Genişleyen diyagonal daha seyrek; kontrolü otomatik yapılmıyor | B4 |
 
 Kontrol sırası: konum → ana dalgalar → iç yapı → fiyat kuralları → çizgiler.
@@ -105,6 +106,8 @@ Kontrol sırası: konum → ana dalgalar → iç yapı → fiyat kuralları → 
 | E-51 | K | Sınırlar A–C ve B–D; daralanda yakınsar (genişleyen türü de var, otomatik bakılmıyor) | F+zaman | B5 |
 | E-52 | K | Daralanda C, A'yı; D, B'yi; E, C'yi geçmez. B'nin başlangıcı aşması serbest | Y | B5 çizimleri + T; ders açık yazmıyor, karar 11.7 |
 | E-53 | R | E çizgiye değmek zorunda değil; kısa ya da sahte kırılım olabilir | F | B5, B10, T |
+| E-55 | R | Üçgende B genelde A'nın başlangıcını geçmez (geçerse kaçan üçgen; uyarı) | T |
+| E-56 | R | E'den sonra çıkış çoğunlukla hızlı, sert ve önceki trend yönünde | T |
 | E-54 | K | Beş parça + daralma üçgeni itki yapmaz: üçgen **karşı** yönde/yatay, bitiş diyagonali **ana** yönde ilerler | K | B10 |
 
 ## 7. Karmaşık düzeltme (W-X-Y, W-X-Y-X-Z)
@@ -113,6 +116,7 @@ Kontrol sırası: konum → ana dalgalar → iç yapı → fiyat kuralları → 
 |---|---|---|---|
 | E-60 | K | W, Y (Z) kendileri düzeltmedir; X onları bağlayan düzeltmedir | B5, V |
 | E-61 | K | ABC bozuldu diye sonradan W-X-Y denmez | B5 |
+| E-63 | R | Birleşik yapı (ör. W zigzag + Y yassı) **yatay** ilerler: X, W'nin b'sini; Y ise W'nin sonunu geçmek zorunda değil | T (grafik) |
 | E-62 | K | Tür belli değilse "düzeltme sürüyor, tür belirsiz" yazılır; **plan üretilmez** | B5, T |
 
 ## 8. Fibonacci ölçümü (Elliott içinde; ayrıntı Fibonacci bölümünde)
@@ -152,6 +156,10 @@ Kontrol sırası: konum → ana dalgalar → iç yapı → fiyat kuralları → 
 
 ---
 
+| E-100 | R | Korelasyon kontrolü: BTC ↔ ETH; altın ↔ gümüş ↔ platin (petrol ↔ altın); S&P ↔ Nasdaq ↔ DJI; DXY ↔ döviz. Korelasyonun bozulması erken uyarıdır (**veri bugün yok**) | T |
+| E-101 | R | Haber kaynaklı anormal hareket ve mikro dilim gürültüsü doğrudan sayıma katılmaz | T |
+| E-102 | K | Sayım bozulduysa o sayıma dayanan işlem planı da bozulmuştur | T |
+
 ## 11. Kaynaklar çelişince — kararlar (23 Kas; Aykut seçimi bana bıraktı)
 
 | # | Konu | Eğitim | TraderLex / önceki kural | Karar |
@@ -163,6 +171,19 @@ Kontrol sırası: konum → ana dalgalar → iç yapı → fiyat kuralları → 
 | 5 | 3'ün en uzun olması | şart değil | Aykut: genelde en uzun | Kılavuz (E-11) |
 | 6 | Güvenli giriş | giriş filtresi ister | 2/4 sonu; 5'in sonu riskli | Yeni backtest **2/4 sonlarını** sınasın |
 | 7 | Daralan üçgende C>A, D>B, E>C (E-52) | açık yazmıyor | D genelde B'yi geçmez | **Kesin**; D = B (yatay/bariyer üçgen) ayrı türdür, daralan sayılmaz |
+
+**TraderLex grafiklerinin kendi metniyle çeliştiği yerler** (8 grafiğin hepsi tek tek incelendi; çelişince **metin** alındı, çizimden ölçüm yapılmadı):
+
+| Grafik | Çelişki | Alınan |
+|---|---|---|
+| 5 uzayan | not kutusu "1 en büyük, [3] ≈ [5]" diyor (1 uzayandan kalma) | [1] ≈ [3], 5 en uzun |
+| 5 uzayan | "[5]" oku 0 çizgisinden 5'e çizilmiş | [5], 4'ün sonundan ölçülür |
+| 3 uzayan | "[5] = [1]" oku 4'ten değil 0 çizgisinin altından başlıyor | 4'ün sonundan |
+| 1 uzayan | 2, çizimde 0 seviyesine inmiş; 3, 1'den uzun çizilmiş | E-01 ve "1 en uzun" |
+| 1 uzayan (metin) | [5] = [1] | E-14: 3'ü en kısa bırakır, kullanılmaz |
+| Diyagonal | "3 en kısa olmak zorunda değildir" | metin: 3 hiçbir zaman en kısa olamaz (E-24) |
+| Diyagonal | örtüşme "kural" gibi yazılmış | özellik, tek başına kanıt değil (E-25, eğitim) |
+| Zigzag | "C ≈ A" örneğinde B çizgileri %61,8'de bitiyor | aralık 0,382–0,618 |
 
 ## 12. Bugünkü kodun durumu (`signals/patterns/elliott.py`)
 
@@ -189,5 +210,5 @@ henüz bağlı değil.
 | Ders | Okunan | Not |
 |---|---|---|
 | Elliott eğitimi 1–10 | metin, sorular, bütün gizli cevaplar | M10'daki 24 soru dahil |
-| TraderLex Elliott rehberi | metin + görseller | |
+| TraderLex Elliott rehberi | 14 bölüm metni + 8 grafiğin hepsi (3/5/1 uzayan, zigzag, üçgen, yassı, diyagonal, W-X-Y) | Grafik dosyaları kopyalanmadı; kendi çizimlerimiz var |
 | TraderLex "Understanding the Elliott Wave Chart" (4:03) | kareler | Ses dinlenemedi, altyazı yok; altındaki 2 yorum bilgi içermiyor |
