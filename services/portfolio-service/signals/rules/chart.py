@@ -9,7 +9,8 @@ from dataclasses import dataclass, field
 
 from signals.data.candles import Candle
 
-W, H, LEFT, RIGHT, TOP, BOTTOM = 760, 380, 8, 74, 16, 26
+SIZE = (760, 380)
+LEFT, RIGHT, TOP, BOTTOM = 8, 74, 16, 26
 
 CHART_CSS = """
 .cu{stroke:var(--good);fill:var(--good)}.cd{stroke:var(--bad);fill:var(--bad)}.wide{grid-column:1/-1}
@@ -27,8 +28,10 @@ class Overlay:
     boxes: list[tuple[float, float, float, float, str]] = field(default_factory=list)        # i0, low, i1, high, class
 
 
-def candle_svg(candles: Sequence[Candle], overlay: Overlay, first: int = 0, log: bool = False, date: str = "%d.%m.%y") -> str:
+def candle_svg(candles: Sequence[Candle], overlay: Overlay, first: int = 0, log: bool = False, date: str = "%d.%m.%y",
+               size: tuple[int, int] = SIZE) -> str:
     """candles: the window to draw; `first` = index of its first candle (overlay coordinates are series indices)."""
+    W, H = size
     n = len(candles)
     prices = [c.high for c in candles] + [c.low for c in candles]
     prices += [p for _, p0, _, p1, _, _ in overlay.lines for p in (p0, p1)] + [p for _, p, _, _ in overlay.marks]

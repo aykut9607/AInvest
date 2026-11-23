@@ -1,4 +1,4 @@
-# Price action kural listesi (v1 taslak, 24 Kasım 2026)
+# Price action kural listesi (v1, 24 Kasım 2026)
 
 Görseller: [pa-visuals.html](pa-visuals.html) — üstte kuralın çizimi, altta **aynı kuralın kendi verimizde kodla bulunmuş hali**. İkisi uyuşmuyorsa
 kural yanlış anlaşılmıştır: Aykut doğru görseli atar, kural ve kod birlikte düzelir. Kod: `pa_detect.py` (yalnız kesinleşmiş tepe/dip, geleceğe bakmaz).
@@ -8,7 +8,7 @@ kural yanlış anlaşılmıştır: Aykut doğru görseli atar, kural ve kod birl
 ```
 
 Tür: **K** kesin · **R** kılavuz. Kaynak: **N** ders notu · **V** video (kareler izlendi, ses yok) · **Ö** benim tanımım · **?** onay bekliyor.
-Seviye: Dersler → **Orta**. (İleri ve Profesyonel eklenecek.)
+Seviye: Dersler → **Orta**. İleri: [SMART_MONEY.md](SMART_MONEY.md).
 
 ## 1. Piyasa yapısı
 | No | Tür | Kural | Kaynak |
@@ -18,7 +18,7 @@ Seviye: Dersler → **Orta**. (İleri ve Profesyonel eklenecek.)
 | PA-03 | K | **BOS:** trend yönündeki son tepenin (dibin) kırılması = devam | N, V |
 | PA-04 | K | **MSB** (notta CHoCH): düşüşte **en dibi yapan son tepenin** yukarı, yükselişte **en tepeyi yapan son dibin** aşağı kırılması = dönüş. Ara tepki tepesinin kırılması yetmez | V (çizimde etiketli), N |
 | PA-05 | K | MSB'den sonra HL (LH) ve yeni yönde ilk BOS = dönüşün teyidi | V |
-| PA-06 | K | Kırılım **kapanışla**; fitil kırılım değil (SFP adayıdır) | Ö, **?1** |
+| PA-06 | K | Kırılım, tepe/dibin çizildiği **dilimin kapanışıyla** (1D yapı → 1D kapanış); fitil kırılım değil (SFP adayıdır) | A onayı |
 | PA-07 | R | HTF yapısı LTF'den üstündür (videoda "HTF > LTF") | V |
 | PA-08 | R | Trende karşı işlem yok; BOS sonrası geri çekilmede giriş aranır | N |
 | PA-09 | K | MSB'den önce geride kalmış eski seviyeler yeni BOS sayılmaz; yeni bir tepe/dip oluşmalı | Ö |
@@ -27,7 +27,7 @@ Seviye: Dersler → **Orta**. (İleri ve Profesyonel eklenecek.)
 | No | Tür | Kural | Kaynak |
 |---|---|---|---|
 | PA-10 | K | Yükselende dipler, düşende tepeler birleşir; en az 2 temas, iyisi 3+ | N, V |
-| PA-11 | K | Fitil ya da gövde: **tutarlı** ol (not: genelde gövde). Kod bugün fitil uçlarını kullanıyor | N, **?2** |
+| PA-11 | K | Trend çizgisi ve formasyon çizgileri **fitil** uçlarından (not "genelde gövde" diyor; Aykut fitil seçti) | A |
 | PA-12 | K | Geçerli kırılım = kapanış öbür tarafta; fitille geçip dönmek sahte kırılım | N |
 | PA-13 | R | Kırılımdan sonra çizgiye dönüş (retest) daha güvenli giriş | N, V |
 | PA-14 | R | Her dokunuş işlem değildir; yüksek dilim çizgisi daha güçlü | N |
@@ -36,7 +36,7 @@ Seviye: Dersler → **Orta**. (İleri ve Profesyonel eklenecek.)
 | No | Tür | Kural | Kaynak |
 |---|---|---|---|
 | PA-20 | K | Önce **aylık**, sonra haftalık, sonra günlük çizilir; her çizgi dilimiyle etiketlenir (M / W / D) | V, N |
-| PA-21 | K | Seviye, mum **gövdelerinin döndüğü** yerdir (yukarı mumun kapanışı + ardından aşağı mum; tersi) | V'den okumam, **?3** |
+| PA-21 | K | Seviye, mum **gövdelerinin döndüğü** yerdir (yukarı mumun kapanışı + ardından aşağı mum; tersi) | V, A onayı |
 | PA-22 | R | Güçlü seviye: 2–3+ temas, yüksek dilim, yüksek hacim, yakın tarih; çizgi değil **bölge**; 5–7 ana seviye yeter | N |
 | PA-23 | K | **Flip:** kırılan direnç destek, kırılan destek direnç olur | N |
 | PA-24 | R | Yuvarlak sayılar ve farklı dilimlerin aynı yerde buluşması (4h + 1D) güçlendirir | N |
@@ -58,10 +58,8 @@ Seviye: Dersler → **Orta**. (İleri ve Profesyonel eklenecek.)
 **Uyarı (backtest için):** daralan çizgilerde kırılım yönü kısmen **geometriden** gelir (yükselen kamada alt çizgi fiyata yetişir; kodda bulunan kamaların
 büyük çoğunluğu aşağı "kırılıyor"). Bu bir üstünlük değildir; ölçülecek olan kırılımdan **sonra** hedefe ulaşma oranıdır, yazı-turayla karşılaştırılarak.
 
-## 5. Onay bekleyenler
-1. **PA-06:** MSB/BOS kapanışla mı, hangi dilimin kapanışıyla? (Önerim: tepe/dibin çizildiği dilimin kapanışı.)
-2. **PA-11:** trend çizgisi ve formasyon çizgileri fitilden mi gövdeden mi?
-3. **PA-21:** aylık/haftalık seviye gövde dönüşünden mi (videodan okumam), fitil uçlarından mı?
+## 5. Kararlar (24 Kas)
+MSB/BOS çizildiği dilimin kapanışı · trend ve formasyon çizgileri fitil · aylık/haftalık seviye gövde dönüşü. Hepsi Aykut'un onayı.
 
 ## 6. Kayıt
 | Ders (Orta) | Not | Video | Durum |

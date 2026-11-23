@@ -18,6 +18,14 @@ Grafik kuralı olmadığı için görsel yok; formüller örnekle doğrulandı.
 
 **Düzeltme:** notta "%10 riskle 10 kayıp = −%100" yazıyor; sabit tutarla öyle, **kalan hesabın %10'u** ile 10 kayıp −%65'tir (0,9¹⁰ = 0,349). %1'de −%9,6.
 
+## 1b. İleri risk
+| No | Kural | Kaynak |
+|---|---|---|
+| RK-10 | Aynı yöne giden varlıklar tek risk sayılır (BTC long + ETH long = iki kat) | N |
+| RK-11 | Oynaklık (ATR) artınca miktar küçülür | N |
+| RK-12 | Kelly = (kazanma % × ort. kazanç − kaybetme % × ort. kayıp) / ort. kazanç; pratikte %25–50'si. Küçük örnekten Kelly hesaplanmaz | N + M |
+| RK-13 | Düşüş: %10 normal, %20'de miktar yarıya, %30'da dur | N |
+
 ## 2. Psikoloji (kontrol listesi)
 | No | Kural |
 |---|---|
@@ -53,3 +61,4 @@ Notta %60+ başarı için "gerçekten mi?" deniyor; bizim ölçümlerde **yazı-
 | Kaldıraçlı İşlemler | ✅ | ✅ kareler, borsa ekranı |
 | Risk Analizi | ✅ | ✅ kareler, pozisyon aracı |
 | Trade Psikolojisi | ✅ | video yok |
+| Risk Analizi (İleri) | ✅ | Başlangıç'taki videonun aynısı |
