@@ -45,6 +45,8 @@ Altın/S&P'de 15–45m yalnızca son ~60 gün var; uzun backtest'te LTF onayı b
 **Güçlü LTF onayı** = aynı dipte/tepede SFP + P.U/N.U. Aynı yapı 1D/1W'de oluşursa HTF sinyalidir (derin düzeltme).
 
 ## 4. Fibonacci
+> Aykut'un dört aracı, kurallar ve ölçüm: [rules/FIBONACCI.md](rules/FIBONACCI.md). Aşağısı v0 kodunundur.
+
 - Oranlar: 0,382 · 0,5 · 0,618 · 0,786 · 1 · 1,272 · 1,414 · 1,618 · 2,618 · 3,618 · 4,618 (+ harmoniklerde 0,886, 1,13, 2,0, 2,24, 3,14).
 - Retracement (A→B): B − r × (B − A). Trend-based extension (0-1-2): 2 + k × (1 − 0).
 - **Tolerans ±%3 göreli** (0,786 → 0,762–0,810). Bölge = birden çok seviyenin üst üste bindiği aralık.
