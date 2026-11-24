@@ -1,6 +1,6 @@
 """One page with every rule we have: its words and, where one exists, its picture.
 
-  .\\venv\\Scripts\\python.exe -m signals.rules.rules_catalog        rebuild all-rules.html
+  .\\venv\\Scripts\\python.exe -m signals.rules.rules_catalog        rebuild all-rules.html and book-rules.html
 
 The words come from the *.md rule lists and the pictures from the *-visuals.html pages next to them, so this page adds nothing of
 its own. A picture is tied to a rule by the rule numbers written in it; pictures without a number are tied by LINKS below.
@@ -183,7 +183,7 @@ def family_html(f: Family) -> tuple[str, int, int, int]:
 EXTRA_CSS = """
 .top{position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:2;border-bottom:1px solid var(--grid)}
 .top input{font:inherit;width:min(420px,100%);padding:8px 10px;border:1px solid var(--grid);border-radius:6px;background:var(--card);color:var(--ink)}
-.top a{margin-right:12px;color:var(--motive);white-space:nowrap}
+.top a{display:inline-block;margin-right:12px;color:var(--motive)}
 table.sum{border-collapse:collapse;margin:8px 0 14px;font-variant-numeric:tabular-nums}.sum td,.sum th{padding:4px 14px 4px 0;text-align:right;border-bottom:1px solid var(--grid)}
 .sum td:first-child,.sum th:first-child{text-align:left}
 .pair{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px;margin:0 0 16px;align-items:start}
@@ -191,7 +191,8 @@ table.sum{border-collapse:collapse;margin:8px 0 14px;font-variant-numeric:tabula
 .rule{padding:7px 0;border-bottom:1px solid var(--grid)}.no{font:600 13px ui-monospace,Consolas,monospace;color:var(--motive)}
 .kind,.tag{font-size:12px;color:var(--muted);border:1px solid var(--grid);border-radius:4px;padding:0 6px}.tag.real{color:var(--good);border-color:var(--good)}
 .extra{font-size:13px;color:var(--muted)}.group{font-weight:600;padding:14px 0 2px}.sub{margin:26px 0 0;font-size:16px}h2{scroll-margin-top:70px}
-code{font-size:.9em}@media (max-width:820px){.pair{grid-template-columns:1fr}}
+.status{border-collapse:collapse;font-size:13.5px;margin:10px 0 14px}.status td,.status th{padding:5px 14px 5px 0;text-align:left;vertical-align:top;border-bottom:1px solid var(--grid)}
+.pair.one{display:block;margin:0}code{font-size:.9em}@media (max-width:820px){.pair{grid-template-columns:1fr}}
 """
 SCRIPT = """
 const q=document.getElementById('q');q.addEventListener('input',()=>{const t=q.value.trim().toLocaleLowerCase('tr');
@@ -221,8 +222,50 @@ def build() -> tuple[str, list[tuple[str, int, int, int]]]:
     return page, [*rows, total]
 
 
+def status_table(text: str) -> str:
+    """The reading status at the end of BOOKS.md."""
+    rows = [cells(line) for line in text[text.index("Okuma durumu"):].split("\n") if line.startswith("|")]
+    body = "".join("<tr>" + "".join(f"<td>{rich(c)}</td>" for c in row) + "</tr>" for row in rows[2:])
+    return '<table class="status"><tr>' + "".join(f"<th>{rich(c)}</th>" for c in rows[0]) + f"</tr>{body}</table>"
+
+
+def build_books() -> str:
+    """The book rules alone, book by book, every rule with its pictures (a shared picture is shown once)."""
+    f = next(f for f in FAMILIES if f.key == "kitap")
+    text = (HERE / f.words).read_text(encoding="utf-8")
+    rules = read_rules(text)
+    pictures = read_pictures(f.key, (HERE / f.pictures).read_text(encoding="utf-8"))
+    groups: dict[str, list[Rule]] = {}
+    for r in rules:
+        groups.setdefault(r.group, []).append(r)
+    where: dict[int, str] = {}
+    parts, nav, shown = [], [], 0
+    for n, (group, own) in enumerate(groups.items()):
+        name = re.sub(r"^\d+\.\s*", "", group)
+        drawn = [r for r in own if any(r.id in p.rules for p in pictures)]
+        shown += len(drawn)
+        nav.append(f'<a href="#b{n}">{rich(name.split("(")[0])}</a>')
+        rows = []
+        for r in own:
+            mine = [(i, p) for i, p in enumerate(pictures) if r.id in p.rules]
+            art = "".join(p.body for i, p in mine if i not in where)
+            seen = [where[i] for i, _ in mine if i in where]
+            where.update({i: r.id for i, _ in mine if i not in where})
+            note = f'<div class="extra">Görsel: {", ".join(dict.fromkeys(seen))} kuralında.</div>' if seen and not art else ""
+            words = f'<ul class="bare">{rule_html(r)}</ul>{note}'
+            rows.append(f'<div class="pair">{art}<div class="words">{words}</div></div>' if art else f'<div class="pair one">{words}</div>')
+        parts.append(f'<section><h2 id="b{n}">{rich(name)}: {len(own)} kural, {len(drawn)} görselli</h2>{"".join(rows)}</section>')
+    return (f'<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+            f"<title>Kitap kuralları</title><style>{CSS}{CHART_CSS}{EXTRA_CSS}</style></head><body><main><h1>Kitap kuralları</h1>"
+            f'<p class="lead">{len(rules)} kural, {shown} görselli. Fikirler kendi cümlelerimizle, çizimler kendi sayılarımızla; hiçbirinin '
+            f"backtest'i yapılmadı.</p>{status_table(text)}"
+            f'<div class="top"><input id="q" type="search" placeholder="Ara: BK-168, stop, hacim…" aria-label="Kural ara"><div>{"".join(nav)}</div></div>'
+            + "".join(parts) + f"</main><script>{SCRIPT}</script></body></html>")
+
+
 def main() -> None:
     sys.stdout.reconfigure(encoding="utf-8")
+    (HERE / "book-rules.html").write_text(build_books(), encoding="utf-8")
     page, rows = build()
     path = HERE / "all-rules.html"
     path.write_text(page, encoding="utf-8")

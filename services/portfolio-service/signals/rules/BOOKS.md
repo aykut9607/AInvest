@@ -146,7 +146,7 @@ Psikoloji; grafik kuralı yok.
 | BK-122 | F | Birden çok endeks aynı dönüşü göstermeli (BK-52) |
 | BK-123 | F | Makro: yalnız **beklentiden sapan** veri bilgidir (RK-41 ile aynı); faiz ile tahvil fiyatı ters yönlü |
 
-## 11. Borsa Sihirbazları (Jack Schwager; örnek bölümler)
+## 11. Borsa Sihirbazları (Jack D. Schwager)
 | No | Tür | Kural |
 |---|---|---|
 | BK-130 | T | **Kovner:** dar sıkışmadan, görünür nedeni **olmayan** kırılım en iyisi; haberi yazılmış / herkesin izlediği kırılım zayıf |
@@ -157,22 +157,64 @@ Psikoloji; grafik kuralı yok.
 | BK-135 | D | **Hite:** sistemi takvim yılıyla değil **her uzunluktaki tutma süresiyle** ölç (kayan pencerelerin kaçı kârlı) → raporumuza eklenecek |
 | BK-136 | D | **Seykota:** sisteme "fazla yükseldi" diye müdahale, yılın en iyi işlemini kaçırdı |
 | BK-137 | D | **Schwartz:** büyük kayıptan sonra normalin 1/5–1/10'u ile dönülür; en büyük kayıplar en büyük kazançlardan **sonra** gelir |
+| BK-140 | T | **Marcus:** en iyi işlem üç şey aynı anda uyunca: temel + teknik + **piyasanın tavrı** (habere doğru yönde tepki). Yalnız bunlarda büyük pozisyon; öbürleri başa baş kalıyor |
+| BK-141 | T | **Marcus:** aşırı tempoda (art arda dikey günler) çıkış: 3. gün dikkat, 4. gün çık |
+| BK-142 | D | **Marcus:** tek **fikre** sermayenin %5'inden az; ilişkili iki pozisyon tek fikirdir. Aleyhte ve açıklanamayan hareket → önce çık, sebebi sonra ara |
+| BK-143 | D | **Kovner:** işlem başına %1'den az; korelasyonlu 8 pozisyon 8 kat risktir. Yeni başlayan 3–5 kat fazla büyük oynar |
+| BK-144 | T | **Kovner:** uzun süre ve çok kez test edilen aralığın kırılması en güveniliri (örnekte bir yıl, 20 test) |
+| BK-145 | T | **Kovner:** stop, fiyatın **kolayca ulaşamayacağı** teknik engelin ötesinde; mesafe uzarsa miktar küçülür, dolar riski sabit kalır |
+| BK-146 | F | **Kovner:** ayı piyasasında iniş hızlı, tepki sert; satış ani yükselişte yapılır, düşüşe geç katılınmaz |
+| BK-147 | D | **Dennis:** kârın %95'i işlemlerin %5'inden; kurallar büyük trendi kaçırmamaya göre kurulur |
+| BK-148 | T | **Dennis:** iyi kural **birbirinden farklı piyasalarda** aynı ayarla çalışır; yalnız birinde çalışan kurala güvenilmez → bizde BTC, altın, S&P birlikte ölçülür |
+| BK-149 | T | **Dennis:** Cuma güçlü kapanan piyasada hafta sonu short, zayıf kapananda long taşınmaz (**Schwartz:** düşen Cuma'yı genelde düşen Pazartesi izler) |
+| BK-150 | T | **Dennis / Jones: zaman stopu:** 1–2 hafta sonra zararda ya da beklenen hareket gelmiyorsa, stop vurulmasa da çık |
+| BK-151 | F | **Dennis:** formasyon yön söyler; "bu fiyatı geçemez" diye tavan koymak için kullanılmaz |
+| BK-152 | T | **Jones: oynaklık kırılımı:** dar aralık aniden genişlerse o yönde girilir |
+| BK-153 | T | **Jones:** ölçülü hareket: aralık kırılınca hedef **aralık yüksekliği** kadar (PA-35, BK-42 ile aynı) |
+| BK-154 | T | **Jones:** büyük pozisyon yeni tepe/dipte yarı yarıya kapatılır; stopların biriktiği yerde dönüş olabilir |
+| BK-155 | D | **Jones:** günlük kayıp %1–2'de her şey kapatılır; giriş fiyatı önceki gün kapanışı sayılır |
+| BK-156 | D | **Bielfeldt:** tek yönteme bağlanma: sistem sinyali ile kendi görüşü yarı yarıya; düşük olasılıklı el küçük kayıpla bırakılır |
+| BK-157 | T | **Seykota:** önem sırası: uzun vadeli trend → mevcut formasyon → giriş noktası. Alış emri fiyatın **üstünde** (momentum yönünde), dip seçilmez |
+| BK-158 | F | **Seykota:** karar günde bir kez, **kapanış** verisiyle; sürekli ekran fazla işlem yaptırır |
+| BK-159 | T | **Hite: üç ışık:** oynaklık normal → bütün sinyaller; yüksek → yeni işlem yok; aşırı → açık işlemler de kapatılır (10–100 günlük pencereler) |
+| BK-160 | T | **Hite:** stop sonrası fiyat **yeni tepe** yaparsa yeniden girilir. Tarihî yeni yüksek "bir şey değişti" demektir |
+| BK-161 | F | **Hite:** aşırı alım/satım göstergelerinin işe yaradığı testle gösterilemedi; en iyi değil **sağlam** (ayara duyarsız) parametre seçilir |
+| BK-162 | F | **Steinhardt (karşıt görüş):** grafik ve stop kullanmaz; yalnız piyasadan farklı bir görüşü varken pozisyonda kalır, beklenen haber gelince çıkar |
+| BK-163 | T | **O'Neil:** geniş tabandan **yeni yükseğe** çıkışta alınır, dipten değil; tabandan %10'dan fazla uzaklaşmışsa alınmaz |
+| BK-164 | T | **O'Neil / Ryan:** kırılım hacmi ortalamanın en az **%50** üstünde (Ryan: iki katı); tabanda hacim **azalmış** olmalı (BK-25 ile aynı) |
+| BK-165 | D | **O'Neil / Ryan:** en fazla **%7** zarar; isabet %50–66 yeter. 5–6 ardışık kayıpta nakde dön |
+| BK-166 | T | **O'Neil:** endeks tepesi: düşük hacimli yeni yüksek **ya da** birkaç gün hacim artarken fiyatın ilerlememesi; liderlerin önce kırılması |
+| BK-167 | T | **O'Neil:** short "pahalı" diye açılmaz; 3./4. tabandan çıkış başarısız olup tabanın altına hacimle inince, tabana **ilk geri çekilişte** |
+| BK-168 | T | **Ryan:** kırılan aralığın **içine geri dönen** fiyatta en az yarısı satılır; genelde aralığın dibine kadar gider |
+| BK-169 | T | **Ryan:** göreli güç en az %80, tercihen %90+; **düşmeye başlarsa** vazgeçilir (Marcus karşıt: kendi işine yaramadığını söylüyor) |
+| BK-170 | T | **Ryan:** hedef yok; fiyat yeni taban kurup **aşağı kırınca** çıkılır. Kazananlar 6–12 ay, kaybedenler iki haftadan az tutulur |
+| BK-171 | T | **Schwartz:** işlemden önce fiyat hareketli ortalamanın hangi tarafında? Ters tarafa işlem yok |
+| BK-172 | T | **Schwartz:** piyasa yeni dip yaparken kendi dibinin üstünde kalan varlık güçlüdür (göreli güç) |
+| BK-173 | T | **Schwartz:** tepenin süresi fiyat tepesinden değil, ondan **önceki osilatör tepesinden** ölçülür; iniş ve çıkış süreleri benzer |
+| BK-174 | F | **Schwartz:** birlikte gitmesi gereken iki araç ortalamalarına göre ayrışıyorsa işlem yok |
+| BK-175 | F | **Schwartz:** korkulan haberden sonra açılış beklendiği kadar kötü değilse pozisyon korunur; yönü destekleyen güç vardır |
+| BK-176 | T | **Rogers:** histeri (boşluklu, dikey hareket) aranır; katalizör yoksa ucuz varlık yıllarca ucuz kalır. **Uyarı:** tek başına "tepe satmak" kitapta da tehlikeli deniyor |
+| BK-177 | T | **Weinstein:** temposunu kaybeden harekette ters yön; dip ve tepe değil, hareketin en hızlı **orta kısmı** alınır. (%99 isabet iddiası doğrulanamadı) |
+| BK-178 | F | **Weinstein:** hiçbir yöntem her zaman çalışmaz; önce hangi rejimde olunduğuna bakılır |
+| BK-179 | D | **Gelber:** tek kural: **kaybeden pozisyon büyütülmez**. Yıl başında küçük, kazandıkça büyük; kayıpta kalan pozisyonlar da kapatılır |
+| BK-180 | T | **Baldwin:** bakılan seviyeler haftanın en yükseği/düşüğü, %50 düzeltme ve sıkışma alanı; haftalık ucun kırılıp **geri dönmesi** tuzaktır (SFP, MB-20) |
+| BK-181 | F | **Baldwin (karşıt görüş):** zararda en kötü anda değil, gelen tepkide çıkılır. Yalnız disiplinli çok kısa vade için; bizde stop esas |
 
-**Bu beş kitabın tamamı okunmadı** (aşağıdaki sayfalar); başarı öyküleri **hayatta kalma yanlılığı** taşır: aynı kuralı uygulayıp batanlar kitapta yok.
+**Bölüm 3–11'deki kitapların tamamı okunmadı** (aşağıdaki sayfalar); başarı öyküleri **hayatta kalma yanlılığı** taşır: aynı kuralı uygulayıp batanlar kitapta yok.
 
 ## 12. Okuma durumu
 | Kitap | Sayfa | Durum |
 |---|---|---|
 | VWAP Stratejisi | 44 | ✅ tamamı |
 | Altın Kurallar | 53 | ✅ tamamı |
-| Akıllı Borsacı | 67 | ✅ 12–15, 18, 21–32, 37–39. sayfalar (teknik kısım); bilanço, tanıtım ve sözlük atlandı |
-| Trading Psikolojisi | 129 | ✅ 4. bölüm (91–129); 1.–3. bölüm kişisel gelişim, atlandı |
-| Karar Verme | 22 | ✅ 2–22. sayfalar, 1. sayfanın üst yarısı |
-| Alpha Trader | 488 | ✅ kural bölümleri: 196–197, 204–211 (önyargılar), 272–292 (mikro yapı), 293–317 (anlatı), 318–349 (teknik, duygu), 350–383 (risk), 384–425 (uygulama). Kişilik, başarı ve tutum bölümleri (1–6, 14–15) atlandı |
+| Akıllı Borsacı | 67 | ◐ 12–15, 18, 21–32, 37–39. sayfalar (teknik kısım); bilanço, tanıtım ve sözlük atlandı |
+| Trading Psikolojisi | 129 | ◐ 4. bölüm (91–129); 1.–3. bölüm kişisel gelişim, atlandı |
+| Karar Verme | 22 | ◐ 2–22. sayfalar, 1. sayfanın üst yarısı |
+| Alpha Trader | 488 | ◐ kural bölümleri: 196–197, 204–211 (önyargılar), 272–292 (mikro yapı), 293–317 (anlatı), 318–349 (teknik, duygu), 350–383 (risk), 384–425 (uygulama). Kişilik, başarı ve tutum bölümleri (1–6, 14–15) atlandı |
 | Bir Borsa Spekülatörünün Anıları | 270 | ◐ kural geçen parçalar (5., 7., 10. bölüm ve başka örnek sayfalar); anı kısımları atlandı |
 | High Performance Trading | 312 | ◐ strateji 15, 26'dan sayfalar + içindekiler |
 | Market Mind Games | 257 | ◐ 11. ve 13. bölümden sayfalar + içindekiler |
 | Piyasaları Okumak | 270 | ◐ teknik analiz bölümü (184–205) ve makro varsayımlar; banka/faiz bölümleri atlandı |
-| Borsa Sihirbazları | 524 | ◐ Marcus, Kovner, Jones, Seykota, Hite, Schwartz'tan sayfalar; O'Neil, Ryan, Dennis, Tharp **okunmadı** |
+| Borsa Sihirbazları | 524 | ◐ PDF 1–455 (Marcus, Kovner, Dennis, Jones, Bielfeldt, Seykota, Hite, Steinhardt, O'Neil, Ryan, Schwartz, Rogers, Weinstein, Gelber, Baldwin tamam; basılı 34–35, 40, 45, 48 ve 264–265 eksik). Saliba'nın kalanı, Tharp ve ekler **okunmadı** |
 | Temel analiz / portföy | | Akıllı Yatırımcı, Borsada Tek Başına, Duygusuz Yatırımcı, Değerleme, Finans Teorileri: 4.4 değil, 4.1–4.3 için |
 | Alınmayacak | | Tarih, ekonomi-politik, kişisel gelişim (işlem kuralı yok) |

@@ -66,11 +66,24 @@ def svg(prices: Sequence[float], labels: Sequence[str], limits: Sequence[tuple[f
     def y(price: float) -> float:
         return PAD_TOP + (high - price) / ((high - low) or 1.0) * (H - PAD_TOP - PAD_BOTTOM)
 
+    def at_left(price: float) -> bool:
+        """A limit's name goes to the side where the path stays further from the line."""
+        n = max(1, len(prices) // 3)
+        return min(abs(y(p) - y(price)) for p in prices[:n]) > min(abs(y(p) - y(price)) for p in prices[-n:])
+
+    def anchor(k: int) -> tuple[float, str]:
+        """Long words on the first and last points stay inside the picture."""
+        if len(labels[k]) > 8 and k == 0:
+            return 6, "start"
+        if len(labels[k]) > 8 and x(k) > W - PAD_X - 1:
+            return W - 6, "end"
+        return x(k), "middle"
+
     out = [f'<svg viewBox="0 0 {W} {H}" role="img" aria-label="{" ".join(f"{p:g}" for p in prices)}">']
     for price, text, css in limits:
         out.append(f'<line class="{css}" x1="6" x2="{W - 6}" y1="{y(price):.1f}" y2="{y(price):.1f}"/>'
-                   f'<text class="{"lim" if css == RED else "gl"}" x="{W - 6}" y="{y(price) - 4:.1f}" '
-                   f'text-anchor="end">{html.escape(text)}</text>')
+                   f'<text class="{"lim" if css == RED else "gl"}" x="{6 if at_left(price) else W - 6}" y="{y(price) - 4:.1f}" '
+                   f'text-anchor="{"start" if at_left(price) else "end"}">{html.escape(text)}</text>')
     for i, j, to in lines:
         out.append(f'<line class="chan" x1="{x(i):.1f}" y1="{y(prices[i]):.1f}" x2="{x(to):.1f}" y2="{y(on_line(i, j, to)):.1f}"/>')
     for k in range(len(prices) - 1):
@@ -83,7 +96,7 @@ def svg(prices: Sequence[float], labels: Sequence[str], limits: Sequence[tuple[f
         is_top = prices[1] < price if k == 0 else prices[k - 1] < price
         out.append(f'<circle class="{"dotbad" if k in bad else "dot"}" cx="{x(k):.1f}" cy="{y(price):.1f}" r="4">'
                    f'<title>{labels[k]} {price:g}</title></circle>'
-                   f'<text x="{x(k):.1f}" y="{y(price) + (-9 if is_top else 19):.1f}" text-anchor="middle">'
+                   f'<text x="{anchor(k)[0]:.1f}" y="{y(price) + (-9 if is_top else 19):.1f}" text-anchor="{anchor(k)[1]}">'
                    f'{labels[k]} <tspan class="p">{price:g}</tspan></text>')
     return "".join(out) + "</svg>"
 
