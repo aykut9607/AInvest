@@ -156,6 +156,8 @@ Kontrol sırası: konum → ana dalgalar → iç yapı → fiyat kuralları → 
 
 ---
 
+| No | Tür | Kural | Kaynak |
+|---|---|---|---|
 | E-100 | R | Korelasyon kontrolü: BTC ↔ ETH; altın ↔ gümüş ↔ platin (petrol ↔ altın); S&P ↔ Nasdaq ↔ DJI; DXY ↔ döviz. Korelasyonun bozulması erken uyarıdır (**veri bugün yok**) | T |
 | E-101 | R | Haber kaynaklı anormal hareket ve mikro dilim gürültüsü doğrudan sayıma katılmaz | T |
 | E-102 | K | Sayım bozulduysa o sayıma dayanan işlem planı da bozulmuştur | T |
