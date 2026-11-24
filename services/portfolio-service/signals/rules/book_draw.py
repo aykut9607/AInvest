@@ -37,6 +37,12 @@ def sketches() -> str:
              [60, 72, 65, 98, 84, 106], "EMA5 − EMA35. 3. dalganın tepesi 5. dalganınkinden yüksek olmalı (E- listesindeki uyumsuzlukla aynı fikir)."),
         card("Zigzag oranları (BK-28)", None, svg([100, 70, 85, 55], ["5", "A", "B ≤ %75", "C = A"], [(92.5, "B sınırı %75", RED)]),
              [100, 70, 85, 55], "B genelde A'nın %50'si, en çok %75'i; C = 1, 1,62 ya da 2,62 × A."),
+        card("Haber pivotu (BK-70)", None, svg([70, 76, 72, 96, 88, 94, 78, 92], ["", "", "son fiyat", "haber", "", "", "pivot tuttu", ""], [(74, "pivot", RED), (90, "boşluk ucu", AMBER)]),
+             [70, 76, 72, 96, 88, 94, 78, 92], "Haberden önceki son fiyat referanstır. Fiyat oraya dönüp tutunursa haber geçerli; altına geçerse piyasa haberi reddetti."),
+        card("Yuvarlak sayı ve stop (BK-76)", None, svg([112, 104, 110, 100.5, 108, 118], ["", "", "giriş", "kalabalığın stopu", "", ""], [(100, "100", AMBER), (96, "bizim stop", RED)]),
+             [112, 104, 110, 100.5, 108, 118], "Long stopu 100'ün hemen üstünde değil, altında ve en az bir günlük aralık uzakta."),
+        card("Sıkışma kırılımı ve stop (BK-101, BK-131)", None, svg([100, 109, 101, 110, 102, 116, 111, 126], ["", "", "", "", "", "kırılım", "ekleme: kârda", ""], [(110, "aralık üstü", AMBER), (99, "stop: aralık dışı", RED)]),
+             [100, 109, 101, 110, 102, 116, 111, 126], "Dar aralıkta işlem yok; kapanışla kırılınca küçük giriş, kâra geçtikçe ekleme. Stop aralığın ortasında değil dışında."),
     ]
     return section("1. Kural çizimleri (kendi sayılarımız)", cards)
 
@@ -82,9 +88,31 @@ def break_figure() -> str:
         "En yeni örnek. Sonucuna bakılarak seçilmedi; kuralın tuttuğu anlamına gelmez.")
 
 
+def deviation_figure() -> str:
+    cs = load_series("BTCUSDT", "1h").candles
+    closes = [c.close for c in cs]
+    mean, run = [None] * len(cs), sum(closes[:100])
+    for i in range(100, len(cs)):
+        mean[i] = run / 100
+        run += closes[i] - closes[i - 100]
+    dev = [None if m is None else c / m - 1 for c, m in zip(closes, mean)]
+    i0 = len(cs) - 500
+    past = sorted(v for v in dev[:i0] if v is not None)
+    k = int(0.05 * len(past))
+    low, high = past[k], past[-k - 1]
+    marks, last = [], None
+    for i in range(i0, len(cs)):
+        side = "up" if dev[i] > high else "down" if dev[i] < low else None
+        if side and side != last:
+            marks.append((i, cs[i].close, "uç", side))
+        last = side
+    return figure("100 saatlik ortalamadan sapma, en uç %5 — BTC 1h", candle_svg(cs[i0:], Overlay(lines=curve(mean[i0:], i0, "lamber", "ort. 100"), marks=marks), i0, date="%d.%m"),
+                  f"BK-81. Sınırlar yalnız bu pencereden önceki veriden: %{100 * low:.1f} ve %{100 * high:.1f}. Son 500 saat.")
+
+
 def handbook() -> str:
     lead = "Kitaplardan çıkan kurallar (book data). Numaralar BOOKS.md'deki kurallardır; kitapların metni ya da görselleri kopyalanmadı."
-    real = [vwap_figure(), break_figure(), ema_figure()]
+    real = [vwap_figure(), break_figure(), ema_figure(), deviation_figure()]
     return page("Kitap kuralları", sketches() + section("2. Aynı kurallar gerçek grafikte", real), lead).replace("</style>", CHART_CSS + "</style>")
 
 

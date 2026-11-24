@@ -83,3 +83,87 @@ def volume_confirms(candles: Sequence[Candle], break_index: int, retest_index: i
     usual = sum(c.volume for c in candles[break_index - window:break_index]) / window
     back = candles[break_index + 1:retest_index + 1]
     return candles[break_index].volume > usual and sum(c.volume for c in back) / len(back) < candles[break_index].volume
+
+
+def concentration(weights: Sequence[float]) -> float:
+    """BK-62: sum of squared weights (Herfindahl) of a portfolio whose weights add up to 1; 1 = one asset, 1/n = evenly spread."""
+    if abs(sum(weights) - 1) > 1e-6 or min(weights) < 0:
+        raise ValueError("weights must be non-negative and add up to 1")
+    return sum(w * w for w in weights)
+
+
+def regime_20(closes: Sequence[float], move: float = 0.20) -> list[str | None]:
+    """BK-40: "bull" after a rise of 20 % from the lowest close since the last peak, "bear" after a fall of 20 % from the highest."""
+    out: list[str | None] = []
+    state, low, high = None, float("inf"), 0.0
+    for c in closes:
+        low, high = min(low, c), max(high, c)
+        if state != "bull" and c >= low * (1 + move):
+            state, high = "bull", c
+        elif state != "bear" and c <= high * (1 - move):
+            state, low = "bear", c
+        out.append(state)
+    return out
+
+
+def average_daily_range(daily: Sequence[Candle], index: int, days: int = 20) -> float | None:
+    """BK-75: mean high - low of the `days` bars before `index` (the running bar is not used)."""
+    return sum(c.high - c.low for c in daily[index - days:index]) / days if index >= days else None
+
+
+def stop_is_far_enough(entry: float, stop: float, daily_range: float, least: float = 1.0) -> bool:
+    """BK-75: a stop closer than one average daily range is inside the noise."""
+    return abs(entry - stop) >= least * daily_range
+
+
+def stop_beyond_round(stop: float, side: str, step: float) -> float:
+    """BK-76: a stop resting just on the wrong side of a round number (within 2 % of `step`) moves to the same distance beyond it."""
+    nearest, near = round(stop / step) * step, 0.02 * step
+    if abs(stop - nearest) > near or (stop < nearest if side == "long" else stop > nearest):
+        return stop
+    return nearest - near if side == "long" else nearest + near
+
+
+def extreme(values: Sequence[float], index: int, tail: float = 0.05, least: int = 200) -> str | None:
+    """BK-80 / BK-81: "high" / "low" when the value lies in the top / bottom `tail` of its OWN past (bars before `index` only)."""
+    past = sorted(v for v in values[:index] if v is not None)
+    if len(past) < least or values[index] is None:
+        return None
+    k = int(tail * len(past))
+    return "high" if values[index] > past[-k - 1] else "low" if values[index] < past[k] else None
+
+
+def range_break(candles: Sequence[Candle], index: int, window: int = 20) -> str | None:
+    """BK-101: the close of bar `index` beyond the high / low of the `window` bars before it ("up" / "down")."""
+    if index < window:
+        return None
+    past = candles[index - window:index]
+    close = candles[index].close
+    return "up" if close > max(c.high for c in past) else "down" if close < min(c.low for c in past) else None
+
+
+def break_holds(candles: Sequence[Candle], index: int, level: float, side: str, days: int = 3) -> bool | None:
+    """BK-120: `days` closes in a row beyond the level, the break bar included. None while they are not all known."""
+    if index + days > len(candles):
+        return None
+    return all(c.close > level if side == "up" else c.close < level for c in candles[index:index + days])
+
+
+def rolling_win_share(returns: Sequence[float], length: int) -> float | None:
+    """BK-135: share of all holding windows of `length` periods whose compounded return is positive."""
+    windows = len(returns) - length + 1
+    if length < 1 or windows < 1:
+        return None
+    wins = 0
+    for i in range(windows):
+        value = 1.0
+        for r in returns[i:i + length]:
+            value *= 1 + r
+        wins += value > 1
+    return wins / windows
+
+
+def payoff_ratio(results: Sequence[float]) -> float | None:
+    """BK-110: average win / average loss. None without at least one of each."""
+    wins, losses = [r for r in results if r > 0], [-r for r in results if r < 0]
+    return (sum(wins) / len(wins)) / (sum(losses) / len(losses)) if wins and losses else None
