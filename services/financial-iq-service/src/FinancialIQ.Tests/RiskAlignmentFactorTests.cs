@@ -1,94 +1,80 @@
 using FinancialIQ.Api.Application.Concrete;
+using FinancialIQ.Api.Application.Constants;
 using FinancialIQ.Api.Domain.Dtos;
 using System.Text.Json;
 using Xunit;
 
 namespace FinancialIQ.Tests;
 
+// Scoring v2: the self-reported risk preference (RiskAlignment factor + riskProfile) was removed.
+// The user now picks a risk level later, capped by the score (Portfolio Service), so it no longer changes the score.
+// These tests keep it from coming back and cover the problem it caused (better finances could lower the score).
 public class RiskAlignmentFactorTests
 {
-    // 6 months reserve, 10% debt ratio, 50% savings -> behavioral capacity HIGH
-    private static CalculateRequest StrongFinances(string riskPreference) => new()
+    private static CalculateRequest Profile(decimal cash, decimal expenses = 4000) => new()
     {
         UserId = "test-user",
         MonthlyIncome = 10000,
-        MonthlyExpenses = 4000,
+        MonthlyExpenses = expenses,
         MonthlyDebtPayment = 1000,
-        CashReserve = 24000,
-        RiskPreference = riskPreference
+        CashReserve = cash,
+        ImpatienceLevel = 3
     };
 
-    // same numbers as demo-user-4: ~0.1 months reserve and negative savings -> behavioral capacity LOW
-    private static CalculateRequest WeakFinances(string riskPreference) => new()
+    private static (int score, JsonElement breakdown) Score(CalculateRequest request)
     {
-        UserId = "test-user",
-        MonthlyIncome = 30000,
-        MonthlyExpenses = 25000,
-        MonthlyDebtPayment = 7000,
-        CashReserve = 3000,
-        RiskPreference = riskPreference
-    };
-
-    private static JsonElement Breakdown(CalculateRequest request)
-    {
-        var (_, _, factorBreakdown) = FinancialIqCommandManager.CalculateScore(request);
-        return JsonDocument.Parse(factorBreakdown).RootElement.Clone();
+        var (score, _, factorBreakdown) = FinancialIqCommandManager.CalculateScore(request);
+        return (score, JsonDocument.Parse(factorBreakdown).RootElement.Clone());
     }
 
     [Fact]
-    public void StatedMatchesBehavior_ShouldGiveFullPointsAndNoFlag()
+    public void Breakdown_HasNoRiskFactorAndNoRiskProfile()
     {
-        var json = Breakdown(StrongFinances("HIGH"));
+        var (_, breakdown) = Score(Profile(cash: 24000));
 
-        Assert.Equal(15, json.GetProperty("factors").GetProperty("RiskAlignment").GetInt32());
-        Assert.False(json.GetProperty("riskProfile").GetProperty("inconsistent").GetBoolean());
-        Assert.Equal("ALIGNED", json.GetProperty("riskProfile").GetProperty("direction").GetString());
+        Assert.False(breakdown.GetProperty("factors").TryGetProperty("RiskAlignment", out _));
+        Assert.False(breakdown.TryGetProperty("riskProfile", out _));
+        Assert.DoesNotContain("Stated risk preference exceeds financial capacity",
+            breakdown.GetProperty("warnings").EnumerateArray().Select(w => w.GetString()));
     }
 
     [Fact]
-    public void OneLevelOff_ShouldGivePartialPoints()
+    public void Breakdown_CarriesTheScoringVersion()
     {
-        var json = Breakdown(StrongFinances("MEDIUM"));
+        var (_, breakdown) = Score(Profile(cash: 24000));
 
-        Assert.Equal(8, json.GetProperty("factors").GetProperty("RiskAlignment").GetInt32());
+        Assert.Equal(ScoringRules.ScoringVersion, breakdown.GetProperty("version").GetString());
     }
 
     [Fact]
-    public void HighStatedWithWeakFinances_ShouldFlagOverstatedAndWarn()
+    public void FactorMaximums_AddUpTo100()
     {
-        var json = Breakdown(WeakFinances("HIGH"));
-        var riskProfile = json.GetProperty("riskProfile");
-
-        Assert.Equal(0, json.GetProperty("factors").GetProperty("RiskAlignment").GetInt32());
-        Assert.Equal("HIGH", riskProfile.GetProperty("stated").GetString());
-        Assert.Equal("LOW", riskProfile.GetProperty("behavioral").GetString());
-        Assert.True(riskProfile.GetProperty("inconsistent").GetBoolean());
-        Assert.Equal("OVERSTATED", riskProfile.GetProperty("direction").GetString());
-        Assert.Contains("Stated risk preference exceeds financial capacity",
-            json.GetProperty("warnings").EnumerateArray().Select(w => w.GetString()));
+        Assert.Equal(100, FinancialIqCommandManager.FactorMaximums.Values.Sum());
+        Assert.Equal(5, FinancialIqCommandManager.FactorMaximums.Count);
     }
 
     [Fact]
-    public void LowStatedWithStrongFinances_ShouldFlagUnderstatedWithoutWarning()
+    public void MoreCash_NeverLowersTheScore()
     {
-        var json = Breakdown(StrongFinances("LOW"));
-        var riskProfile = json.GetProperty("riskProfile");
-
-        Assert.True(riskProfile.GetProperty("inconsistent").GetBoolean());
-        Assert.Equal("UNDERSTATED", riskProfile.GetProperty("direction").GetString());
-        // being more careful than needed costs points but is not a risk, so no warning
-        Assert.Equal(0, json.GetProperty("warnings").GetArrayLength());
+        // v1 lowered some scores when the finances improved (the risk capacity rose past the stated risk)
+        var previous = -1;
+        foreach (var cash in new decimal[] { 0, 2000, 4000, 8000, 12000, 16000, 24000, 48000, 1_000_000 })
+        {
+            var (score, _) = Score(Profile(cash));
+            Assert.True(score >= previous, $"cash {cash}: score {score} < previous {previous}");
+            previous = score;
+        }
     }
 
-    [Theory]
-    [InlineData(2, 0.30, -0.05, "LOW")]     // reserve under 3 months
-    [InlineData(4, 0.40, 0.15, "LOW")]      // debt ratio over 0.36
-    [InlineData(4, 0.15, 0.05, "MEDIUM")]   // nothing alarming, not strong enough for HIGH
-    [InlineData(6, 0.20, 0.10, "HIGH")]     // exactly on every HIGH threshold
-    public void BehavioralCapacity_ShouldFollowThresholds(double months, double debtRatio, double savingsRate, string expected)
+    [Fact]
+    public void LowerExpenses_NeverLowerTheScore()
     {
-        var capacity = FinancialIqCommandManager.GetBehavioralRiskCapacity((decimal)months, (decimal)debtRatio, (decimal)savingsRate);
-
-        Assert.Equal(expected, capacity);
+        var previous = -1;
+        foreach (var expenses in new decimal[] { 9000, 8000, 6000, 5000, 4000, 2000, 0 })
+        {
+            var (score, _) = Score(Profile(cash: 12000, expenses: expenses));
+            Assert.True(score >= previous, $"expenses {expenses}: score {score} < previous {previous}");
+            previous = score;
+        }
     }
 }

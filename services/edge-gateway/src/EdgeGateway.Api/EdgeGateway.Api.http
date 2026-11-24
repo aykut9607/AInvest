@@ -45,6 +45,14 @@ Authorization: Bearer {{Token}}
 GET {{Gateway}}/api/financial-iq/{{UserId}}/history?take=12
 Authorization: Bearer {{Token}}
 
+### 5b) Debt payoff of my own profile (recursive CTE in IQ); optional ?monthlyInterestRate=0.02, default 3.5%
+GET {{Gateway}}/api/Profiles/{{UserId}}/debt-payoff
+Authorization: Bearer {{Token}}
+
+### 5c) IQ rule table, active version (same for every user: any valid token)
+GET {{Gateway}}/api/financial-iq/scoring-rules/current
+Authorization: Bearer {{Token}}
+
 ### 6) Someone else's profile with my token -> 403 (BOLA protection)
 GET {{Gateway}}/api/Profiles/demo-user-1
 Authorization: Bearer {{Token}}
@@ -54,4 +62,15 @@ GET {{Gateway}}/api/Profiles/{{UserId}}
 
 ### 8) Listing every profile is not routed -> 404
 GET {{Gateway}}/api/Profiles
+Authorization: Bearer {{Token}}
+
+### 9) AI explanation (any valid token; 10 per user per minute, the 11th gets 429 + Retry-After)
+POST {{Gateway}}/ai/explain-financial-iq
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{ "score": 62, "segment": "MEDIUM" }
+
+### 10) Market data: exchange rate (any valid token, GET only; Market Data on :8082 must be running, needs internet)
+GET {{Gateway}}/api/market/fx?base=USD&symbol=TRY
 Authorization: Bearer {{Token}}

@@ -89,16 +89,14 @@ public class FinancialIqManagerTests
             MonthlyExpenses = 0,
             MonthlyDebtPayment = 0,
             CashReserve = 30000,
-            RiskPreference = "HIGH"
         };
 
         var (_, _, factorBreakdown) = FinancialIqCommandManager.CalculateScore(request);
 
-        // previously 0 expenses meant "0 months of reserve": cash factor 0, capacity LOW and a false OVERSTATED flag
+        // previously 0 expenses meant "0 months of reserve": cash factor 0 and a false "Low cash reserve" warning
         using var json = JsonDocument.Parse(factorBreakdown);
         var root = json.RootElement;
-        Assert.Equal(20, root.GetProperty("factors").GetProperty("CashReserveMonths").GetInt32());
-        Assert.Equal("HIGH", root.GetProperty("riskProfile").GetProperty("behavioral").GetString());
+        Assert.Equal(25, root.GetProperty("factors").GetProperty("CashReserveMonths").GetInt32());
         Assert.DoesNotContain("Low cash reserve", root.GetProperty("warnings").EnumerateArray().Select(w => w.GetString()));
     }
 
@@ -112,7 +110,6 @@ public class FinancialIqManagerTests
             MonthlyExpenses = 4000,
             MonthlyDebtPayment = 1000,
             CashReserve = 24000,
-            RiskPreference = "HIGH",   // matches the HIGH behavioral capacity of these numbers
             ImpatienceLevel = 1
         };
 

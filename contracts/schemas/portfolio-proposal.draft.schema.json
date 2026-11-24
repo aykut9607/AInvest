@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ainvest/portfolio/proposal.draft",
+  "title": "Portfolio proposal (DRAFT - service not built yet)",
+  "description": "Output of the planned Portfolio Service (Python, Aykut). It stores the user's portfolio choices, computes the allocation deterministically (no LLM) and the AI service only explains it. Until the service exists, the AI side can work against the example below. Draft: field names may still change, with the approval of both developers.",
+  "type": "object",
+  "required": ["proposalId", "userId", "createdAt", "basedOn", "preferences", "risk", "investable", "allocations", "reasons", "disclaimer"],
+  "properties": {
+    "proposalId": { "type": "string", "format": "uuid" },
+    "userId": { "type": "string" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "basedOn": {
+      "description": "The IQ result the proposal was computed from. If the latest IQ is newer, the proposal is stale: say so instead of explaining old numbers.",
+      "type": "object",
+      "required": ["iqScore", "segment", "appliedRule", "iqCalculatedAt", "scoringVersion"],
+      "properties": {
+        "iqScore": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "segment": { "enum": ["LOW", "MEDIUM", "HIGH"] },
+        "appliedRule": { "enum": [null, "VERY_HIGH_INCOME", "VERY_HIGH_WEALTH", "EXTREME_DEBT"] },
+        "iqCalculatedAt": { "type": "string", "format": "date-time" },
+        "scoringVersion": { "type": "string" }
+      }
+    },
+    "preferences": {
+      "description": "What the user chose after seeing the IQ.",
+      "type": "object",
+      "required": ["option", "riskLevel"],
+      "properties": {
+        "option": {
+          "description": "INSTITUTION = 4.1 institution style, CUSTOM = 4.2 user-chosen focus, STANDARD = 4.3 balanced basket, AINVEST = 4.4 AInvest's backtest-based suggestion.",
+          "enum": ["INSTITUTION", "CUSTOM", "STANDARD", "AINVEST"]
+        },
+        "riskLevel": { "enum": ["LOW", "MEDIUM", "HIGH"] },
+        "institutionStyle": {
+          "description": "Only for INSTITUTION. ZIRAAT = protective (deposit, commodities), ISBANK = balanced (SPX, deposit), YAPIKREDI = aggressive (SPX, AI companies).",
+          "enum": ["ZIRAAT", "ISBANK", "YAPIKREDI"]
+        },
+        "focusAssets": { "type": "array", "items": { "type": "string" } },
+        "excludedAssets": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "risk": {
+      "description": "The user picks the risk level, but only up to the IQ ceiling (segment LOW -> max LOW, MEDIUM -> max MEDIUM, HIGH -> max HIGH). Higher levels are locked in the apps and rejected (400) by the service, so chosen <= maxAllowed always.",
+      "type": "object",
+      "required": ["chosen", "maxAllowed"],
+      "properties": {
+        "chosen": { "enum": ["LOW", "MEDIUM", "HIGH"] },
+        "maxAllowed": { "enum": ["LOW", "MEDIUM", "HIGH"] }
+      }
+    },
+    "investable": {
+      "description": "sharePercent = clamp(IQ - 30, 0, 70). Applied to the monthly surplus (income - expenses - installment) and to the cash above a 3-month emergency fund. Reserve under 3 months -> 0, except when VERY_HIGH_INCOME or VERY_HIGH_WEALTH applied.",
+      "type": "object",
+      "required": ["sharePercent", "monthlyAmount", "oneTimeAmount"],
+      "properties": {
+        "sharePercent": { "type": "number", "minimum": 0, "maximum": 70 },
+        "monthlyAmount": { "type": "number", "minimum": 0 },
+        "oneTimeAmount": { "type": "number", "minimum": 0 }
+      }
+    },
+    "allocations": {
+      "description": "Computed in code; percent sums to 100; amount is the share of investable.monthlyAmount. The LLM must not change or invent any number. (Example: surplus 10,000 x 58% = 5,800 a month; cash above the 3-month fund 30,000 - 24,000 = 6,000 x 58% = 3,480 once.)",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["asset", "percent", "amount"],
+        "properties": {
+          "asset": { "type": "string" },
+          "percent": { "type": "number", "minimum": 0, "maximum": 100 },
+          "amount": { "type": "number", "minimum": 0 }
+        }
+      }
+    },
+    "reasons": {
+      "description": "Codes that say why the allocation looks like this, e.g. EXCLUDED_ASSET_REPLACED:BTC->GOLD, IQ_TILT_TO_SAFE_ASSETS, RESERVE_FIRST. The coach turns them into sentences.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "disclaimer": { "type": "string" }
+  },
+  "examples": [
+    {
+      "proposalId": "7d1f3c2a-1111-4b6e-9a3e-0c8e2f5d9a01",
+      "userId": "demo.high (income 20,000, expenses 8,000, installment 2,000, cash 30,000 -> IQ 88)",
+      "createdAt": "2026-11-26T10:00:00Z",
+      "basedOn": { "iqScore": 88, "segment": "HIGH", "appliedRule": null, "iqCalculatedAt": "2026-11-26T09:58:00Z", "scoringVersion": "v2" },
+      "preferences": { "option": "STANDARD", "riskLevel": "MEDIUM", "focusAssets": [], "excludedAssets": ["BTC"] },
+      "risk": { "chosen": "MEDIUM", "maxAllowed": "HIGH" },
+      "investable": { "sharePercent": 58, "monthlyAmount": 5800, "oneTimeAmount": 3480 },
+      "allocations": [
+        { "asset": "GOLD", "percent": 30, "amount": 1740 },
+        { "asset": "TRY_DEPOSIT", "percent": 25, "amount": 1450 },
+        { "asset": "SPX", "percent": 25, "amount": 1450 },
+        { "asset": "EUR", "percent": 10, "amount": 580 },
+        { "asset": "NVDA", "percent": 10, "amount": 580 }
+      ],
+      "reasons": ["EXCLUDED_ASSET_REPLACED:BTC->GOLD"],
+      "disclaimer": "This is not investment advice."
+    }
+  ]
+}

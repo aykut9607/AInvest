@@ -50,18 +50,43 @@ public class CalculateValidationTests
 
         Assert.True(result.Success);
         Assert.Equal("u1", Assert.Single(_dal.Stored).UserId);
-        Assert.Equal(88, result.Data!.Score);
+        Assert.Equal(95, result.Data!.Score);
+        // contract v2: the breakdown is a JSON object in the response, not a string
+        Assert.Equal(System.Text.Json.JsonValueKind.Object, result.Data.FactorBreakdown.ValueKind);
+        Assert.Equal("v2", result.Data.FactorBreakdown.GetProperty("version").GetString());
     }
 
     [Fact]
-    public async Task InvalidRiskPreference_IsRejected()
+    public async Task StoredResult_SaysWhichScoringVersionProducedIt()
+    {
+        await Manager.CalculateAsync(Request("u1"));
+
+        // the procedure writes it into financial_iq_results and iq_history (foreign key to scoring_rule_versions)
+        Assert.Equal(ScoringRules.ScoringVersion, Assert.Single(_dal.Stored).ScoringVersion);
+    }
+
+    [Fact]
+    public async Task NegativeTotalDebt_IsRejected_AndNothingIsStored()
     {
         var request = Request("u1");
-        request.RiskPreference = "high";
+        request.TotalDebt = -1;
 
         var result = await Manager.CalculateAsync(request);
 
-        Assert.Equal(Messages.InvalidRiskPreference, result.Message);
+        Assert.Equal(Messages.NegativeAmountNotAllowed, result.Message);
+        Assert.Empty(_dal.Stored);
+    }
+
+    [Fact]
+    public async Task NegativeInvestmentAmount_IsRejected_AndNothingIsStored()
+    {
+        var request = Request("u1");
+        request.InvestmentAmount = -1;
+
+        var result = await Manager.CalculateAsync(request);
+
+        Assert.Equal(Messages.NegativeAmountNotAllowed, result.Message);
+        Assert.Empty(_dal.Stored);
     }
 
     private sealed class FakeResultDal : IFinancialIqResultDal

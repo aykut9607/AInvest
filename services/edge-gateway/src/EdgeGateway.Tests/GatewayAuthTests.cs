@@ -73,6 +73,16 @@ public class GatewayAuthTests : IClassFixture<GatewayFactory>
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
+    [Theory]
+    [InlineData("/ai/explain-financial-iq")]
+    [InlineData("/api/market/fx?base=USD&symbol=TRY")]
+    public async Task AiAndMarketData_NeedAToken(string path)
+    {
+        var response = await _client.SendAsync(TestTokens.Get(path));
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
     [Fact]
     public async Task AuthRoutes_NeedNoToken()
     {

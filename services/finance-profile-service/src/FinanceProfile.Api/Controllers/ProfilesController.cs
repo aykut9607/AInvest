@@ -83,4 +83,21 @@ public class ProfilesController : ControllerBase
 
         return Ok(result);
     }
+
+    // how many months until the profile's debt is paid, month by month (recursive CTE in the IQ service).
+    // ?monthlyInterestRate=0.03 overrides the default 3.5% a month. Reached through the gateway's sameUser route
+    [HttpGet("{userId}/debt-payoff")]
+    public async Task<IActionResult> DebtPayoff(string userId, [FromQuery] decimal? monthlyInterestRate)
+    {
+        var result = await _financialProfileService.GetDebtPayoffAsync(userId, monthlyInterestRate);
+
+        if (!result.Success)
+        {
+            if (result.Message == Messages.FinancialProfileNotFound) return NotFound(result);
+            if (result.Message == Messages.InvalidMonthlyInterestRate) return BadRequest(result);
+            return StatusCode(StatusCodes.Status502BadGateway, result);
+        }
+
+        return Ok(result);
+    }
 }

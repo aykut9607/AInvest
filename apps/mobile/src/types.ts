@@ -1,4 +1,3 @@
-export type RiskLevel = "LOW" | "MEDIUM" | "HIGH";
 export type Segment = "LOW" | "MEDIUM" | "HIGH";
 
 export interface AuthSession {
@@ -17,7 +16,6 @@ export interface ProfileForm {
   totalDebt: string;
   cashReserve: string;
   investmentAmount: string;
-  riskPreference: RiskLevel;
   impatienceLevel: number;
 }
 
@@ -29,22 +27,19 @@ export interface FinancialProfile {
   totalDebt: number;
   cashReserve: number;
   investmentAmount: number;
-  riskPreference: RiskLevel;
   impatienceLevel: number;
 }
 
-export interface RiskProfile {
-  stated: RiskLevel;
-  behavioral: RiskLevel;
-  inconsistent: boolean;
-  direction: "OVERSTATED" | "UNDERSTATED" | "ALIGNED";
-}
+export type AppliedRule = "VERY_HIGH_INCOME" | "VERY_HIGH_WEALTH" | "EXTREME_DEBT";
 
-// shape of the factorBreakdown JSON produced by the Financial IQ service
+// shape of the factorBreakdown object produced by the Financial IQ service (contract v2: 5 factors,
+// no self-reported risk any more)
 export interface FactorBreakdown {
+  version?: string;
   factors: Record<string, number>;
   warnings: string[];
-  riskProfile?: RiskProfile;
+  // set when an extreme amount decided the score instead of the 5 factors; null/absent otherwise
+  appliedRule?: AppliedRule | null;
 }
 
 export interface IqResult {

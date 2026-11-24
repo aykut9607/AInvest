@@ -84,6 +84,32 @@ public class FinancialProfileManagerTests
         Assert.Equal(Messages.NegativeAmountNotAllowed, result.Message);
     }
 
+    [Fact]
+    public async Task Upsert_WithVeryLargeButStorableAmounts_IsSaved()
+    {
+        // amounts are not capped for scoring: a salary of 1,000,000 or a debt of 100,000,000 must be accepted
+        var request = ValidRequest();
+        request.MonthlyIncome = 1_000_000;
+        request.TotalDebt = 100_000_000;
+        request.CashReserve = FinancialProfile.MaxAmount;
+
+        var result = await Manager.UpsertAsync("u1", request);
+
+        Assert.True(result.Success);
+    }
+
+    [Fact]
+    public async Task Upsert_WithAmountTheColumnCannotHold_IsRejected_AndNothingIsSaved()
+    {
+        var request = ValidRequest();
+        request.TotalDebt = FinancialProfile.MaxAmount + 1;
+
+        var result = await Manager.UpsertAsync("u1", request);
+
+        Assert.Equal(Messages.AmountTooLarge, result.Message);
+        Assert.Empty(_dal.Saved);
+    }
+
     [Theory]
     [InlineData("high")]
     [InlineData("EXTREME")]
@@ -121,7 +147,19 @@ public class FinancialProfileManagerTests
     }
 
     [Fact]
-    public async Task CalculateIq_ForwardsRiskPreferenceAndImpatienceToIq()
+    public async Task Upsert_WithoutRiskPreference_IsAccepted()
+    {
+        var request = ValidRequest();
+        request.RiskPreference = null;
+
+        var result = await Manager.UpsertAsync("u1", request);
+
+        Assert.True(result.Success);
+        Assert.Null(Assert.Single(_dal.Saved).RiskPreference);
+    }
+
+    [Fact]
+    public async Task CalculateIq_ForwardsTheScoringInputsToIq()
     {
         await Manager.UpsertAsync("u1", ValidRequest());
 
@@ -129,9 +167,57 @@ public class FinancialProfileManagerTests
 
         Assert.NotNull(_iqClient.LastRequest);
         Assert.Equal("u1", _iqClient.LastRequest!.UserId);
-        Assert.Equal("HIGH", _iqClient.LastRequest.RiskPreference);
         Assert.Equal(5, _iqClient.LastRequest.ImpatienceLevel);
         Assert.Equal(30000, _iqClient.LastRequest.MonthlyIncome);
+        // IQ needs both for the net-debt rule and the reserve (half of the investments)
+        Assert.Equal(90000, _iqClient.LastRequest.TotalDebt);
+        Assert.Equal(10000, _iqClient.LastRequest.InvestmentAmount);
+    }
+
+    [Fact]
+    public async Task DebtPayoff_SendsTheProfilesDebtAndInstallment_AndTheRate()
+    {
+        await Manager.UpsertAsync("u1", ValidRequest());
+
+        var result = await Manager.GetDebtPayoffAsync("u1", 0.02m);
+
+        Assert.True(result.Success);
+        Assert.NotNull(_iqClient.LastDebtPayoffRequest);
+        Assert.Equal(90000, _iqClient.LastDebtPayoffRequest!.TotalDebt);
+        Assert.Equal(7000, _iqClient.LastDebtPayoffRequest.MonthlyPayment);
+        Assert.Equal(0.02m, _iqClient.LastDebtPayoffRequest.MonthlyInterestRate);
+    }
+
+    [Fact]
+    public async Task DebtPayoff_WithoutRate_LeavesTheDefaultToIq()
+    {
+        await Manager.UpsertAsync("u1", ValidRequest());
+
+        await Manager.GetDebtPayoffAsync("u1", null);
+
+        Assert.Null(_iqClient.LastDebtPayoffRequest!.MonthlyInterestRate);
+    }
+
+    [Fact]
+    public async Task DebtPayoff_WithoutProfile_ReturnsNotFound_AndNeverCallsIq()
+    {
+        var result = await Manager.GetDebtPayoffAsync("nobody", null);
+
+        Assert.Equal(Messages.FinancialProfileNotFound, result.Message);
+        Assert.Null(_iqClient.LastDebtPayoffRequest);
+    }
+
+    [Theory]
+    [InlineData(-0.01)]
+    [InlineData(1.01)]
+    public async Task DebtPayoff_WithRateOutOfRange_IsRejected_AndNeverCallsIq(double rate)
+    {
+        await Manager.UpsertAsync("u1", ValidRequest());
+
+        var result = await Manager.GetDebtPayoffAsync("u1", (decimal)rate);
+
+        Assert.Equal(Messages.InvalidMonthlyInterestRate, result.Message);
+        Assert.Null(_iqClient.LastDebtPayoffRequest);
     }
 
     private sealed class FakeProfileDal : IFinancialProfileDal
@@ -165,6 +251,16 @@ public class FinancialProfileManagerTests
             LastRequest = request;
             IDataResult<FinancialIqCalculateResponse> result =
                 new SuccessDataResult<FinancialIqCalculateResponse>(new FinancialIqCalculateResponse { Score = 6, Segment = "LOW" }, "ok");
+            return Task.FromResult(result);
+        }
+
+        public FinancialIqDebtPayoffRequest? LastDebtPayoffRequest { get; private set; }
+
+        public Task<IDataResult<System.Text.Json.JsonElement?>> GetDebtPayoffAsync(FinancialIqDebtPayoffRequest request)
+        {
+            LastDebtPayoffRequest = request;
+            IDataResult<System.Text.Json.JsonElement?> result = new SuccessDataResult<System.Text.Json.JsonElement?>(
+                System.Text.Json.JsonDocument.Parse("""{"paidOff":true,"months":13}""").RootElement.Clone(), "ok");
             return Task.FromResult(result);
         }
     }

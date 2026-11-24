@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ainvest/financial-iq/factor-breakdown.v2",
+  "title": "Financial IQ factorBreakdown (v2)",
+  "description": "Returned as a JSON object in `factorBreakdown` by Financial IQ (`GET /api/financial-iq/{userId}/latest`) and by Finance Profile (`POST /api/Profiles/{userId}/calculate-iq`). v1 sent the same data as a JSON string, with a 6th factor RiskAlignment and a riskProfile object; both were removed in v2 (no self-reported risk). Changes need the approval of both developers; new fields must be optional.",
+  "type": "object",
+  "required": ["factors", "warnings", "appliedRule"],
+  "properties": {
+    "version": {
+      "description": "Scoring rules that produced the result. Absent = v1.",
+      "const": "v2"
+    },
+    "factors": {
+      "description": "Points each factor earned. Maximums: CashReserveMonths 25, DebtToIncomeRatio 25, SavingsRate 25, ExpenseRatio 15, Impatience 10 (sum 100). When appliedRule is set, every factor is at its maximum (100 rules) or 0 (EXTREME_DEBT), so the bars still add up to the score.",
+      "type": "object",
+      "required": ["CashReserveMonths", "DebtToIncomeRatio", "SavingsRate", "ExpenseRatio", "Impatience"],
+      "properties": {
+        "CashReserveMonths": { "type": "integer", "minimum": 0, "maximum": 25 },
+        "DebtToIncomeRatio": { "type": "integer", "minimum": 0, "maximum": 25 },
+        "SavingsRate": { "type": "integer", "minimum": 0, "maximum": 25 },
+        "ExpenseRatio": { "type": "integer", "minimum": 0, "maximum": 15 },
+        "Impatience": { "type": "integer", "minimum": 0, "maximum": 10 }
+      },
+      "additionalProperties": false
+    },
+    "warnings": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "Low cash reserve",
+          "High debt burden",
+          "High total debt",
+          "Negative savings rate",
+          "Overspending relative to income",
+          "High impatience",
+          "Extreme total debt"
+        ]
+      }
+    },
+    "appliedRule": {
+      "description": "null = the 5 factors decided the score. VERY_HIGH_INCOME: monthly income >= 1,000,000 and net debt <= 1 year of income -> 100. VERY_HIGH_WEALTH: cash + investments - total debt >= 10,000,000 -> 100. EXTREME_DEBT: net debt >= 100,000,000 with income < 1,000,000 -> 0. The coach must explain a rule-decided score by the rule, not by the ratios.",
+      "enum": [null, "VERY_HIGH_INCOME", "VERY_HIGH_WEALTH", "EXTREME_DEBT"]
+    }
+  },
+  "examples": [
+    {
+      "version": "v2",
+      "factors": { "CashReserveMonths": 0, "DebtToIncomeRatio": 8, "SavingsRate": 0, "ExpenseRatio": 0, "Impatience": 0 },
+      "warnings": ["Low cash reserve", "Negative savings rate", "Overspending relative to income", "High impatience"],
+      "appliedRule": null
+    }
+  ]
+}

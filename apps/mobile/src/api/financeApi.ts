@@ -1,17 +1,20 @@
-import { API } from "../config";
 import type { ApiResult, FactorBreakdown, FinancialProfile, IqResult, ProfileForm, Segment } from "../types";
-import { ApiError, messageFrom, request } from "./http";
+import { authorizedRequest } from "./authorizedRequest";
+import { ApiError, messageFrom } from "./http";
 
 interface CalculateIqResponse {
   score: number;
   segment: Segment;
-  factorBreakdown: string;
+  // contract v2 sends an object; a v1 server sent the same JSON as a string
+  factorBreakdown: FactorBreakdown | string | null;
 }
+
+// every call goes through the gateway, which only lets a user reach their own /api/Profiles/{userId} (403 otherwise)
 
 // returns null when the user has no profile yet (404), so the form simply starts empty
 export async function getProfile(userId: string): Promise<FinancialProfile | null> {
-  const { status, body } = await request<ApiResult<FinancialProfile>>(
-    `${API.finance}/api/Profiles/${encodeURIComponent(userId)}`
+  const { status, body } = await authorizedRequest<ApiResult<FinancialProfile>>(
+    `/api/Profiles/${encodeURIComponent(userId)}`
   );
 
   if (status === 404) return null;
@@ -22,8 +25,8 @@ export async function getProfile(userId: string): Promise<FinancialProfile | nul
 }
 
 export async function saveProfile(userId: string, form: ProfileForm): Promise<void> {
-  const { status, body } = await request<ApiResult<null>>(
-    `${API.finance}/api/Profiles/${encodeURIComponent(userId)}`,
+  const { status, body } = await authorizedRequest<ApiResult<null>>(
+    `/api/Profiles/${encodeURIComponent(userId)}`,
     {
       method: "PUT",
       body: {
@@ -33,7 +36,6 @@ export async function saveProfile(userId: string, form: ProfileForm): Promise<vo
         totalDebt: toNumber(form.totalDebt),
         cashReserve: toNumber(form.cashReserve),
         investmentAmount: toNumber(form.investmentAmount),
-        riskPreference: form.riskPreference,
         impatienceLevel: form.impatienceLevel,
       },
     }
@@ -46,8 +48,8 @@ export async function saveProfile(userId: string, form: ProfileForm): Promise<vo
 
 // Finance Profile forwards the profile to the Financial IQ service and returns its result
 export async function calculateIq(userId: string): Promise<IqResult> {
-  const { status, body } = await request<ApiResult<CalculateIqResponse>>(
-    `${API.finance}/api/Profiles/${encodeURIComponent(userId)}/calculate-iq`,
+  const { status, body } = await authorizedRequest<ApiResult<CalculateIqResponse>>(
+    `/api/Profiles/${encodeURIComponent(userId)}/calculate-iq`,
     { method: "POST" }
   );
 
@@ -62,9 +64,10 @@ export async function calculateIq(userId: string): Promise<IqResult> {
   };
 }
 
-// factorBreakdown arrives as a JSON string inside the JSON response
-function parseBreakdown(raw: string | undefined): FactorBreakdown | null {
+// v2: factorBreakdown is already an object; a string (v1 server) is still parsed so both work
+function parseBreakdown(raw: FactorBreakdown | string | null | undefined): FactorBreakdown | null {
   if (!raw) return null;
+  if (typeof raw !== "string") return raw;
   try {
     return JSON.parse(raw) as FactorBreakdown;
   } catch {

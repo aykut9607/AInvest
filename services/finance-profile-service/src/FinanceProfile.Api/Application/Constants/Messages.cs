@@ -15,6 +15,7 @@ public static class Messages
     // Validation / business rules
     public const string InvalidMonthlyIncome = "Monthly income must be greater than zero.";
     public const string NegativeAmountNotAllowed = "Monetary fields cannot be negative.";
+    public const string AmountTooLarge = "Monetary fields must be at most 999,999,999,999,999.";
     public const string InvalidRiskPreference = "Risk preference must be one of the allowed values.";
     public const string InvalidImpatienceLevel = "Impatience level must be between 1 and 5.";
     public const string InvalidUserId = "User id is required and must be at most 100 characters.";
@@ -24,4 +25,9 @@ public static class Messages
     public const string FinancialIqCalculationFailed = "Financial IQ service could not calculate the score.";
     public const string FinancialIqEmptyResult = "Financial IQ service returned an empty result.";
     public const string FinancialIqCalculated = "Financial IQ calculation successful.";
+
+    // debt payoff schedule (computed by the IQ service)
+    public const string InvalidMonthlyInterestRate = "Monthly interest rate must be between 0 and 1 (0.035 = 3.5% a month).";
+    public const string DebtPayoffFailed = "Financial IQ service could not calculate the debt payoff.";
+    public const string DebtPayoffCalculated = "Debt payoff schedule calculated successfully.";
 }

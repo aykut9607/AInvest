@@ -26,10 +26,38 @@ public class EfFinancialIqReadDal : IFinancialIqReadDal
         // EXEC cannot be wrapped in another SELECT, so no LINQ on top (FirstOrDefault would try that):
         // read the (at most one) row as a list, then pick it in memory
         var rows = await _context.Database
-            .SqlQueryRaw<FinancialIqResultResponse>("EXEC dbo.usp_GetLatestIqResult @UserId", userIdParameter)
+            .SqlQueryRaw<LatestIqResultRow>("EXEC dbo.usp_GetLatestIqResult @UserId", userIdParameter)
             .ToListAsync();
 
-        return rows.FirstOrDefault();
+        var row = rows.FirstOrDefault();
+        if (row == null) return null;
+
+        // the column holds JSON text; the response carries it as a JSON object (contract v2)
+        return new FinancialIqResultResponse
+        {
+            Id = row.Id,
+            UserId = row.UserId,
+            Score = row.Score,
+            Segment = row.Segment,
+            FactorBreakdown = FactorBreakdownJson.ToElement(row.FactorBreakdown),
+            CreatedAt = row.CreatedAt,
+            UpdatedAt = row.UpdatedAt,
+            ResultVersion = row.ResultVersion
+        };
+    }
+
+    // the shape usp_GetLatestIqResult returns (same aliases), with the breakdown still as text
+    private sealed class LatestIqResultRow
+    {
+        public Guid Id { get; set; }
+        public string UserId { get; set; } = string.Empty;
+        public int Score { get; set; }
+        public string Segment { get; set; } = string.Empty;
+        public string FactorBreakdown { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        // CONVERT(bigint, row_version) in the procedure
+        public long ResultVersion { get; set; }
     }
 
     public async Task<List<IqTrendPointResponse>> GetTrendAsync(string userId, int take)
@@ -46,6 +74,58 @@ public class EfFinancialIqReadDal : IFinancialIqReadDal
                 FROM dbo.fn_IqTrend({userId})
                 WHERE recency_rank <= {take}")
             .OrderBy(p => p.CalculatedAt)
+            .ToListAsync();
+    }
+
+    public async Task<List<ScoringRulesResponse>> GetScoringRulesAsync()
+    {
+        // a handful of small rows: plain EF, read-only (AsNoTracking), JSON text turned into an object afterwards
+        var rows = await _context.ScoringRuleVersions
+            .AsNoTracking()
+            .OrderByDescending(v => v.IsActive)
+            .ThenByDescending(v => v.EffectiveFrom)
+            .ToListAsync();
+
+        return rows.Select(v => new ScoringRulesResponse
+        {
+            Version = v.Version,
+            Description = v.Description,
+            EffectiveFrom = v.EffectiveFrom,
+            IsActive = v.IsActive,
+            Rules = FactorBreakdownJson.ToElement(v.RulesJson)
+        }).ToList();
+    }
+
+    // OPTION (MAXRECURSION) must be the last clause of the statement and only takes a literal, not a parameter,
+    // so the SQL is a constant (no LINQ on top: EF would wrap it in another SELECT). Without the option SQL Server
+    // stops a recursive CTE after 100 levels (error 530), i.e. any debt longer than 100 months would fail
+    private const int MaxRecursion = 600;
+    private const string DebtPayoffScheduleSql = @"
+        SELECT month_no        AS Month,
+               opening_balance AS OpeningBalance,
+               interest        AS Interest,
+               payment         AS Payment,
+               principal       AS Principal,
+               closing_balance AS ClosingBalance
+        FROM dbo.fn_DebtPayoffSchedule(@TotalDebt, @MonthlyPayment, @MonthlyRate, @MaxMonths)
+        ORDER BY month_no
+        OPTION (MAXRECURSION 600)";
+
+    public async Task<List<DebtPayoffMonth>> GetDebtPayoffScheduleAsync(decimal totalDebt, decimal monthlyPayment, decimal monthlyRate, int maxMonths)
+    {
+        // the function stops at @MaxMonths, the recursion limit must allow that many months
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(maxMonths, MaxRecursion);
+
+        var parameters = new[]
+        {
+            new SqlParameter("@TotalDebt", SqlDbType.Decimal) { Precision = 18, Scale = 2, Value = totalDebt },
+            new SqlParameter("@MonthlyPayment", SqlDbType.Decimal) { Precision = 18, Scale = 2, Value = monthlyPayment },
+            new SqlParameter("@MonthlyRate", SqlDbType.Decimal) { Precision = 9, Scale = 6, Value = monthlyRate },
+            new SqlParameter("@MaxMonths", SqlDbType.Int) { Value = maxMonths }
+        };
+
+        return await _context.Database
+            .SqlQueryRaw<DebtPayoffMonth>(DebtPayoffScheduleSql, parameters)
             .ToListAsync();
     }
 }

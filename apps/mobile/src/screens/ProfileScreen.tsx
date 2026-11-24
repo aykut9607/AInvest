@@ -6,7 +6,7 @@ import OptionGroup from "../components/OptionGroup";
 import PrimaryButton from "../components/PrimaryButton";
 import { calculateIq, getProfile, saveProfile } from "../api/financeApi";
 import { colors, spacing } from "../theme";
-import type { AuthSession, IqResult, ProfileForm, RiskLevel } from "../types";
+import type { AuthSession, IqResult, ProfileForm } from "../types";
 
 interface Props {
   session: AuthSession;
@@ -21,7 +21,6 @@ const emptyForm: ProfileForm = {
   totalDebt: "",
   cashReserve: "",
   investmentAmount: "",
-  riskPreference: "MEDIUM",
   impatienceLevel: 3,
 };
 
@@ -38,6 +37,10 @@ const impatienceHints: Record<number, string> = {
 function toWholeAmount(value: number): string {
   return String(Math.round(value));
 }
+
+// 15 digits = up to 999,999,999,999,999, the most the Finance Profile database column can store.
+// Not a scoring limit: very large incomes and debts are accepted and handled by the IQ rules
+const AMOUNT_MAX_DIGITS = 15;
 
 export default function ProfileScreen({ session, onCalculated, onLogout }: Props) {
   const [form, setForm] = useState<ProfileForm>(emptyForm);
@@ -58,7 +61,6 @@ export default function ProfileScreen({ session, onCalculated, onLogout }: Props
           totalDebt: toWholeAmount(profile.totalDebt),
           cashReserve: toWholeAmount(profile.cashReserve),
           investmentAmount: toWholeAmount(profile.investmentAmount),
-          riskPreference: profile.riskPreference,
           impatienceLevel: profile.impatienceLevel,
         });
       })
@@ -110,28 +112,18 @@ export default function ProfileScreen({ session, onCalculated, onLogout }: Props
         </View>
 
         <Card title="Monthly">
-          <Field label="Income" value={form.monthlyIncome} onChangeText={update("monthlyIncome")} keyboardType="number-pad" placeholder="e.g. 50000" />
-          <Field label="Expenses" value={form.monthlyExpenses} onChangeText={update("monthlyExpenses")} keyboardType="number-pad" placeholder="e.g. 25000" />
-          <Field label="Debt payment" value={form.monthlyDebtPayment} onChangeText={update("monthlyDebtPayment")} keyboardType="number-pad" placeholder="e.g. 5000" />
+          <Field label="Income" value={form.monthlyIncome} onChangeText={update("monthlyIncome")} keyboardType="number-pad" maxLength={AMOUNT_MAX_DIGITS} placeholder="e.g. 50000" />
+          <Field label="Expenses" value={form.monthlyExpenses} onChangeText={update("monthlyExpenses")} keyboardType="number-pad" maxLength={AMOUNT_MAX_DIGITS} placeholder="e.g. 25000" />
+          <Field label="Debt payment" value={form.monthlyDebtPayment} onChangeText={update("monthlyDebtPayment")} keyboardType="number-pad" maxLength={AMOUNT_MAX_DIGITS} placeholder="e.g. 5000" />
         </Card>
 
         <Card title="Balances">
-          <Field label="Total debt" value={form.totalDebt} onChangeText={update("totalDebt")} keyboardType="number-pad" placeholder="e.g. 100000" />
-          <Field label="Cash reserve" value={form.cashReserve} onChangeText={update("cashReserve")} keyboardType="number-pad" placeholder="e.g. 30000" />
-          <Field label="Investments" value={form.investmentAmount} onChangeText={update("investmentAmount")} keyboardType="number-pad" placeholder="e.g. 10000" />
+          <Field label="Total debt" value={form.totalDebt} onChangeText={update("totalDebt")} keyboardType="number-pad" maxLength={AMOUNT_MAX_DIGITS} placeholder="e.g. 100000" />
+          <Field label="Cash reserve" value={form.cashReserve} onChangeText={update("cashReserve")} keyboardType="number-pad" maxLength={AMOUNT_MAX_DIGITS} placeholder="e.g. 30000" />
+          <Field label="Investments" value={form.investmentAmount} onChangeText={update("investmentAmount")} keyboardType="number-pad" maxLength={AMOUNT_MAX_DIGITS} placeholder="e.g. 10000" />
         </Card>
 
         <Card title="About you">
-          <OptionGroup<RiskLevel>
-            label="Risk preference"
-            value={form.riskPreference}
-            onChange={(riskPreference) => setForm((prev) => ({ ...prev, riskPreference }))}
-            options={[
-              { value: "LOW", label: "Low" },
-              { value: "MEDIUM", label: "Medium" },
-              { value: "HIGH", label: "High" },
-            ]}
-          />
           <OptionGroup<number>
             label="How long can you wait to see a return?"
             value={form.impatienceLevel}

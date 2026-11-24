@@ -16,7 +16,8 @@ namespace FinanceProfile.Api.DTOs;
 
         public decimal InvestmentAmount { get; set; }
 
-        public string RiskPreference { get; set; } = "MEDIUM";
+        // optional (scoring v2 does not use it); when sent it must still be LOW, MEDIUM or HIGH
+        public string? RiskPreference { get; set; }
 
         public int ImpatienceLevel { get; set; } = 3;
     }

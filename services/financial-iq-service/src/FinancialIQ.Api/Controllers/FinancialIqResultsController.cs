@@ -31,6 +31,37 @@ public class FinancialIqResultsController : ControllerBase
         return Ok(result);
     }
 
+    // Query — debt payoff schedule (recursive CTE); computes, stores nothing. Called by Finance Profile with the
+    // profile's debt and installment; not routed by the gateway (its IQ route is GET /{userId}/... only)
+    [HttpPost("debt-payoff")]
+    public async Task<IActionResult> DebtPayoff(DebtPayoffRequest request)
+    {
+        var result = await _queries.GetDebtPayoffAsync(request);
+
+        if (!result.Success)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    // Query — the IQ rule table: every scoring version with its rules (thresholds, points, warnings, special rules).
+    // The same for every user; the gateway routes it to any logged-in user
+    [HttpGet("scoring-rules")]
+    public async Task<IActionResult> GetScoringRules()
+        => Ok(await _queries.GetScoringRulesAsync());
+
+    // Query — one version ("v1", "v2") or "current" (the active one)
+    [HttpGet("scoring-rules/{version}")]
+    public async Task<IActionResult> GetScoringRules(string version)
+    {
+        var result = await _queries.GetScoringRulesAsync(version);
+
+        if (!result.Success)
+            return NotFound(result);
+
+        return Ok(result);
+    }
+
     // Query — only reads the latest saved result
     [HttpGet("{userId}/latest")]
     public async Task<IActionResult> GetLatest(string userId)

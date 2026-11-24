@@ -7,6 +7,10 @@ public class FinancialProfile:IEntity
     // single source for the user_id column size (DbContext) and the validation rule (FinancialProfileManager)
     public const int UserIdMaxLength = 100;
 
+    // NOT a business limit (any realistic income or debt is accepted and scored): the amount columns are
+    // numeric(18,2), which can't hold 10^16 or more, and a bigger value would fail in Postgres with a 500
+    public const decimal MaxAmount = 999_999_999_999_999m;
+
     public Guid Id { get; set; }
     public string UserId { get; set; } = string.Empty;
     public decimal MonthlyIncome { get; set; }
@@ -15,7 +19,9 @@ public class FinancialProfile:IEntity
     public decimal TotalDebt { get; set; }
     public decimal CashReserve { get; set; }
     public decimal InvestmentAmount { get; set; }
-    public string RiskPreference { get; set; } = "MEDIUM";
+    // optional since scoring v2: no longer an IQ input. The risk level the user may choose moves to the
+    // Portfolio Service (capped by the score); the column stays until then so existing answers are not lost
+    public string? RiskPreference { get; set; }
     // self-reported, 1 = can wait years for a return, 5 = wants results right away
     public int ImpatienceLevel { get; set; } = 3;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

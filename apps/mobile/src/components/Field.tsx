@@ -10,6 +10,7 @@ interface Props {
   keyboardType?: KeyboardTypeOptions;
   secureTextEntry?: boolean;
   autoCapitalize?: "none" | "sentences";
+  maxLength?: number;
 }
 
 export default function Field({
@@ -20,6 +21,7 @@ export default function Field({
   keyboardType = "default",
   secureTextEntry = false,
   autoCapitalize = "none",
+  maxLength,
 }: Props) {
   return (
     <View style={styles.wrapper}>
@@ -33,6 +35,7 @@ export default function Field({
         keyboardType={keyboardType}
         secureTextEntry={secureTextEntry}
         autoCapitalize={autoCapitalize}
+        maxLength={maxLength}
         autoCorrect={false}
       />
     </View>

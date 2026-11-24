@@ -52,8 +52,14 @@ public class FinancialProfileManager : IFinancialProfileService
         if (request.MonthlyExpenses < 0 || request.MonthlyDebtPayment < 0 || request.TotalDebt < 0 || request.CashReserve < 0 || request.InvestmentAmount < 0)
          return new ErrorResult(Messages.NegativeAmountNotAllowed);
 
+        // technical limit of the database columns, not a scoring rule (see FinancialProfile.MaxAmount)
+        var amounts = new[] { request.MonthlyIncome, request.MonthlyExpenses, request.MonthlyDebtPayment, request.TotalDebt, request.CashReserve, request.InvestmentAmount };
+        if (amounts.Any(amount => amount > FinancialProfile.MaxAmount))
+         return new ErrorResult(Messages.AmountTooLarge);
+
+        // optional now; only a value that is sent has to be valid
         var allowedRisks = new[] { "LOW", "MEDIUM", "HIGH" };
-        if (!allowedRisks.Contains(request.RiskPreference))
+        if (request.RiskPreference != null && !allowedRisks.Contains(request.RiskPreference))
          return new ErrorResult(Messages.InvalidRiskPreference);
 
         if (request.ImpatienceLevel < 1 || request.ImpatienceLevel > 5)
@@ -119,9 +125,33 @@ public class FinancialProfileManager : IFinancialProfileService
             MonthlyExpenses = profile.MonthlyExpenses,
             MonthlyDebtPayment = profile.MonthlyDebtPayment,
             CashReserve = profile.CashReserve,
-            RiskPreference = profile.RiskPreference,
+            // IQ uses both: net debt (debt - cash - investments) for the extreme-debt rule,
+            // and half of the investments as emergency reserve
+            TotalDebt = profile.TotalDebt,
+            InvestmentAmount = profile.InvestmentAmount,
+            // the risk preference is not sent: scoring v2 does not use a self-reported risk
             ImpatienceLevel = profile.ImpatienceLevel
         };
         return await _financialIqClient.CalculateAsync(iqRequest);
+    }
+
+    public async Task<IDataResult<System.Text.Json.JsonElement?>> GetDebtPayoffAsync(string userId, decimal? monthlyInterestRate)
+    {
+        // checked here as well as in IQ: a wrong rate is the caller's mistake (400), while anything IQ rejects
+        // reaches the client as 502 (an upstream failure)
+        if (monthlyInterestRate is < 0 or > 1)
+            return new ErrorDataResult<System.Text.Json.JsonElement?>(Messages.InvalidMonthlyInterestRate);
+
+        var profile = await _financialProfileDal.GetAsync(x => x.UserId == userId);
+        if (profile == null)
+            return new ErrorDataResult<System.Text.Json.JsonElement?>(Messages.FinancialProfileNotFound);
+
+        // the profile's own numbers: the total debt and the installment paid towards it every month
+        return await _financialIqClient.GetDebtPayoffAsync(new FinancialIqDebtPayoffRequest
+        {
+            TotalDebt = profile.TotalDebt,
+            MonthlyPayment = profile.MonthlyDebtPayment,
+            MonthlyInterestRate = monthlyInterestRate
+        });
     }
 }

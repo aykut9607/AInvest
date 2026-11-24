@@ -5,22 +5,31 @@ import FactorBar from "../components/FactorBar";
 import PrimaryButton from "../components/PrimaryButton";
 import { explainScore } from "../api/aiApi";
 import { colors, segmentColor, spacing } from "../theme";
-import type { Explanation, IqResult, RiskProfile } from "../types";
+import type { AppliedRule, Explanation, IqResult } from "../types";
 
 interface Props {
   result: IqResult;
   onEditProfile: () => void;
 }
 
-// display order, label and maximum points of each factor (weights of the 6-factor model)
+// display order, label and maximum points of each factor (weights of the 5-factor model, scoring v2)
 const FACTORS: { key: string; label: string; max: number }[] = [
-  { key: "CashReserveMonths", label: "Cash reserve", max: 20 },
-  { key: "DebtToIncomeRatio", label: "Debt to income", max: 20 },
-  { key: "SavingsRate", label: "Savings rate", max: 20 },
+  { key: "CashReserveMonths", label: "Cash reserve", max: 25 },
+  { key: "DebtToIncomeRatio", label: "Debt to income", max: 25 },
+  { key: "SavingsRate", label: "Savings rate", max: 25 },
   { key: "ExpenseRatio", label: "Expense ratio", max: 15 },
-  { key: "RiskAlignment", label: "Risk alignment", max: 15 },
   { key: "Impatience", label: "Patience", max: 10 },
 ];
+
+// thresholds live in the Financial IQ service (ScoringRules.cs); these texts only explain them
+const RULE_TEXT: Record<AppliedRule, string> = {
+  VERY_HIGH_INCOME:
+    "Your monthly income is 1,000,000 or more and your debt (minus cash and investments) is at most one year of income. At this level a cash reserve builds up quickly, so the score is set to 100.",
+  VERY_HIGH_WEALTH:
+    "Your cash and investments minus your debt are 10,000,000 or more. This covers your expenses for a very long time, so the score is set to 100.",
+  EXTREME_DEBT:
+    "Your debt minus your cash and investments is 100,000,000 or more, which your income cannot carry. The score is set to 0.",
+};
 
 export default function ResultScreen({ result, onEditProfile }: Props) {
   const [explanation, setExplanation] = useState<Explanation | null>(null);
@@ -34,7 +43,7 @@ export default function ResultScreen({ result, onEditProfile }: Props) {
     setExplaining(true);
     setError("");
     try {
-      setExplanation(await explainScore(result.score, result.segment));
+      setExplanation(await explainScore(result.score, result.segment, result.breakdown));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not get an explanation.");
     } finally {
@@ -55,7 +64,11 @@ export default function ResultScreen({ result, onEditProfile }: Props) {
         <Text style={styles.caption}>Financial IQ</Text>
       </View>
 
-      {breakdown?.riskProfile ? <RiskProfileCard profile={breakdown.riskProfile} /> : null}
+      {breakdown?.appliedRule ? (
+        <Card title="How this score was set">
+          <Text style={styles.ruleText}>{RULE_TEXT[breakdown.appliedRule]}</Text>
+        </Card>
+      ) : null}
 
       {breakdown ? (
         <Card title="Score breakdown">
@@ -104,31 +117,6 @@ export default function ResultScreen({ result, onEditProfile }: Props) {
   );
 }
 
-function RiskProfileCard({ profile }: { profile: RiskProfile }) {
-  const overstated = profile.direction === "OVERSTATED";
-  const tone = overstated
-    ? { bg: colors.dangerSoft, fg: colors.danger, title: "Risk mismatch" }
-    : profile.inconsistent
-      ? { bg: colors.warningSoft, fg: colors.warning, title: "More careful than needed" }
-      : { bg: colors.successSoft, fg: colors.success, title: "Risk profile aligned" };
-
-  return (
-    <View style={[styles.riskCard, { backgroundColor: tone.bg, borderColor: tone.fg }]}>
-      <Text style={[styles.riskTitle, { color: tone.fg }]}>{tone.title}</Text>
-      <View style={styles.riskRow}>
-        <View style={styles.riskCol}>
-          <Text style={styles.riskLabel}>You say</Text>
-          <Text style={styles.riskValue}>{profile.stated}</Text>
-        </View>
-        <Text style={[styles.riskVs, { color: tone.fg }]}>{overstated ? ">" : profile.inconsistent ? "<" : "="}</Text>
-        <View style={styles.riskCol}>
-          <Text style={styles.riskLabel}>Your numbers say</Text>
-          <Text style={styles.riskValue}>{profile.behavioral}</Text>
-        </View>
-      </View>
-    </View>
-  );
-}
 
 const styles = StyleSheet.create({
   container: { padding: spacing.lg, paddingBottom: spacing.xl * 2 },
@@ -147,16 +135,10 @@ const styles = StyleSheet.create({
   segmentBadge: { marginTop: spacing.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.xs, borderRadius: 20 },
   segmentText: { color: "#FFFFFF", fontWeight: "700", letterSpacing: 1 },
   caption: { color: colors.muted, marginTop: spacing.sm },
-  riskCard: { borderWidth: 1.5, borderRadius: 14, padding: spacing.lg, marginBottom: spacing.lg },
-  riskTitle: { fontWeight: "700", fontSize: 16, marginBottom: spacing.md },
-  riskRow: { flexDirection: "row", alignItems: "center" },
-  riskCol: { flex: 1, alignItems: "center" },
-  riskLabel: { color: colors.muted, fontSize: 12 },
-  riskValue: { color: colors.text, fontSize: 20, fontWeight: "700", marginTop: 2 },
-  riskVs: { fontSize: 24, fontWeight: "800", paddingHorizontal: spacing.md },
   warningRow: { flexDirection: "row", alignItems: "center", marginBottom: spacing.sm },
   warningDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.warning, marginRight: spacing.sm },
   warningText: { color: colors.text, flex: 1 },
+  ruleText: { color: colors.text, lineHeight: 20 },
   explanation: { color: colors.text, fontSize: 15, lineHeight: 22 },
   disclaimer: { color: colors.muted, fontSize: 12, marginTop: spacing.sm, fontStyle: "italic" },
   muted: { color: colors.muted },
