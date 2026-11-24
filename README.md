@@ -18,7 +18,7 @@ Mobile (RN) ─┘   JWT validation, BOLA check, │      │ REST + Polly (time
                  login rate limit, CORS,     │      ▼
                  correlation id              ├─► Financial IQ (.NET, :5109) ── SQL Server financial_iq_db
                                              │      stored procedures, history table, trend function
-                                             └─► AI Explanation (FastAPI, :8001)
+                                             └─► AI / RAG (FastAPI, :8001) ── local LLM (Ollama), reads user data back through the gateway
 
 Market Data (Spring Boot, :8082) ── external FX rates, protected with Resilience4j
 ```
@@ -35,7 +35,7 @@ Architecture decisions are recorded in [`docs/adr/`](docs/adr).
 | [Finance Profile](services/finance-profile-service) | .NET 10, EF Core, PostgreSQL | User financial profile CRUD; asks Financial IQ to score it |
 | [Financial IQ](services/financial-iq-service) | .NET 10, EF Core, SQL Server, T-SQL | 6-factor deterministic scoring, latest result, score history and trend |
 | [Market Data](services/market-data-service) | Java 21, Spring Boot 3.5, Resilience4j | FX rates from an external provider (minimal skeleton) |
-| [AI Explanation](services/ai-explanation-service) | Python, FastAPI | Turns the score into a plain-language explanation (skeleton; LLM/RAG in progress) |
+| [AI / RAG](services/ai-rag-service) | Python, FastAPI, Ollama | Coach explains the IQ, its history and the portfolio proposal; assistant answers questions with the user's data (router or tool calling); rule-based alerts. The model never computes a number: every answer passes a number and a language check, with a deterministic fallback |
 | [Web](apps/web-react) | React, TypeScript, Vite | Profile form, score and explanation |
 | [Mobile](apps/mobile) | React Native (Expo) | Login, profile, score ring, factor breakdown, inconsistency card |
 
@@ -88,6 +88,7 @@ Ready-made requests are in the `.http` files next to each service (e.g. [`EdgeGa
 | .NET (Gateway, Finance Profile, Financial IQ) | `dotnet test AInvest.slnx` | 95 (xUnit) |
 | Identity | `cd services/identity-service; .\mvnw.cmd test` | 29 (JUnit 5, Mockito) |
 | Market Data | `cd services/market-data-service; .\mvnw.cmd test` | 7 (against a local fake provider) |
+| AI / RAG | `cd services/ai-rag-service; venv\Scripts\python -m pytest` | 107 (pytest, fake model and fake gateway) |
 
 Gateway tests run the real pipeline against a fake downstream (routing, 401/403/404, spoofed headers,
 rate limit, CORS). Resilience tests script failures (503 → 503 → 200, slow responses, repeated 500s)
@@ -96,6 +97,6 @@ and assert how many calls actually reached the dependency.
 ## Roadmap
 
 - Event-driven flow with Kafka (outbox, saga, idempotent consumers) between Finance Profile, Financial IQ and AI
-- AI/RAG service with tool-calling (developed by a teammate)
+- AI/RAG: vector search (pgvector + HNSW) behind the FAQ retriever, sentiment pipeline, Kafka events
 - Market Data snapshots in Couchbase, notifications
 - Dockerfiles, CI, and observability (OpenTelemetry, Grafana)
