@@ -1,0 +1,5 @@
+# run_evaluation.py needs only the standard library (and the .NET SDK for the BatchScorer).
+# compare_models.py runs in the AI service's virtualenv and imports its code; on top of that,
+# the hosted reference model (claude-*) needs the Anthropic SDK:
+-r ../services/ai-rag-service/requirements.txt
+anthropic==2.12.0
