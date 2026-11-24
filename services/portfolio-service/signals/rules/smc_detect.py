@@ -6,7 +6,8 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 from signals.data.candles import Candle
 from signals.rules.pa_detect import DOWN, MSB, UP, structure_breaks
@@ -261,42 +262,57 @@ def key_levels(daily: Sequence[Candle], when: datetime) -> dict[str, float]:
     return out
 
 
-# ---------- Power of 3 (SM-90 ...), 1h candles, UTC sessions
+# ---------- Power of 3 (SM-90 ...): sessions by the exchanges' local clocks (daylight saving included)
 
-ASIA, LONDON, NEW_YORK = (0, 8), (8, 13), (13, 21)
+LONDON_TZ, NEW_YORK_TZ = ZoneInfo("Europe/London"), ZoneInfo("America/New_York")
+
+
+def sessions(day: datetime) -> dict[str, tuple[datetime, datetime]]:
+    """Sessions of one UTC day, as UTC times. Asia 00:00-08:00 UTC (03:00-11:00 in Turkey); London from 08:00 London time to the US
+    open; New York 09:30-16:00 New York time (US open in Turkey: 16:30 in the US summer, 17:30 in winter)."""
+    local = lambda tz, h, m: datetime(day.year, day.month, day.day, h, m, tzinfo=tz).astimezone(timezone.utc)
+    start, us_open = datetime(day.year, day.month, day.day, tzinfo=timezone.utc), local(NEW_YORK_TZ, 9, 30)
+    return {"asia": (start, start + timedelta(hours=8)), "london": (max(local(LONDON_TZ, 8, 0), start + timedelta(hours=8)), us_open),
+            "new york": (us_open, local(NEW_YORK_TZ, 16, 0))}
 
 
 @dataclass(frozen=True)
 class PowerOf3:
     day: datetime
-    first: int                # index of the day's first 1h bar
+    asia: tuple[int, int]     # first and last bar of the Asian session
+    london: tuple[int, int]
     low: float                # Asian range
     high: float
-    swept: str                # HIGH / LOW taken in London with a 1h close back inside
+    swept: str                # HIGH / LOW taken in London with a close back inside
     back_index: int
     distribution: int | None  # first New York bar beyond the opposite side
     known_at: int             # last London bar: only then is it certain that just one side was taken
 
 
-def power_of_3(hourly: Sequence[Candle]) -> list[PowerOf3]:
+def power_of_3(candles: Sequence[Candle]) -> list[PowerOf3]:
+    """Weekdays only (the London / New York exchanges are closed at weekends)."""
     out = []
     days: dict = {}
-    for i, c in enumerate(hourly):
+    for i, c in enumerate(candles):
         days.setdefault(c.time.date(), []).append(i)
+    step = candles[1].time - candles[0].time if len(candles) > 1 else timedelta(hours=1)
     for day, idx in days.items():
-        part = lambda session: [i for i in idx if session[0] <= hourly[i].time.hour < session[1]]
-        asia, london, ny = part(ASIA), part(LONDON), part(NEW_YORK)
-        if len(asia) < 8 or len(london) < 5 or not ny:
+        if day.weekday() >= 5:
             continue
-        low, high = min(hourly[i].low for i in asia), max(hourly[i].high for i in asia)
-        swept = {HIGH: any(hourly[i].high > high for i in london), LOW: any(hourly[i].low < low for i in london)}
+        when = sessions(datetime(day.year, day.month, day.day, tzinfo=timezone.utc))
+        part = lambda name: [i for i in idx if when[name][0] <= candles[i].time < when[name][1]]
+        asia, london, ny = part("asia"), part("london"), part("new york")
+        if len(asia) < timedelta(hours=8) // step or not london or not ny:
+            continue
+        low, high = min(candles[i].low for i in asia), max(candles[i].high for i in asia)
+        swept = {HIGH: any(candles[i].high > high for i in london), LOW: any(candles[i].low < low for i in london)}
         if swept[HIGH] == swept[LOW]:
             continue
         side = HIGH if swept[HIGH] else LOW
-        start = next(i for i in london if (hourly[i].high > high if side == HIGH else hourly[i].low < low))
-        back = next((i for i in london if i >= start and low < hourly[i].close < high), None)
+        first = next(i for i in london if (candles[i].high > high if side == HIGH else candles[i].low < low))
+        back = next((i for i in london if i >= first and low < candles[i].close < high), None)
         if back is None:
             continue
-        go = next((i for i in ny if (hourly[i].low < low if side == HIGH else hourly[i].high > high)), None)
-        out.append(PowerOf3(hourly[idx[0]].time, idx[0], low, high, side, back, go, london[-1]))
+        go = next((i for i in ny if (candles[i].low < low if side == HIGH else candles[i].high > high)), None)
+        out.append(PowerOf3(candles[idx[0]].time, (asia[0], asia[-1]), (london[0], london[-1]), low, high, side, back, go, london[-1]))
     return out

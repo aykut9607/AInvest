@@ -12,7 +12,7 @@ from signals.structure.pivots import HIGH, LOW
 from signals.structure.zigzag import SwingPoint
 
 UP, DOWN = "up", "down"
-BOS, MSB = "BOS", "MSB"
+BOS, MSB, CHOCH = "BOS", "MSB", "CHoCH"
 
 
 # ---------- market structure (PA-01 ... PA-06)
@@ -47,6 +47,7 @@ def structure_breaks(candles: Sequence[Candle], points: Sequence[SwingPoint]) ->
     top = bottom = None                         # newest unbroken swings
     protected = None                            # swing whose break is an MSB
     last_top = last_bottom = None               # newest swings, broken or not
+    broke_at = -1                               # bar of the newest break
     for i, c in enumerate(candles):
         while k < len(waiting) and waiting[k].confirmed_at < i:
             p = waiting[k]
@@ -54,11 +55,14 @@ def structure_breaks(candles: Sequence[Candle], points: Sequence[SwingPoint]) ->
                 top = last_top = p
             else:
                 bottom = last_bottom = p
+            # a fast break: the swing that made it is confirmed only after the break, and protects from its confirmation on
+            if protected is not None and p.kind == protected.kind and protected.index < p.index <= broke_at:
+                protected = p
             k += 1
         if protected is not None:
             against = c.close < protected.price if trend == UP else c.close > protected.price
             if against:
-                trend = DOWN if trend == UP else UP
+                trend, broke_at = (DOWN if trend == UP else UP), i
                 out.append(Break(MSB, trend, i, protected.price, protected.index))
                 broken = protected
                 protected = last_top if trend == DOWN else last_bottom
@@ -70,10 +74,38 @@ def structure_breaks(candles: Sequence[Candle], points: Sequence[SwingPoint]) ->
                 continue
         if top is not None and c.close > top.price and trend in (UP, None):
             out.append(Break(BOS, UP, i, top.price, top.index))
-            trend, protected, top = UP, last_bottom, None
+            trend, protected, top, broke_at = UP, last_bottom, None, i
         elif bottom is not None and c.close < bottom.price and trend in (DOWN, None):
             out.append(Break(BOS, DOWN, i, bottom.price, bottom.index))
-            trend, protected, bottom = DOWN, last_top, None
+            trend, protected, bottom, broke_at = DOWN, last_top, None, i
+    return out
+
+
+def choch_breaks(candles: Sequence[Candle], points: Sequence[SwingPoint]) -> list[Break]:
+    """CHoCH: the first close beyond the newest INNER swing against the trend while the protected swing still holds, i.e. the early
+    sign before an MSB (one per leg: again only after a new BOS or MSB). What is an MSB on a lower timeframe is usually only a
+    CHoCH on the higher one."""
+    out: list[Break] = []
+    turns = {b.index: b for b in structure_breaks(candles, points)}
+    waiting = sorted(points, key=lambda p: p.confirmed_at)
+    k, trend, fresh = 0, None, False
+    top = bottom = None
+    for i, c in enumerate(candles):
+        while k < len(waiting) and waiting[k].confirmed_at < i:
+            if waiting[k].kind == HIGH:
+                top = waiting[k]
+            else:
+                bottom = waiting[k]
+            k += 1
+        if i in turns:
+            trend, fresh = turns[i].direction, True
+            continue
+        if trend is None or not fresh:
+            continue
+        inner = top if trend == DOWN else bottom
+        if inner is not None and (c.close > inner.price if trend == DOWN else c.close < inner.price):
+            out.append(Break(CHOCH, UP if trend == DOWN else DOWN, i, inner.price, inner.index))
+            fresh = False
     return out
 
 

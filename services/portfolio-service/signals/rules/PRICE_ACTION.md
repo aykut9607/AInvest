@@ -16,7 +16,8 @@ Seviye: Dersler → **Orta**. İleri: [SMART_MONEY.md](SMART_MONEY.md).
 | PA-01 | K | HH / LH: önceki tepeden yüksek / alçak tepe. HL / LL: önceki dipten yüksek / alçak dip | N |
 | PA-02 | K | Yükseliş = HH + HL, düşüş = LH + LL, karışıksa yatay | N |
 | PA-03 | K | **BOS:** trend yönündeki son tepenin (dibin) kırılması = devam | N, V |
-| PA-04 | K | **MSB** (notta CHoCH): düşüşte **en dibi yapan son tepenin** yukarı, yükselişte **en tepeyi yapan son dibin** aşağı kırılması = dönüş. Ara tepki tepesinin kırılması yetmez | V (çizimde etiketli), N |
+| PA-04 | K | **MSB** (ders notu buna CHoCH diyor; bizde CHoCH = PA-04a): düşüşte **en dibi yapan son tepenin** yukarı, yükselişte **en tepeyi yapan son dibin** aşağı kırılması = dönüş. Ara tepki tepesinin kırılması yetmez | V (çizimde etiketli), N |
+| PA-04a | K | **CHoCH** (iç dönüş): korunan seviye dururken son **küçük** tepenin/dibin kapanışla kırılması; MSB'den önce gelen erken uyarı, tek başına dönüş değil. LTF'deki MSB, HTF'de yalnız CHoCH'tur | sözlük + V, karar 24 Kas |
 | PA-05 | K | MSB'den sonra HL (LH) ve yeni yönde ilk BOS = dönüşün teyidi | V |
 | PA-06 | K | Kırılım, tepe/dibin çizildiği **dilimin kapanışıyla** (1D yapı → 1D kapanış); fitil kırılım değil (SFP adayıdır) | A onayı |
 | PA-07 | R | HTF yapısı LTF'den üstündür (videoda "HTF > LTF") | V |

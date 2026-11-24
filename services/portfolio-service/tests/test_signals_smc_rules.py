@@ -96,9 +96,16 @@ def test_key_levels_use_only_the_past():
     assert "Pazartesi yüksek" not in sm.key_levels(daily, T0 + timedelta(days=7))    # Monday itself is not closed yet
 
 
+def test_sessions_follow_daylight_saving():
+    summer, winter = sm.sessions(datetime(2026, 7, 15, tzinfo=timezone.utc)), sm.sessions(datetime(2026, 11, 24, tzinfo=timezone.utc))
+    assert summer["new york"][0].strftime("%H:%M") == "13:30" and winter["new york"][0].strftime("%H:%M") == "14:30"       # TR 16:30 / 17:30
+    assert summer["london"][0].hour == 8 and winter["london"][0].hour == 8 and winter["asia"][1].hour == 8
+
+
 def test_power_of_3():
-    rows = [(100, 101, 99, 100)] * 8 + [(100, 100, 96, 99.5)] + [(100, 101, 99, 100)] * 4 + [(100, 106, 100, 105)] + [(105, 106, 104, 105)] * 10
-    po, = sm.power_of_3(bars(rows, timedelta(hours=1)))
-    assert (po.swept, po.back_index, po.distribution, po.known_at) == (LOW, 8, 13, 12)
+    rows = [(100, 101, 99, 100)] * 8 + [(100, 100, 96, 99.5)] + [(100, 101, 99, 100)] * 6 + [(100, 106, 100, 105)] + [(105, 106, 104, 105)] * 8
+    po, = sm.power_of_3(bars(rows, timedelta(hours=1)))                        # a winter Monday: New York opens at 14:30 UTC
+    assert (po.swept, po.back_index, po.distribution, po.known_at, po.asia) == (LOW, 8, 15, 14, (0, 7))
     both = rows[:9] + [(100, 104, 99, 100)] + rows[10:]
     assert sm.power_of_3(bars(both, timedelta(hours=1))) == []
+    assert sm.power_of_3(bars(rows, timedelta(hours=1), T0 + timedelta(days=5))) == []      # Saturday

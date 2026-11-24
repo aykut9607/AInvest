@@ -51,6 +51,14 @@ def test_a_reaction_high_below_the_protected_high_is_not_an_msb():
     assert all(kind != "MSB" for kind, _, _ in kinds(candles, points))
 
 
+def test_choch_is_the_inner_break_before_the_msb():
+    candles, points = path([100, 82, 92, 70, 82, 50, 60, 54, 72, 66, 90])          # inner high 60, protected high 82
+    inner = pa.choch_breaks(candles, points)
+    assert [(b.kind, b.direction, b.level) for b in inner] == [("CHoCH", "up", 60)]
+    msb = next(b for b in pa.structure_breaks(candles, points) if b.kind == "MSB")
+    assert msb.level == 82 and inner[0].index < msb.index
+
+
 def test_a_wick_is_not_a_break():
     candles, points = path([100, 82, 92, 84, 90])
     i = len(candles) - 3

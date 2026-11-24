@@ -20,7 +20,7 @@ Tür: **K** kesin tanım · **R** kılavuz. Kaynak: **N** ders notu · **V** vid
 | SM-10 | K | Güçlü hareketin başladığı **taban** (rally-base-rally, drop-base-drop). Kod: 1–3 küçük mum (gövde ≤ 0,6 ATR) + güçlü mum (≥ 1,5 ATR); bölge tabanın tamamı | N + Ö |
 | SM-11 | R | Taze (hiç dönülmemiş) bölge en güçlü; hızlı oluşan ve güçlü hareket başlatan daha iyi | N |
 | SM-12 | R | Giriş ilk dokunuş, stop bölgenin dışı, hedef karşı bölge ya da 2–3R; trend yönünde | N |
-| SM-13 | K | **HTF CHoCH + LTF MSB:** bölgede yalnız küçük dilimde MSB yetmez; büyük dilimin karakteri de dönmeli. Videodaki örnekte LTF MSB oldu, HTF CHoCH olmadığı için bölge kırıldı | V, A onayı |
+| SM-13 | K | **HTF CHoCH / LTF MSB:** küçük dilimde MSB olan hareket büyük dilimde yalnız CHoCH'tur (iç dönüş, MB-02); büyük dönüş için HTF MSB gerekir. Videodaki örnekte LTF MSB oldu, HTF dönmedi, bölge kırıldı | V, S, A onayı |
 
 ## 3. Range
 | No | Tür | Kural | Kaynak |
@@ -79,7 +79,7 @@ Tür: **K** kesin tanım · **R** kılavuz. Kaynak: **N** ders notu · **V** vid
 ## 10. Kilit seviyeler
 | No | Tür | Kural | Kaynak |
 |---|---|---|---|
-| SM-80 | K | Önceki gün / hafta / ay (ve çeyrek) yüksek-orta-düşük; Pazartesi yüksek-orta-düşük; gün / hafta / ay / çeyrek açılışı | V (gösterge ekranı) |
+| SM-80 | K | Önceki gün / hafta / ay (ve çeyrek) yüksek-orta-düşük; Pazartesi yüksek-orta-düşük; gün / hafta / ay / çeyrek / yıl açılışı; EXT bantları (MB-20); 200 günlük, 50 / 100 / 200 haftalık ortalama | V, G |
 | SM-81 | R | Öncelik: HTF > LTF, kesişim > tek, taze > test edilmiş; az seviye | N |
 | SM-82 | R | Yuvarlak sayı, ATH/ATL, eski döngü seviyeleri, MA, VWAP | N |
 | SM-83 | K | Seviye yalnız **kapanmış** dönemden hesaplanır (Pazartesi, Salı 00:00 UTC'den sonra) | FM-01 |
@@ -88,7 +88,7 @@ Tür: **K** kesin tanım · **R** kılavuz. Kaynak: **N** ders notu · **V** vid
 | No | Tür | Kural | Kaynak |
 |---|---|---|---|
 | SM-90 | K | Birikim (aralık) → manipülasyon (bir uç süpürülür) → dağıtım (ters yönde asıl hareket) | N, V |
-| SM-91 | R | Asya birikim, Londra manipülasyon, New York dağıtım. Saatler UTC 00–08 / 08–13 / 13–21 (TSİ 03–11 / 11–16 / 16–24) | N, A onayı |
+| SM-91 | R | Asya birikim (TR 03–11), Londra manipülasyon (08:00 Londra → ABD açılışı), New York dağıtım (09:30–16:00 New York; açılış TR yazın 16:30, kışın 17:30). Hafta içi | N, A |
 | SM-92 | R | Manipülasyon HTF bölgesine denk gelmeli (videoda mor bölgeler); haber gününde dikkat; her gün olmaz | V, N |
 | SM-93 | – | Aykut: "Pazartesi manipülasyon günü" aynı fikrin haftalık hali | A |
 
@@ -108,11 +108,11 @@ Bölgeler: dersin girişi, stop bölgenin ötesi, hedef **2R** (yazı-tura %33).
 | FVG ilk dokunuş | 2.610 | %32 (31–34) | yazı-turadan farksız; trend yönü de fark etmiyor |
 | Order block 0,5 | 768 | %33 (30–37) | FVG + sweep birlikte %35 (30–41) |
 | Breaker | 319 | %35 (30–40) | |
-| Arz-talep | 546 | %33 (29–37) | **büyük yapı yönünde %37,5 (32–43), yapıya karşı %27 (22–33)** |
-| SFP 4h | 485 | %36 (31–40) | büyük yapı yönünde %36 |
+| Arz-talep | 546 | %33 (29–37) | **büyük yapı yönünde %37 (32–43), yapıya karşı %27 (22–33)** |
+| SFP 4h | 485 | %36 (31–40) | büyük yapı yönünde %35,5, yapıya karşı %35,4: fark yok |
 | SFP 1D | 297 | %28 (23–33) | onaysız günlük SFP zayıf |
 | Range deviasyonu → EQ | 80 | %29 (20–39) | yazı-tura %31 |
-| PO3 (BTC 1h) → karşı uç | 827 | %27 (24–30) | yazı-tura %33; 1.112 günün %26'sında karşı uca gidildi |
+| PO3 (BTC 15m, hafta içi, yaz/kış saatli seans) → karşı uç | 645 | %26 (23–29) | yazı-tura %30; 960 günün %21'inde karşı uca gidildi (24 Kas, eski 1h ölçümünün yerine) |
 
 **Okuma:** tek başına hiçbiri yazı-turadan anlamlı ayrılmıyor. En belirgin iz **yön**: arz-talepte büyük yapı (3 × ATR) yönünde olmak 10 puan fark
 yaratıyor (OB'de 4 puan, SFP'de 2, FVG'de yok). 24 karşılaştırma yapıldı, birkaçının şansa böyle çıkması beklenir: **hipotez**. "HTF > LTF" kuralı

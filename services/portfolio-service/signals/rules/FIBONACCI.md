@@ -101,7 +101,7 @@ Son satırın sonucu: fiyat yeşil bölgeye dönmüşse olağan bir 4. dalgadan 
 | FM-03 | K | Alt likidite alınıp dönülürse yukarı, üst alınıp dönülürse aşağı. LTF kapanışı aralığın içinde + F-06 onayı | A |
 | FM-03a | R | **0,5 (güç ölçüsü):** kapanışlar 0,5'in üstündeyse fiyat güçlü/yukarı, altındaysa zayıf/aşağı | A |
 | FM-04 | R | Model: bir uç süpürülür → 0,5'in öbür tarafında kapanış → hedef **karşı uç**; stop süpürmenin ucu | A + Ö (stop) |
-| FM-05 | R | −0,618 / 1,618'in ötesinde günlük kapanış ve geri dönüş yoksa kırılım sayılır | Ö |
+| FM-05 | R | **Bandın ötesinde kapanış (1,214 / −0,214) gerçek kırılım**, banda değip içeri kapanış süpürme (gösterge paneli, MB-20) | G |
 | FM-06 | K | **Yalnız BTC.** Altın ve S&P için ölçüm aşağıda: uygun görünmüyor | A + ölçüm |
 
 ## 5. Ölçüm (BTC, yalnız kalibrasyon dönemi: 2017-08 – 2024-02; test dönemine bakılmadı)

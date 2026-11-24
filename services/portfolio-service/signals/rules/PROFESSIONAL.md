@@ -81,7 +81,7 @@ Kod: `pro_detect.py`; OI/funding verisi: `signals/data/derivatives.py`. Tür ve 
 | SFP, EQH/EQL süpürmesi | %35 (327; 30–40) |
 | SFP planı (PR-60, derstekinin aynısı; R/R 1,59 → yazı-tura %39) | 1h SFP → 15m MSB **%35** (1.156; 33–38), 4h → 15m %35 (333; 30–40), 1d → 15m %25 (60; 16–37). Büyük yapı yönü fark etmiyor. **Onaysız hali yazı-turanın altında** |
 | RSI uyumsuzluğu | 1h %33 (704), 4h %33 (160), 1d %32 (148); aynı dipte SFP ile 1h %36 (273; 30–41), 4h %34 (65) |
-| RSI 4h, büyük yapı yönünde | %43 (n **40**; 29–58), ters yönde %30 (120) |
+| RSI 4h, büyük yapı yönünde | %41 (n **39**; 27–57), ters yönde %31 (121) |
 | CVD uyumsuzluğu (BTC) | 1h %35 (684), 4h %31 (149) |
 | FVG %50 girişi | %24 (2.488); FVG + OB yan yana %28 (468; 24–32). İlk dokunuştan (%32) **kötü** |
 | OI / fiyat çeyrekleri (1.247 gün) | Not "OI↑ fiyat↑ güçlü" diyor; ertesi gün yukarı **%43** (38–48), genel %50. Diğerleri %51–54 |

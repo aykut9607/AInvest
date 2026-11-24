@@ -12,10 +12,10 @@ Varlıklar: BTCUSDT, altın (GC=F), S&P (ES=F), hepsi USD. Veri ve temizlik: `si
 ## 1. Zaman dilimleri
 | Rol | Dilimler |
 |---|---|
-| HTF (yön, bölge, dönüş kapanışı) | 1W, 1D |
-| LTF (onay: SFP, uyumsuzluk) | 4h, 1h, 45m, 30m, 15m |
+| HTF (yön, bölge, dönüş kapanışı) | 1W, 1D, **4h** (24 Kas kararı) |
+| LTF (onay: SFP, uyumsuzluk) | 1h, 45m, 30m, 15m |
 
-Altın/S&P'de 15–45m yalnızca son ~60 gün var; uzun backtest'te LTF onayı bu varlıklarda 4h/1h ile yapılır.
+Altın/S&P'de 15–45m yalnızca son ~60 gün var; uzun backtest'te LTF onayı bu varlıklarda 1h ile yapılır (o da ~2 yıl; öncesi için onay ölçülemez).
 
 ## 2. Tepe/dip
 - **Pivot** (TradingView `ta.pivothigh/pivotlow` mantığı): bir mum, solundaki `L` ve sağındaki `R` mumdan daha yüksek
@@ -43,7 +43,7 @@ Altın/S&P'de 15–45m yalnızca son ~60 gün var; uzun backtest'te LTF onayı b
 - **CVD** (yalnız BTC): mum başına delta = 2 × alıcı hacmi − toplam hacim, birikimli toplam. Aynı uyumsuzluk mantığı
   RSI yerine CVD ile.
 
-**Güçlü LTF onayı** = aynı dipte/tepede SFP + P.U/N.U. Aynı yapı 1D/1W'de oluşursa HTF sinyalidir (derin düzeltme).
+**Güçlü LTF onayı** = aynı dipte/tepede SFP + P.U/N.U. Aynı yapı 4h/1D/1W'de oluşursa HTF sinyalidir (derin düzeltme).
 
 ## 4. Fibonacci
 > Aykut'un dört aracı, kurallar ve ölçüm: [rules/FIBONACCI.md](rules/FIBONACCI.md). Aşağısı v0 kodunundur.
@@ -110,7 +110,7 @@ Bat yazı-tura, Crab zararlı; aynı formasyon altında farklı sonuç). Puanlar
 ## 7. Dönüş onayı (kapanış) ve geçersizlik
 - **HTF:** bölgeye ilk dokunuştan sonraki 5 günlük mum içinde günlük kapanış bölgenin dönüş tarafında (tepede bölgenin
   altında, dipte üstünde). Haftalık kapanış da öyleyse ek puan.
-- **LTF:** 4h/1h'te SFP + P.U/N.U (SFP kapanışı kendi mumunda).
+- **LTF:** 1h ve altında SFP + P.U/N.U (SFP kapanışı kendi mumunda).
 - **İptal:** fiyat geçersizlik seviyesinin ötesinde kapanırsa plan geçersiz. Planda ayrıca mikro geçersizlik ve
   "key level" (modelin teyit edildiği seviye) yazılır.
 

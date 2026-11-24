@@ -154,15 +154,18 @@ def real() -> str:
     figures.append(figure(f"Kilit seviyeler — BTC 4h, {when:%d.%m.%Y} itibarıyla", candle_svg(four[i0:i1 + 1], Overlay(
         lines=[(i0 + (i1 - i0) * 0.45, levels[n], i1, levels[n], "lgray" if "orta" in n else "lblue", names[n]) for n in keep]), i0),
         "Önceki hafta, Pazartesi aralığı, hafta ve ay açılışı. Hepsi o an bilinen değerler."))
-    po = [p for p in sm.power_of_3(hour) if p.distribution is not None][-1]
-    i0, i1 = window(hour, po.first - 4, po.first + 24)
-    edge = min(hour[i].low for i in range(po.first + 8, po.first + 13)) if po.swept != HIGH else max(hour[i].high for i in range(po.first + 8, po.first + 13))
-    boxes = [(po.first, po.low, po.first + 7, po.high, "zblue"),
-             (po.first + 8, min(edge, po.low if po.swept != HIGH else po.high), po.first + 12, max(edge, po.low if po.swept != HIGH else po.high), "zred")]
-    figures.append(figure(f"Power of 3 — BTC 1h, {po.day:%d.%m.%Y}", candle_svg(hour[i0:i1 + 1], Overlay(
-        boxes=boxes, lines=[(po.first, po.high, i1, po.high, "lgray", ""), (po.first, po.low, i1, po.low, "lgray", "")],
-        marks=[(po.back_index, hour[po.back_index].close, "içeri kapanış", "down"), (po.distribution, hour[po.distribution].close, "dağıtım", "up")]), i0, date="%d.%m %H:%M"),
-        "Mavi: Asya aralığı (00–08 UTC), kırmızı: Londra'da (08–13) süpürme, sonra New York'ta karşı uç."))
+    quarter = load_series("BTCUSDT", "15m").candles
+    po = [p for p in sm.power_of_3(quarter) if p.distribution is not None][-1]
+    i0, i1 = window(quarter, po.asia[0] - 8, po.asia[0] + 96)
+    ldn = quarter[po.london[0]:po.london[1] + 1]
+    edge = min(c.low for c in ldn) if po.swept != HIGH else max(c.high for c in ldn)
+    side = po.low if po.swept != HIGH else po.high
+    boxes = [(po.asia[0], po.low, po.asia[1], po.high, "zblue"), (po.london[0], min(edge, side), po.london[1], max(edge, side), "zred")]
+    figures.append(figure(f"Power of 3 — BTC 15m, {po.day:%d.%m.%Y} (saatler UTC, TR = +3)", candle_svg(quarter[i0:i1 + 1], Overlay(
+        boxes=boxes, lines=[(po.asia[0], po.high, i1, po.high, "lgray", ""), (po.asia[0], po.low, i1, po.low, "lgray", ""),
+                            (po.london[1] + 1, po.low, po.london[1] + 1, po.high, "lamber", "ABD açılışı")],
+        marks=[(po.back_index, quarter[po.back_index].close, "içeri kapanış", "down"), (po.distribution, quarter[po.distribution].close, "dağıtım", "up")]), i0, date="%d.%m %H:%M"),
+        "Mavi: Asya aralığı (TR 03–11), kırmızı: Londra'da süpürme, dikey çizgi ABD açılışı (TR yazın 16:30, kışın 17:30)."))
     return section("2. Aynı kurallar gerçek grafikte (kodun bulduğu son örnekler)", figures)
 
 

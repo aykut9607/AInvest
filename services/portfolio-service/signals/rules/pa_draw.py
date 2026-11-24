@@ -49,6 +49,9 @@ def structure_figure(asset: str, tf: str, start: str, end: str, multiple: float,
         if i0 <= b.level_index and b.index <= i1:
             css = "lred" if b.kind == pa.MSB else "lgreen" if b.direction == pa.UP else "lgray"
             over.lines.append((b.level_index, b.level, b.index, b.level, css, b.kind))
+    for b in pa.choch_breaks(candles, points):
+        if i0 <= b.level_index and b.index <= i1:
+            over.lines.append((b.level_index, b.level, b.index, b.level, "lamber", "CHoCH"))
     return figure(f"{asset} {tf}: piyasa yapısı (gerçek veri, {multiple:g} × ATR)", candle_svg(candles[i0:i1 + 1], over, i0), note)
 
 
@@ -179,7 +182,7 @@ def sketches() -> str:
 def handbook() -> str:
     real = [
         structure_figure("BTCUSDT", "1d", "2026-01-15", "2026-11-21", 2.0,
-                         "Kırmızı çizgi MSB (trend döndü), yeşil yukarı BOS, gri aşağı BOS. Çizgi kırılan tepe/dipten, <b>kapanışla</b> kırıldığı muma kadar."),
+                         "Kırmızı çizgi MSB (trend döndü), sarı CHoCH (iç dönüş, erken uyarı), yeşil yukarı BOS, gri aşağı BOS. Çizgi kırılan tepe/dipten, <b>kapanışla</b> kırıldığı muma kadar."),
         structure_figure("GC", "1d", "2026-02-01", "2026-11-20", 2.0),
         level_figure("BTCUSDT", "2023-06-01", "Aylık mum gövdelerinin döndüğü yerler (yukarı mumun kapanışı ve ardından aşağı mum, tersi). Fiyatın sonradan "
                                               "geri geldiği, bugüne en yakın beş seviye."),
