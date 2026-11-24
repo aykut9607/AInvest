@@ -21,6 +21,8 @@
 
 <ItemGroup>
     <InternalsVisibleTo Include="FinancialIQ.Tests" />
+    <!-- offline evaluation tool that scores synthetic profiles with CalculateScore -->
+    <InternalsVisibleTo Include="FinancialIQ.BatchScorer" />
   </ItemGroup>
 
 </Project>
