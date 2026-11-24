@@ -79,6 +79,14 @@ def generate(n: int, rng: random.Random) -> list[dict]:
     return profiles
 
 
+def scorer_label(path: Path) -> str:
+    """The scorer path as written to results.json: repo-relative, so no personal directory ends up in the repo."""
+    try:
+        return path.resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        return "external: " + path.name  # a copy outside the repo (e.g. another branch's checkout)
+
+
 def build_scorer() -> None:
     subprocess.run(["dotnet", "build", str(SCORER), "-c", "Release", "-v", "quiet", "-nologo"], check=True)
 
@@ -208,7 +216,7 @@ def main() -> None:
 
     versions = Counter(r["factorBreakdown"].get("version", "v1") for r in clean_scored.values())
     results = {
-        "parameters": {**vars(args), "scorer": str(args.scorer)},
+        "parameters": {**vars(args), "scorer": scorer_label(args.scorer)},
         "scoringVersion": dict(versions),
         "segments": dict(Counter(r["segment"] for r in clean_scored.values())),
         "archetypeVsSegment": {f"{a}->{s}": c for (a, s), c in sorted(

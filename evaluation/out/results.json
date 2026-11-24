@@ -4,7 +4,7 @@
     "seed": 42,
     "missing_rate": 0.08,
     "error_rate": 0.05,
-    "scorer": "C:\\Users\\AHMETO~1\\AppData\\Local\\Temp\\claude\\8b6630df6f8fe782\\557160a4-e8f7-4e3f-9466-055b2295b93c\\scratchpad\\iqv2\\services\\financial-iq-service\\src\\FinancialIQ.BatchScorer"
+    "scorer": "services/financial-iq-service/src/FinancialIQ.BatchScorer"
   },
   "scoringVersion": {
     "v2": 300
