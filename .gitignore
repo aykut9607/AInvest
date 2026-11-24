@@ -25,3 +25,14 @@ logs/
 Thumbs.db
 
 go-playground/
+
+# evaluation intermediates are regenerated from the seed; keep only the summary
+evaluation/out/*
+!evaluation/out/results.json
+!evaluation/out/model_comparison.json
+!evaluation/out/model_outputs.md
+!evaluation/out/model_comparison_v1.json
+!evaluation/out/model_outputs_v1.md
+!evaluation/out/assistant_comparison.json
+!evaluation/out/assistant_outputs.md
+!evaluation/out/realism_clean.json

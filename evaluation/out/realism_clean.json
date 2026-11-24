@@ -1,0 +1,211 @@
+{
+ "population": "clean",
+ "profiles": 300,
+ "rows": [
+  {
+   "key": "cannotCoverUnexpected",
+   "label": "Beklenmedik bir harcamayı karşılayamayanlar",
+   "turkey": 0.251,
+   "synthetic": 0.09,
+   "unit": "share",
+   "source": "Eurostat ilc_mdes04 (TÜİK GYKA ile aynı seri)",
+   "year": "2025",
+   "sourceStatus": "birincil",
+   "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/ilc_mdes04?format=JSON&lang=en&geo=TR&geo=EU27_2020",
+   "proxy": "nakit rezerv < 1 aylık gider",
+   "fit": "yakın",
+   "note": "Ölçü çoğu profil için üst sınır: ankette sorulan tutar bir aylık giderden küçük."
+  },
+  {
+   "key": "lastsOver2MonthsCash",
+   "label": "Gelir kesilirse 2 aydan uzun idare edebilenler (yalnız nakit)",
+   "turkey": 0.223,
+   "synthetic": 0.79,
+   "unit": "share",
+   "source": "Global Findex 2025, Little Data Book s. 147",
+   "year": "2025 (anket 2024)",
+   "sourceStatus": "PDF metninden çıkarıldı; sayfada gözle teyit edilmeli",
+   "url": "https://thedocs.worldbank.org/en/doc/be6615202d1f08a25855c8ac2d615122-0050012025/related/Little-Data-Book-2025-Web.pdf",
+   "proxy": "nakit rezerv > 2 aylık gider",
+   "fit": "yakın",
+   "note": "Yatırım sayılmadığı için alt sınır."
+  },
+  {
+   "key": "lastsOver2MonthsAll",
+   "label": "Gelir kesilirse 2 aydan uzun idare edebilenler (nakit + yatırım)",
+   "turkey": 0.223,
+   "synthetic": 0.95,
+   "unit": "share",
+   "source": "Global Findex 2025, Little Data Book s. 147",
+   "year": "2025 (anket 2024)",
+   "sourceStatus": "PDF metninden çıkarıldı; sayfada gözle teyit edilmeli",
+   "url": "https://thedocs.worldbank.org/en/doc/be6615202d1f08a25855c8ac2d615122-0050012025/related/Little-Data-Book-2025-Web.pdf",
+   "proxy": "nakit + yatırımın tamamı > 2 aylık gider",
+   "fit": "yakın",
+   "note": "Yatırımın tamamı satılabilir sayıldığı için üst sınır."
+  },
+  {
+   "key": "saved",
+   "label": "Son yılda tasarruf edenler",
+   "turkey": 0.412,
+   "synthetic": 0.7166666666666667,
+   "unit": "share",
+   "source": "Global Findex 2025, Little Data Book s. 147",
+   "year": "2025 (anket 2024)",
+   "sourceStatus": "PDF metninden çıkarıldı; sayfada gözle teyit edilmeli",
+   "url": "https://thedocs.worldbank.org/en/doc/be6615202d1f08a25855c8ac2d615122-0050012025/related/Little-Data-Book-2025-Web.pdf",
+   "proxy": "gelir − gider − taksit > 0",
+   "fit": "kaba",
+   "note": "Findex herhangi bir birikimi soruyor; aylık artısı olan biri büyük olasılıkla birikim yapmıştır."
+  },
+  {
+   "key": "hasInstallment",
+   "label": "Borç ya da taksit ödemesi olanlar",
+   "turkey": 0.564,
+   "synthetic": 1.0,
+   "unit": "share",
+   "source": "TÜİK Yoksulluk ve Yaşam Koşulları 2025",
+   "year": "2025",
+   "sourceStatus": "ikincil; tanımı doğrulanmadı",
+   "url": "https://www.alomaliye.com/2025/12/30/goreli-yoksulluk-2025te-yuzde-13-0a-geriledi-tuik-yoksulluk-ve-yasam-kosullari-verileri/",
+   "proxy": "aylık taksit > 0",
+   "fit": "yakın",
+   "note": "Konut kredisi dahil mi, kişi mi hane mi bilinmiyor."
+  },
+  {
+   "key": "hasDebt",
+   "label": "Son yılda borçlananlar",
+   "turkey": 0.647,
+   "synthetic": 1.0,
+   "unit": "share",
+   "source": "Global Findex 2025, Little Data Book s. 147",
+   "year": "2025 (anket 2024)",
+   "sourceStatus": "PDF metninden çıkarıldı; sayfada gözle teyit edilmeli",
+   "url": "https://thedocs.worldbank.org/en/doc/be6615202d1f08a25855c8ac2d615122-0050012025/related/Little-Data-Book-2025-Web.pdf",
+   "proxy": "toplam borç > 0",
+   "fit": "kaba",
+   "note": "Findex akışı (son yılda borç aldı mı), sentetik veri stoku ölçüyor."
+  },
+  {
+   "key": "debtPerDebtor",
+   "label": "Borçlu başına ortalama borç",
+   "turkey": 156000,
+   "synthetic": 545919.3333333334,
+   "unit": "tl",
+   "source": "TBB Risk Merkezi Aylık Bülten",
+   "year": "Haziran 2026",
+   "sourceStatus": "birincil",
+   "url": "https://www.riskmerkezi.org/download/node/15155/field_raporlar_ekler/18712",
+   "proxy": "borcu olanların ortalama toplam borcu",
+   "fit": "yakın",
+   "note": "Sentetik medyan 370.100 TL. Risk Merkezi banka kredilerini (kart ve konut dahil) kişi başına sayıyor."
+  },
+  {
+   "key": "incomeBottom20",
+   "label": "Gelirin en alt %20'ye düşen payı",
+   "turkey": 0.064,
+   "synthetic": 0.06995050390601705,
+   "unit": "share",
+   "source": "TÜİK Gelir Dağılımı 2025, eşdeğer fert sıralaması",
+   "year": "2025 (2024 geliri)",
+   "sourceStatus": "ikincil",
+   "url": "https://www.alomaliye.com/2025/12/26/gelir-dagilimi-istatistikleri-2025-en-zengin-yuzde-20nin-payi-yuzde-48-0e-geriledi-gini-0-410-oldu/",
+   "proxy": "en düşük gelirli %20 profilin gelir payı",
+   "fit": "yakın",
+   "note": "Sentetik gelir kişi geliri, TÜİK eşdeğer fert geliri."
+  },
+  {
+   "key": "incomeTop20",
+   "label": "Gelirin en üst %20'ye düşen payı",
+   "turkey": 0.48,
+   "synthetic": 0.3265430258214563,
+   "unit": "share",
+   "source": "TÜİK Gelir Dağılımı 2025, eşdeğer fert sıralaması",
+   "year": "2025 (2024 geliri)",
+   "sourceStatus": "ikincil",
+   "url": "https://www.alomaliye.com/2025/12/26/gelir-dagilimi-istatistikleri-2025-en-zengin-yuzde-20nin-payi-yuzde-48-0e-geriledi-gini-0-410-oldu/",
+   "proxy": "en yüksek gelirli %20 profilin gelir payı",
+   "fit": "yakın",
+   "note": ""
+  },
+  {
+   "key": "s80s20",
+   "label": "En üst %20 / en alt %20 gelir payı oranı",
+   "turkey": 7.5,
+   "synthetic": 4.668201193520887,
+   "unit": "ratio",
+   "source": "TÜİK Gelir Dağılımı 2025, eşdeğer fert sıralaması",
+   "year": "2025 (2024 geliri)",
+   "sourceStatus": "ikincil",
+   "url": "https://www.alomaliye.com/2025/12/26/gelir-dagilimi-istatistikleri-2025-en-zengin-yuzde-20nin-payi-yuzde-48-0e-geriledi-gini-0-410-oldu/",
+   "proxy": "üst %20 payı / alt %20 payı",
+   "fit": "yakın",
+   "note": ""
+  },
+  {
+   "key": "savingRate",
+   "label": "Hanehalkı tasarruf oranı",
+   "turkey": 0.143,
+   "synthetic": 0.17858826803426958,
+   "unit": "share",
+   "source": "TÜİK Kurumsal Sektör Hesapları",
+   "year": "2025",
+   "sourceStatus": "ikincil",
+   "url": "https://www.alomaliye.com/2026/10/08/gsmh-2025-yilinda-62-trilyon-288-milyar-tl-oldu/",
+   "proxy": "(Σ gelir − Σ gider − Σ taksit) / Σ gelir",
+   "fit": "kaba",
+   "note": "Ulusal hesapta taksidin anapara kısmı tasarruf sayılıyor; taksidin tamamı tasarruf sayılırsa sentetik oran %41,2. Karşılaştırılabilir değer bu iki ucun arasında."
+  },
+  {
+   "key": "incomeGradient",
+   "label": "Karşılayamayanlar: düşük gelirli / diğerleri",
+   "turkey": 3.9662162162162162,
+   "synthetic": 0.5,
+   "unit": "ratio",
+   "source": "Eurostat ilc_mdes04 (TÜİK GYKA ile aynı seri)",
+   "year": "2025",
+   "sourceStatus": "birincil",
+   "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/ilc_mdes04?format=JSON&lang=en&geo=TR&geo=EU27_2020",
+   "proxy": "en alt %20 gelirde karşılayamayan payı / kalan %80'deki pay",
+   "fit": "kaba",
+   "note": "Türkiye: yoksulluk sınırı altında %58,7, üstünde %14,8. Sentetik: en alt %20'de %5, kalanlarda %10."
+  }
+ ],
+ "extras": {
+  "monthlyIncome": {
+   "min": 18100.0,
+   "mean": 83845.0,
+   "max": 150000.0
+  },
+  "withInvestment": 1.0,
+  "byArchetype": {
+   "average": {
+    "profiles": 100,
+    "cannotCoverUnexpected": 0.0,
+    "lastsOver2MonthsCash": 1.0,
+    "saved": 0.99,
+    "hasInstallment": 1.0
+   },
+   "fragile": {
+    "profiles": 100,
+    "cannotCoverUnexpected": 0.27,
+    "lastsOver2MonthsCash": 0.37,
+    "saved": 0.16,
+    "hasInstallment": 1.0
+   },
+   "strong": {
+    "profiles": 100,
+    "cannotCoverUnexpected": 0.0,
+    "lastsOver2MonthsCash": 1.0,
+    "saved": 1.0,
+    "hasInstallment": 1.0
+   }
+  },
+  "segments": {
+   "HIGH": 0.4533333333333333,
+   "LOW": 0.32,
+   "MEDIUM": 0.22666666666666666
+  },
+  "reservePointsAtLeast15": 0.8266666666666667
+ }
+}

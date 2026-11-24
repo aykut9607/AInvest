@@ -1,0 +1,84 @@
+{
+  "parameters": {
+    "models": [
+      "gemma3:4b",
+      "llama3.1:8b",
+      "mistral:7b",
+      "qwen2.5:14b",
+      "claude-opus-5-5"
+    ],
+    "per_segment": 10,
+    "seed": 42
+  },
+  "gemma3:4b": {
+    "profiles": 30,
+    "fallback_rate": 0.0,
+    "fallback_reasons": {},
+    "of_model_answers": {
+      "siz_used": 0.367,
+      "wrong_segment_named": 0.0,
+      "over_6_sentences": 0.433,
+      "multi_paragraph": 0.033
+    },
+    "seconds_mean": 4.44,
+    "seconds_p90": 4.83
+  },
+  "llama3.1:8b": {
+    "profiles": 30,
+    "fallback_rate": 0.0,
+    "fallback_reasons": {},
+    "of_model_answers": {
+      "siz_used": 0.067,
+      "wrong_segment_named": 0.0,
+      "over_6_sentences": 0.633,
+      "multi_paragraph": 0.6
+    },
+    "seconds_mean": 5.22,
+    "seconds_p90": 6.23
+  },
+  "mistral:7b": {
+    "profiles": 30,
+    "fallback_rate": 0.0,
+    "fallback_reasons": {},
+    "of_model_answers": {
+      "siz_used": 0.933,
+      "wrong_segment_named": 0.0,
+      "over_6_sentences": 0.767,
+      "multi_paragraph": 0.5
+    },
+    "seconds_mean": 7.93,
+    "seconds_p90": 8.59
+  },
+  "qwen2.5:14b": {
+    "profiles": 30,
+    "fallback_rate": 0.033,
+    "fallback_reasons": {
+      "WRONG_LANGUAGE": 1
+    },
+    "of_model_answers": {
+      "siz_used": 0.138,
+      "wrong_segment_named": 0.0,
+      "over_6_sentences": 0.034,
+      "multi_paragraph": 0.0
+    },
+    "seconds_mean": 32.85,
+    "seconds_p90": 41.01
+  },
+  "claude-opus-5-5": {
+    "profiles": 30,
+    "fallback_rate": 0.0,
+    "fallback_reasons": {},
+    "of_model_answers": {
+      "siz_used": 0.0,
+      "wrong_segment_named": 0.0,
+      "over_6_sentences": 0.0,
+      "multi_paragraph": 0.0
+    },
+    "seconds_mean": 9.76,
+    "seconds_p90": 11.88,
+    "tokens": {
+      "input_tokens": 28556,
+      "output_tokens": 29124
+    }
+  }
+}
