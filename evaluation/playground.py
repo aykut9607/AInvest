@@ -342,7 +342,7 @@ def create_app(scorer: Scorer) -> FastAPI:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--scorer", type=Path, default=Path(os.environ.get("AINVEST_SCORER", scoring.SCORER)),
-                    help="FinancialIQ.BatchScorer project (point it at a scoring v2 checkout until iq-v2 is merged)")
+                    help="FinancialIQ.BatchScorer project (default: this repo's; point it at another checkout to compare rule versions)")
     ap.add_argument("--port", type=int, default=8090)
     ap.add_argument("--no-build", action="store_true", help="skip dotnet build of the BatchScorer")
     args = ap.parse_args()
