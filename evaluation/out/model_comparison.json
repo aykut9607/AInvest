@@ -1,0 +1,100 @@
+{
+  "gemma3:4b": {
+    "profiles": 30,
+    "fallback_rate": 0.0,
+    "fallback_reasons": {},
+    "of_model_answers": {
+      "siz_used": 0.0,
+      "wrong_segment_named": 0.0,
+      "over_6_sentences": 0.167,
+      "multi_paragraph": 0.0
+    },
+    "seconds_mean": 4.22,
+    "seconds_p90": 4.54
+  },
+  "llama3.1:8b": {
+    "profiles": 30,
+    "fallback_rate": 0.0,
+    "fallback_reasons": {},
+    "of_model_answers": {
+      "siz_used": 0.033,
+      "wrong_segment_named": 0.0,
+      "over_6_sentences": 0.3,
+      "multi_paragraph": 0.267
+    },
+    "seconds_mean": 4.52,
+    "seconds_p90": 5.16
+  },
+  "mistral:7b": {
+    "profiles": 30,
+    "fallback_rate": 0.0,
+    "fallback_reasons": {},
+    "of_model_answers": {
+      "siz_used": 1.0,
+      "wrong_segment_named": 0.0,
+      "over_6_sentences": 0.5,
+      "multi_paragraph": 0.3
+    },
+    "seconds_mean": 6.87,
+    "seconds_p90": 8.34
+  },
+  "parameters": {
+    "models": [
+      "gemma3:4b",
+      "llama3.1:8b",
+      "mistral:7b",
+      "claude-opus-5-5",
+      "gemma3:4b+base",
+      "gemma3:4b+fewshot"
+    ],
+    "per_segment": 10,
+    "seed": 42,
+    "tag": "fewshot",
+    "scoring": "v2"
+  },
+  "claude-opus-5-5": {
+    "profiles": 30,
+    "fallback_rate": 0.0,
+    "fallback_reasons": {},
+    "of_model_answers": {
+      "siz_used": 0.0,
+      "wrong_segment_named": 0.0,
+      "over_6_sentences": 0.0,
+      "multi_paragraph": 0.0
+    },
+    "seconds_mean": 9.26,
+    "seconds_p90": 11.42,
+    "tokens": {
+      "input_tokens": 25514,
+      "output_tokens": 24091
+    }
+  },
+  "gemma3:4b+base": {
+    "profiles": 30,
+    "fallback_rate": 0.0,
+    "fallback_reasons": {},
+    "of_model_answers": {
+      "siz_used": 0.0,
+      "wrong_segment_named": 0.0,
+      "over_6_sentences": 0.067,
+      "multi_paragraph": 0.0
+    },
+    "seconds_mean": 4.19,
+    "seconds_p90": 4.5,
+    "promptExamples": false
+  },
+  "gemma3:4b+fewshot": {
+    "profiles": 30,
+    "fallback_rate": 0.0,
+    "fallback_reasons": {},
+    "of_model_answers": {
+      "siz_used": 0.0,
+      "wrong_segment_named": 0.0,
+      "over_6_sentences": 0.133,
+      "multi_paragraph": 0.0
+    },
+    "seconds_mean": 4.43,
+    "seconds_p90": 4.65,
+    "promptExamples": true
+  }
+}

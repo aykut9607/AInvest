@@ -1,0 +1,100 @@
+{
+  "parameters": {
+    "n": 300,
+    "seed": 42,
+    "missing_rate": 0.08,
+    "error_rate": 0.05,
+    "scorer": "C:\\Users\\AHMETO~1\\AppData\\Local\\Temp\\claude\\8b6630df6f8fe782\\557160a4-e8f7-4e3f-9466-055b2295b93c\\scratchpad\\iqv2\\services\\financial-iq-service\\src\\FinancialIQ.BatchScorer"
+  },
+  "scoringVersion": {
+    "v2": 300
+  },
+  "segments": {
+    "HIGH": 136,
+    "LOW": 96,
+    "MEDIUM": 68
+  },
+  "archetypeVsSegment": {
+    "average->HIGH": 36,
+    "average->LOW": 2,
+    "average->MEDIUM": 62,
+    "fragile->LOW": 94,
+    "fragile->MEDIUM": 6,
+    "strong->HIGH": 100
+  },
+  "appliedRules": {
+    "None": 300
+  },
+  "a_reproducibility": {
+    "profiles": 300,
+    "identical": 300,
+    "rate": 1.0
+  },
+  "a_monotonicity": {
+    "checked": 1800,
+    "scoreDropped": 0,
+    "perChange": {
+      "cashReserve +20%": {
+        "checked": 300
+      },
+      "monthlyExpenses -10%": {
+        "checked": 300
+      },
+      "monthlyDebtPayment -20%": {
+        "checked": 300
+      },
+      "totalDebt -20%": {
+        "checked": 300
+      },
+      "investmentAmount +20%": {
+        "checked": 300
+      },
+      "impatienceLevel -1": {
+        "checked": 300
+      }
+    },
+    "examples": []
+  },
+  "b_dirtyData": {
+    "corruption": {
+      "missing values": 70,
+      "erroneous records": 14
+    },
+    "cleaning": {
+      "filled with median": 70,
+      "debt re-derived": 14
+    },
+    "naiveRepair": {
+      "all": {
+        "records": 300,
+        "sameSegment": 264,
+        "sameSegmentRate": 0.88,
+        "meanAbsScoreDiff": 5.08,
+        "maxAbsScoreDiff": 57
+      },
+      "corruptedOnly": {
+        "records": 80,
+        "sameSegment": 44,
+        "sameSegmentRate": 0.55,
+        "meanAbsScoreDiff": 19.04,
+        "maxAbsScoreDiff": 57
+      }
+    },
+    "reportCleaning": {
+      "all": {
+        "records": 300,
+        "sameSegment": 266,
+        "sameSegmentRate": 0.887,
+        "meanAbsScoreDiff": 5.31,
+        "maxAbsScoreDiff": 82
+      },
+      "corruptedOnly": {
+        "records": 80,
+        "sameSegment": 46,
+        "sameSegmentRate": 0.575,
+        "meanAbsScoreDiff": 19.93,
+        "maxAbsScoreDiff": 82
+      }
+    }
+  }
+}

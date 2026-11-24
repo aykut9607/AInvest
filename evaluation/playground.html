@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AInvest AI Deneme</title>
+<style>
+:root {
+  --page: #f9f9f7; --surface: #fcfcfb; --raised: #ffffff; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+  --line: #e1e0d9; --axis: #c3c2b7; --accent: #2a78d6; --accent-soft: #cde2fb; --track: #ecebe6;
+  --good: #0ca30c; --good-ink: #006300; --warning: #fab219; --serious: #ec835a; --critical: #d03b3b;
+  --mark: #ffe08a; --code: #f2f1ed;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --page: #0d0d0d; --surface: #1a1a19; --raised: #222220; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+    --line: #2c2c2a; --axis: #383835; --accent: #3987e5; --accent-soft: #184f95; --track: #2c2c2a;
+    --good-ink: #0ca30c; --mark: #7a5c00; --code: #262624;
+  }
+}
+:root[data-theme="dark"] {
+  --page: #0d0d0d; --surface: #1a1a19; --raised: #222220; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+  --line: #2c2c2a; --axis: #383835; --accent: #3987e5; --accent-soft: #184f95; --track: #2c2c2a;
+  --good-ink: #0ca30c; --mark: #7a5c00; --code: #262624;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 14px 20px; border-bottom: 1px solid var(--line); background: var(--surface); }
+header h1 { font-size: 18px; margin: 0 8px 0 0; }
+.badge { font-size: 12px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink-2); white-space: nowrap; }
+.badge.warn { border-color: var(--warning); }
+.layout { display: grid; grid-template-columns: minmax(300px, 380px) 1fr; gap: 16px; padding: 16px 20px; align-items: start; }
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; padding: 12px 16px; } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; }
+.panel h2 { font-size: 15px; color: var(--ink-2); margin: 0 0 10px; }
+label { display: block; font-size: 13px; color: var(--ink-2); margin: 8px 0 2px; }
+input, select, textarea { width: 100%; font: inherit; color: var(--ink); background: var(--raised); border: 1px solid var(--axis); border-radius: 6px; padding: 6px 8px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }
+button { font: inherit; border-radius: 6px; border: 1px solid var(--axis); background: var(--raised); color: var(--ink); padding: 7px 12px; cursor: pointer; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+button:disabled { opacity: .5; cursor: default; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+.hint { font-size: 12px; color: var(--muted); }
+.score { display: flex; align-items: baseline; gap: 10px; margin-top: 4px; }
+.score b { font-size: 44px; line-height: 1; font-variant-numeric: tabular-nums; }
+.chip { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 4px; background: var(--accent-soft); }
+.rule { margin-top: 10px; padding: 8px 10px; border-left: 3px solid var(--accent); background: var(--raised); font-size: 13px; }
+.factor { margin-top: 8px; }
+.factor .top { display: flex; justify-content: space-between; font-size: 13px; }
+.factor .top span:last-child { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.track { height: 8px; background: var(--track); border-radius: 4px; overflow: hidden; margin-top: 3px; }
+.fill { height: 100%; background: var(--accent); border-radius: 4px; }
+ul.plain { list-style: none; padding: 0; margin: 6px 0 0; }
+ul.plain li { font-size: 13px; padding: 4px 0; border-top: 1px solid var(--line); display: flex; gap: 8px; }
+.sev { font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 3px; white-space: nowrap; height: fit-content; }
+.sev.CRITICAL { background: var(--critical); color: #fff; }
+.sev.WARNING { background: var(--warning); color: #0b0b0b; }
+.sev.INFO { background: var(--track); color: var(--ink); }
+.timeline { font-variant-numeric: tabular-nums; font-size: 13px; color: var(--ink-2); margin-top: 8px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px; }
+.tabs button { border-radius: 999px; }
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--page); border-color: var(--ink); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.chips button { font-size: 12px; padding: 3px 8px; border-radius: 999px; }
+.chips button small { color: var(--muted); margin-right: 4px; }
+table.configs { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.configs th, table.configs td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+table.configs th { font-size: 12px; color: var(--ink-2); font-weight: 600; }
+table.configs td.c, table.configs th.c { text-align: center; width: 90px; }
+table.configs input { width: 18px; height: 18px; }
+.results { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.card h3 { font-size: 14px; margin: 0; }
+.status { font-size: 12px; font-weight: 600; display: flex; gap: 6px; align-items: center; }
+.dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.dot.good { background: var(--good); } .dot.warning { background: var(--warning); } .dot.critical { background: var(--critical); } .dot.info { background: var(--muted); }
+.answer { white-space: pre-wrap; font-size: 14px; }
+.meta { font-size: 12px; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 4px 12px; font-variant-numeric: tabular-nums; }
+details { font-size: 13px; border-top: 1px solid var(--line); padding-top: 6px; }
+summary { cursor: pointer; color: var(--ink-2); }
+pre { white-space: pre-wrap; word-break: break-word; background: var(--code); padding: 8px; border-radius: 6px; font-size: 12px; margin: 6px 0; }
+mark { background: var(--mark); color: inherit; padding: 0 2px; border-radius: 3px; outline: 1px solid var(--critical); }
+.rejected { color: var(--critical); font-weight: 600; }
+.error { color: var(--critical); font-size: 13px; }
+.spin { display: inline-block; width: 10px; height: 10px; border: 2px solid var(--axis); border-top-color: var(--accent); border-radius: 50%; animation: s 1s linear infinite; }
+@keyframes s { to { transform: rotate(360deg); } }
+footer { padding: 4px 20px 20px; font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>AInvest AI: canlı deneme</h1>
+  <span class="badge" id="b-scoring">IQ kuralları: …</span>
+  <span class="badge" id="b-ollama">Ollama: …</span>
+  <span class="badge" id="b-examples"></span>
+  <span class="badge" id="b-cost">Claude harcaması (bu oturum): $0</span>
+</header>
+
+<div class="layout">
+  <aside>
+    <section class="panel">
+      <h2>1. Finansal profil</h2>
+      <label for="preset">Hazır profil (demo hesaplarla aynı)</label>
+      <select id="preset"></select>
+      <div class="hint" id="preset-desc"></div>
+      <div class="grid2">
+        <div><label for="f-income">Aylık gelir</label><input id="f-income" type="number" min="1" step="any"></div>
+        <div><label for="f-expenses">Aylık gider</label><input id="f-expenses" type="number" min="0" step="any"></div>
+        <div><label for="f-payment">Aylık taksit</label><input id="f-payment" type="number" min="0" step="any"></div>
+        <div><label for="f-debt">Toplam borç</label><input id="f-debt" type="number" min="0" step="any"></div>
+        <div><label for="f-cash">Nakit</label><input id="f-cash" type="number" min="0" step="any"></div>
+        <div><label for="f-invest">Yatırım</label><input id="f-invest" type="number" min="0" step="any"></div>
+      </div>
+      <label for="f-impatience">Sabırsızlık (1 sabırlı – 5 çok sabırsız)</label>
+      <select id="f-impatience"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+      <div class="row">
+        <button class="primary" id="btn-score">Skoru hesapla</button>
+        <button id="btn-reset">Geçmişi sıfırla</button>
+      </div>
+      <div class="hint">Her hesaplama skor geçmişine eklenir (trend açıklaması bunu kullanır). Skoru, üründeki C# kuralları hesaplar (BatchScorer).</div>
+      <div class="error" id="score-error"></div>
+    </section>
+
+    <section class="panel" id="iq-panel" hidden>
+      <h2>2. Financial IQ (kod hesapladı)</h2>
+      <div class="score"><b id="iq-score"></b><span>/ 100</span><span class="chip" id="iq-seg"></span></div>
+      <div id="iq-rule"></div>
+      <div id="iq-factors"></div>
+      <div class="timeline" id="iq-timeline"></div>
+    </section>
+
+    <section class="panel" id="alerts-panel" hidden>
+      <h2>Uyarılar (kural tabanlı, model yok)</h2>
+      <ul class="plain" id="alerts"></ul>
+    </section>
+  </aside>
+
+  <main>
+    <section class="panel">
+      <h2>3. Görev ve modeller</h2>
+      <div class="tabs" role="tablist" id="tabs"></div>
+      <div id="question-box" hidden>
+        <label for="question">Asistana soru</label>
+        <input id="question" maxlength="500" placeholder="ör. Kaç para borcum var?">
+        <div class="chips" id="question-chips"></div>
+      </div>
+      <div class="hint" id="task-hint" style="margin:8px 0"></div>
+      <table class="configs"><thead id="cfg-head"></thead><tbody id="cfg-body"></tbody></table>
+      <div class="row">
+        <button class="primary" id="btn-run" disabled>Çalıştır</button>
+        <span class="hint" id="run-hint">Önce skoru hesaplayın.</span>
+      </div>
+    </section>
+    <div class="results" id="results"></div>
+  </main>
+</div>
+<footer>
+  Yalnızca bu bilgisayarda çalışır (127.0.0.1). Üründe model seçimi ve Claude yoktur; Claude yalnızca değerlendirmede referanstır ve ona yalnızca bu sayfadaki sentetik profil gider.
+  Yerel modeller sırayla çalışır (16 GB RAM); bir modelin ilk çağrısı onu diskten yükler, bu süre ayrıca gösterilir.
+</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const FIELDS = [["f-income", "monthlyIncome"], ["f-expenses", "monthlyExpenses"], ["f-payment", "monthlyDebtPayment"],
+  ["f-debt", "totalDebt"], ["f-cash", "cashReserve"], ["f-invest", "investmentAmount"]];
+const TASKS = [
+  ["coach", "Koç: skor açıklaması", "Koç, skoru faktör etiketleri ve uyarılarla açıklar. Modele faktör puanları verilmez; yalnızca skor ve 100 sayısı yazılabilir."],
+  ["assistant", "Asistan: soru-cevap", "router: kod hangi verinin gerektiğini seçtirir, hesaplar; model cümleye çevirir. tools: model aracı kendisi çağırır. Her iki modda da sayılar koddan gelir ve cevap denetlenir."],
+  ["trend", "Skor geçmişi açıklaması", "Skor geçmişindeki değişimi açıklar; geçmişte neyin değiştiği bilinmediği için neden uydurulmaz."],
+  ["portfolio", "Portföy açıklaması", "Portföy Servisi henüz yok: şemadaki örnek öneri açıklanır (örnek bir kullanıcıya ait). Dağılımı AI hesaplamaz."],
+];
+const REASONS = {
+  NO_BREAKDOWN: "Skor dökümü yok", NO_DATA: "Veri yok", DATA_UNAVAILABLE: "Veriye ulaşılamadı",
+  LLM_UNAVAILABLE: "Model çalışmadı", EMPTY_OUTPUT: "Model boş cevap verdi",
+  WRONG_LANGUAGE: "Model başka alfabe kullandı", UNVERIFIED_NUMBERS: "Model veride olmayan sayı yazdı",
+  BLOCKED_INPUT: "Enjeksiyon filtresi soruyu engelledi", UNSUPPORTED: "Desteklenmeyen konu: sabit cevap",
+};
+const state = { meta: null, task: "coach", timeline: [], profile: null, selected: new Set(), costUsd: 0 };
+const fmt = n => Number(n).toLocaleString("tr-TR", { maximumFractionDigits: 2 });
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+async function api(path, body) {
+  const res = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {});
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const detail = Array.isArray(data.detail) ? data.detail.map(d => `${d.loc.slice(-1)[0]}: ${d.msg}`).join("; ") : data.detail;
+    throw new Error(detail || `HTTP ${res.status}`);
+  }
+  return data;
+}
+
+function readProfile() {
+  const p = {};
+  for (const [id, key] of FIELDS) p[key] = Number($(id).value || 0);
+  p.impatienceLevel = Number($("f-impatience").value);
+  return p;
+}
+function writeProfile(p) {
+  for (const [id, key] of FIELDS) $(id).value = p[key];
+  $("f-impatience").value = p.impatienceLevel;
+}
+
+async function init() {
+  try { state.meta = await api("/api/meta"); }
+  catch (e) { $("score-error").textContent = "Sunucuya ulaşılamadı: " + e.message; return; }
+  const m = state.meta;
+  $("b-scoring").textContent = `IQ kuralları: scoring ${m.scoringVersion}`;
+  if (m.scoringVersion !== "v2") { $("b-scoring").classList.add("warn"); $("b-scoring").title = "BatchScorer v2 olmayan koddan derlenmiş; --scorer ile v2 kopyasını verin"; }
+  const local = m.models.filter(x => !x.hosted).length;
+  $("b-ollama").textContent = m.ollamaError ? "Ollama kapalı" : `Ollama: ${local} model`;
+  if (m.ollamaError) { $("b-ollama").classList.add("warn"); $("b-ollama").title = m.ollamaError; }
+  $("b-examples").textContent = m.promptExamples ? "İstemde örnek cevaplar: açık" : "İstemde örnek cevaplar: kapalı";
+
+  $("preset").innerHTML = m.presets.map(p => `<option value="${p.key}">${esc(p.label)}</option>`).join("") + `<option value="">Özel (elle girin)</option>`;
+  $("preset").onchange = () => loadPreset($("preset").value);
+  $("tabs").innerHTML = TASKS.map(([k, label]) => `<button role="tab" data-task="${k}" aria-selected="${k === state.task}">${label}</button>`).join("");
+  $("tabs").onclick = e => { const b = e.target.closest("button"); if (b) { state.task = b.dataset.task; renderTask(); } };
+  $("question-chips").innerHTML = m.questions.map(q => `<button data-q="${esc(q.text)}"><small>${esc(q.kind)}</small>${esc(q.text)}</button>`).join("");
+  $("question-chips").onclick = e => { const b = e.target.closest("button"); if (b) $("question").value = b.dataset.q; };
+  $("question").value = m.questions[0].text;
+  $("btn-score").onclick = () => scoreProfiles([readProfile()], false);
+  $("btn-reset").onclick = () => { state.timeline = state.timeline.slice(-1); renderIq(); };
+  $("btn-run").onclick = runSelected;
+  // a sensible first selection: the product's default model, and the template for contrast
+  const first = m.models.find(x => x.name === "gemma3:4b") || m.models[0];
+  if (first) state.selected.add(`${first.name}|router`);
+  state.selected.add("|router");
+  renderTask();
+  loadPreset(m.presets[0].key);
+}
+
+async function loadPreset(key) {
+  const preset = state.meta.presets.find(p => p.key === key);
+  $("preset-desc").textContent = preset ? preset.description : "Değerleri değiştirip “Skoru hesapla”ya basın.";
+  if (!preset) return;
+  writeProfile(preset.profiles[preset.profiles.length - 1]);
+  await scoreProfiles(preset.profiles, true);
+}
+
+async function scoreProfiles(profiles, replace) {
+  $("score-error").textContent = "";
+  $("btn-score").disabled = true;
+  try {
+    const { results } = await api("/api/score", { profiles });
+    state.timeline = replace ? results : [...state.timeline, ...results].slice(-50);
+    state.profile = profiles[profiles.length - 1];
+    renderIq();
+    const { alerts } = await api("/api/run", { task: "warnings", profile: state.profile, timeline: state.timeline });
+    $("alerts-panel").hidden = false;
+    $("alerts").innerHTML = alerts.length ? alerts.map(a => `<li><span class="sev ${a.severity}">${{ CRITICAL: "KRİTİK", WARNING: "UYARI", INFO: "BİLGİ" }[a.severity] || a.severity}</span><span>${esc(a.message)}</span></li>`).join("") : "<li>Uyarı yok.</li>";
+  } catch (e) { $("score-error").textContent = e.message; }
+  finally { $("btn-score").disabled = false; updateRunButton(); }
+}
+
+function renderIq() {
+  const last = state.timeline[state.timeline.length - 1];
+  if (!last) return;
+  const m = state.meta, fb = last.factorBreakdown || {};
+  $("iq-panel").hidden = false;
+  $("iq-score").textContent = last.score;
+  $("iq-seg").textContent = m.segments[last.segment] + " segment";
+  $("iq-rule").innerHTML = fb.appliedRule ? `<div class="rule"><b>Özel kural: ${esc(fb.appliedRule)}</b><br>${esc(m.rules[fb.appliedRule]?.meaning || "")}. Skoru faktörler değil bu kural belirledi.</div>` : "";
+  const factors = fb.factors || {};
+  $("iq-factors").innerHTML = Object.entries(m.factors).map(([k, f]) => {
+    const v = factors[k] ?? 0, pct = Math.max(0, Math.min(100, v / f.max * 100));
+    return `<div class="factor" title="${esc(f.label)}: ${v} / ${f.max}"><div class="top"><span>${esc(f.label)}</span><span>${v} / ${f.max}</span></div><div class="track"><div class="fill" style="width:${pct}%"></div></div></div>`;
+  }).join("") + ((fb.warnings || []).length ? `<ul class="plain">${fb.warnings.map(w => `<li>${esc(m.warnings[w] || w)}</li>`).join("")}</ul>` : "");
+  $("iq-timeline").textContent = state.timeline.length > 1 ? "Skor geçmişi: " + state.timeline.map(t => t.score).join(" → ") : "Skor geçmişi: tek hesaplama";
+}
+
+function configsFor(task) {
+  const models = state.meta.models;
+  if (task === "assistant") return { cols: [["router", "router"], ["tools", "tools"]], models };
+  return { cols: [["router", "seç"]], models };
+}
+
+function renderTask() {
+  for (const b of $("tabs").children) b.setAttribute("aria-selected", b.dataset.task === state.task);
+  const task = TASKS.find(t => t[0] === state.task);
+  $("task-hint").textContent = task[2];
+  $("question-box").hidden = state.task !== "assistant";
+  const { cols, models } = configsFor(state.task);
+  $("cfg-head").innerHTML = `<tr><th>Model</th>${cols.map(([, l]) => `<th class="c">${l}</th>`).join("")}</tr>`;
+  const rows = [{ name: "", label: "Şablon (model yok): denetim başarısız olunca kullanıcının gördüğü", tools: true, hosted: false }, ...models];
+  $("cfg-body").innerHTML = rows.map(mdl => `<tr><td>${esc(mdl.label)}${mdl.hosted ? ' <span class="badge">bulut · ücretli</span>' : ""}${mdl.sizeGb ? ` <span class="hint">${fmt(mdl.sizeGb)} GB</span>` : ""}</td>${cols.map(([mode]) => {
+    const key = `${mdl.name}|${mode}`, off = mode === "tools" && !mdl.tools;
+    return `<td class="c"><input type="checkbox" data-key="${esc(key)}" ${state.selected.has(key) ? "checked" : ""} ${off ? 'disabled title="Bu model Ollama\'da araç çağırmayı (tool calling) desteklemiyor"' : ""} aria-label="${esc(mdl.label)} ${mode}"></td>`;
+  }).join("")}</tr>`).join("");
+  $("cfg-body").onchange = e => { const k = e.target.dataset.key; if (!k) return; e.target.checked ? state.selected.add(k) : state.selected.delete(k); updateRunButton(); };
+  updateRunButton();
+}
+
+function selectedConfigs() {
+  const { cols, models } = configsFor(state.task);
+  const modes = cols.map(c => c[0]);
+  const names = ["", ...models.map(m => m.name)];
+  return [...state.selected].map(k => k.split("|")).filter(([n, mode]) => names.includes(n) && modes.includes(mode))
+    .map(([name, mode]) => ({ name, mode, model: state.meta.models.find(m => m.name === name) }));
+}
+
+function updateRunButton() {
+  const configs = selectedConfigs();
+  const ready = state.timeline.length > 0 && configs.length > 0;
+  $("btn-run").disabled = !ready;
+  const claude = configs.filter(c => c.model?.hosted).length;
+  $("run-hint").textContent = !state.timeline.length ? "Önce skoru hesaplayın." : !configs.length ? "En az bir model seçin." :
+    `${configs.length} çalıştırma` + (claude ? ` · Claude seçili: çalıştırma başına yaklaşık 1–3 sent` : "");
+}
+
+function highlight(text, unknown) {
+  let html = esc(text);
+  for (const token of [...new Set(unknown)].sort((a, b) => b.length - a.length)) {
+    const t = esc(token).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    html = html.replace(new RegExp(`(?<![\\d.,])${t}(?![\\d]|[.,]\\d)`, "g"), m => `<mark>${m}</mark>`);
+  }
+  return html;
+}
+
+function statusOf(r, cfg) {
+  if (!cfg.name) return ["info", "Şablon: model kullanılmadı"];
+  if (!r.fallbackReason) return ["good", "Model cevabı · denetimden geçti"];
+  if (r.fallbackReason === "BLOCKED_INPUT") return ["good", REASONS.BLOCKED_INPUT];
+  if (r.fallbackReason === "UNSUPPORTED" || r.fallbackReason === "NO_DATA") return ["info", REASONS[r.fallbackReason]];
+  if (r.fallbackReason === "LLM_UNAVAILABLE") return ["critical", "Model çalışmadı: şablon gösterildi"];
+  return ["warning", `Reddedildi: ${REASONS[r.fallbackReason] || r.fallbackReason} · şablon gösterildi`];
+}
+
+function renderResult(card, cfg, r) {
+  const [cls, status] = statusOf(r, cfg);
+  const sec = n => Number(n).toLocaleString("tr-TR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const meta = [`süre ${sec(r.seconds)} sn`];
+  if (r.warmSeconds) meta.push(`model yükleme ${sec(r.warmSeconds)} sn (ayrı)`);
+  if (r.cost) { meta.push(`$${r.cost.usd.toFixed(4)} · ${fmt(r.cost.inputTokens)} girdi / ${fmt(r.cost.outputTokens)} çıktı token`); state.costUsd += r.cost.usd; $("b-cost").textContent = `Claude harcaması (bu oturum): $${state.costUsd.toFixed(3)}`; }
+  if (r.intents?.length) meta.push(`veri: ${r.intents.join(", ")}`);
+  if (r.extra?.source === "sample") meta.push("örnek portföy");
+  const checks = (r.checks || []).map(c => {
+    const verdict = c.reason ? `<span class="rejected">${esc(REASONS[c.reason] || c.reason)}</span>` : `<span style="color:var(--good-ink);font-weight:600">Geçti</span>`;
+    const unknown = c.unknownNumbers.length ? `<div>Veride olmayan sayılar: ${c.unknownNumbers.map(u => `<mark>${esc(u)}</mark>`).join(" ")}</div>` : "";
+    const foreign = c.foreign ? `<div>Türkçe dışı harfler: <mark>${esc(c.foreign)}</mark></div>` : "";
+    return `<div>Denetim sonucu: ${verdict}</div>${unknown}${foreign}
+      <div style="margin-top:6px">Modelin yazdığı${c.reason ? " (kullanıcıya gösterilmedi)" : ""}:</div><pre>${highlight(c.text, c.unknownNumbers)}</pre>
+      <details><summary>Modele verilen veri (kodun hesapladığı)</summary><pre>${esc(c.data)}</pre></details>`;
+  }).join("");
+  const why = !cfg.name ? "" : !r.checks?.length ? `<div class="hint">Modele hiç gidilmedi${r.fallbackReason ? ` (${esc(REASONS[r.fallbackReason] || r.fallbackReason)})` : ""}.</div>` : "";
+  card.innerHTML = `<h3>${esc(cfg.model?.label || "Şablon (model yok)")}${state.task === "assistant" && cfg.name ? ` · ${cfg.mode}` : ""}</h3>
+    <div class="status"><span class="dot ${cls}"></span>${esc(status)}</div>
+    <div class="answer">${esc(r.text)}</div>
+    <div class="meta">${meta.map(esc).join("<span>·</span>")}</div>
+    ${checks || why ? `<details ${r.fallbackReason === "UNVERIFIED_NUMBERS" || r.fallbackReason === "WRONG_LANGUAGE" ? "open" : ""}><summary>Denetim adımı</summary>${checks}${why}</details>` : ""}`;
+}
+
+async function runSelected() {
+  const configs = selectedConfigs();
+  const task = state.task, question = $("question").value;
+  const body = { task, question, profile: state.profile, timeline: state.timeline };
+  $("results").innerHTML = "";
+  // local models run one after another on the server; the cards fill in as each one returns
+  await Promise.all(configs.map(async cfg => {
+    const card = document.createElement("article");
+    card.className = "card";
+    card.innerHTML = `<h3>${esc(cfg.model?.label || "Şablon (model yok)")}${task === "assistant" && cfg.name ? ` · ${cfg.mode}` : ""}</h3><div class="status"><span class="spin"></span>çalışıyor…</div>`;
+    $("results").appendChild(card);
+    try { renderResult(card, cfg, await api("/api/run", { ...body, model: cfg.name || null, mode: cfg.mode })); }
+    catch (e) { card.insertAdjacentHTML("beforeend", `<div class="error">${esc(e.message)}</div>`); card.querySelector(".status").remove(); }
+  }));
+}
+
+init();
+</script>
+</body>
+</html>
