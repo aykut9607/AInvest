@@ -1,0 +1,434 @@
+{
+ "BTCUSDT": {
+  "weights": {
+   "Elliott": 17.4,
+   "Funding": 14.6,
+   "Uyumsuzluk": 13.7,
+   "EXT bandı": 12.3,
+   "Harmonik": 10.8,
+   "Fibonacci": 9.1,
+   "SFP": 8.2,
+   "Smart money": 7.3,
+   "Hacim profili": 6.5
+  },
+  "quality": {
+   "Elliott|12345 sonu": 0.5,
+   "Elliott|4. dalga sonu|1'in alanına girmeden": 0.432,
+   "Elliott|4. dalga sonu": 0.432,
+   "Elliott|12345 sonu|3. dalga uzayan": 0.947,
+   "Elliott|12345 sonu|5. dalga uzayan": 0.754,
+   "Elliott|12345 sonu|1. dalga uzayan": 0.592,
+   "Elliott|12345 sonu|uzamasız": 1.0,
+   "EXT bandı": 0.862,
+   "EXT bandı|Pazartesi|1,114–1,214": 1.0,
+   "EXT bandı|Pazartesi": 1.0,
+   "Funding": 1.0,
+   "Funding|aşırı": 1.0,
+   "Funding|aşırı|±%0,05": 1.0,
+   "Uyumsuzluk": 0.325,
+   "Uyumsuzluk|hacim|tepede anlık": 1.0,
+   "Uyumsuzluk|hacim": 1.0,
+   "Uyumsuzluk|RSI|tepede anlık": 0.861,
+   "Uyumsuzluk|RSI": 0.861,
+   "Smart money|order block": 0.71,
+   "Smart money|order block|ilk dokunuş": 0.71,
+   "Smart money": 1.0,
+   "Smart money|FVG|ilk dokunuş": 0.5,
+   "Smart money|FVG": 0.5,
+   "Elliott": 0.642,
+   "Elliott|B sonu": 0.293,
+   "Elliott|B sonu|12345'ten sonra": 0.293,
+   "Elliott|ABC sonu|zigzag": 0.444,
+   "Elliott|ABC sonu": 0.169,
+   "Elliott|X sonu": 0.038,
+   "Elliott|X sonu|tek bacak X": 0.041,
+   "Elliott|X sonu|ABC X": 0.092,
+   "Elliott|WXYXZ sonu|tek bacak X": 0.065,
+   "Fibonacci|trend fib hedefi|1,618": 0.903,
+   "Elliott|12345 sonu|iç yapı 5-3-5-3-5 tutuyor": 0.426,
+   "Hacim profili|önceki ay VAL": 1.0,
+   "Harmonik": 0.176,
+   "Fibonacci|trend fib hedefi": 0.667,
+   "Fibonacci|trend fib hedefi|1,272": 0.403,
+   "Fibonacci|trend fib hedefi|1,79": 1.0,
+   "Harmonik|Butterfly": 1.0,
+   "SFP|RSI ve hacim uyumsuz": 1.0,
+   "Elliott|12345 sonu|güdük 5": 0.074,
+   "SFP": 0.309,
+   "Elliott|WXY sonu": 0.112,
+   "Elliott|WXY sonu|tek bacak X": 0.092,
+   "Elliott|ABC sonu|iç yapı 5-3-5 tutuyor": 0.101,
+   "Uyumsuzluk|CVD": 0.169,
+   "Uyumsuzluk|CVD|tepede anlık": 0.169,
+   "Elliott|WXY sonu|ABC X": 0.13
+  },
+  "limits": {
+   "SCALP": 34.9,
+   "SCALP_SWING": 40.8,
+   "SWING": 46.3
+  },
+  "evidence": {
+   "SCALP": {
+    "first70": {
+     "n": 1464,
+     "won": 0.443,
+     "two_percent": 0.349,
+     "average_move": 3.0,
+     "average_r": -0.042,
+     "error_r": 0.033
+    },
+    "last30": {
+     "n": 785,
+     "won": 0.399,
+     "two_percent": 0.21,
+     "average_move": 1.53,
+     "average_r": -0.224,
+     "error_r": 0.043
+    },
+    "shuffled": {
+     "n": 3007,
+     "won": 0.398,
+     "two_percent": 0.257,
+     "average_move": 2.08,
+     "average_r": -0.211,
+     "error_r": 0.022
+    },
+    "proven": false
+   },
+   "SCALP_SWING": {
+    "first70": {
+     "n": 614,
+     "won": 0.386,
+     "two_percent": 0.292,
+     "average_move": 2.89,
+     "average_r": -0.183,
+     "error_r": 0.049
+    },
+    "last30": {
+     "n": 279,
+     "won": 0.419,
+     "two_percent": 0.208,
+     "average_move": 1.35,
+     "average_r": -0.166,
+     "error_r": 0.073
+    },
+    "shuffled": {
+     "n": 1013,
+     "won": 0.442,
+     "two_percent": 0.302,
+     "average_move": 2.38,
+     "average_r": -0.098,
+     "error_r": 0.039
+    },
+    "proven": false
+   },
+   "SWING": {
+    "first70": {
+     "n": 366,
+     "won": 0.418,
+     "two_percent": 0.391,
+     "average_move": 3.86,
+     "average_r": -0.093,
+     "error_r": 0.065
+    },
+    "last30": {
+     "n": 101,
+     "won": 0.297,
+     "two_percent": 0.238,
+     "average_move": 2.17,
+     "average_r": -0.45,
+     "error_r": 0.115
+    },
+    "shuffled": {
+     "n": 250,
+     "won": 0.46,
+     "two_percent": 0.32,
+     "average_move": 2.36,
+     "average_r": -0.052,
+     "error_r": 0.08
+    },
+    "proven": false
+   }
+  },
+  "base": {
+   "first70": {
+    "n": 24347,
+    "won": 0.397,
+    "two_percent": 0.272,
+    "average_move": 2.36,
+    "average_r": -0.19,
+    "error_r": 0.008
+   },
+   "last30": {
+    "n": 11453,
+    "won": 0.397,
+    "two_percent": 0.189,
+    "average_move": 1.42,
+    "average_r": -0.281,
+    "error_r": 0.011
+   }
+  }
+ },
+ "XAU": {
+  "weights": {
+   "Elliott": 28.1,
+   "Smart money": 27.3,
+   "SFP": 19.4,
+   "Fibonacci": 13.9,
+   "Önceki dönem": 11.3
+  },
+  "quality": {
+   "Fibonacci|trend fib hedefi|2,79": 1.0,
+   "Elliott|12345 sonu|3. dalga uzayan": 0.581,
+   "Elliott|12345 sonu|iç yapı 5-3-5-3-5 tutuyor": 0.294,
+   "Elliott|WXYXZ sonu|tek bacak X": 0.163,
+   "Elliott|12345 sonu": 0.15,
+   "Elliott|ABCDE üçgen sonu": 0.269,
+   "Elliott|ABCDE üçgen sonu|12345'ten sonra": 0.269,
+   "SFP|uyumsuzluk yok": 0.464,
+   "SFP": 0.75,
+   "Smart money|FVG|ilk dokunuş": 1.0,
+   "Smart money|FVG": 1.0,
+   "Smart money": 0.885,
+   "SFP|RSI uyumsuz": 1.0,
+   "Elliott|12345 sonu|güdük 5": 1.0,
+   "Önceki dönem|önceki gün LOW": 1.0
+  },
+  "limits": {
+   "SCALP": 42.7,
+   "SCALP_SWING": 49.0,
+   "SWING": 54.4
+  },
+  "evidence": {
+   "SCALP": {
+    "first70": {
+     "n": 914,
+     "won": 0.42,
+     "two_percent": 0.118,
+     "average_move": 0.8,
+     "average_r": -0.337,
+     "error_r": 0.041
+    },
+    "last30": {
+     "n": 625,
+     "won": 0.398,
+     "two_percent": 0.123,
+     "average_move": 0.95,
+     "average_r": -0.386,
+     "error_r": 0.05
+    },
+    "shuffled": {
+     "n": 1455,
+     "won": 0.41,
+     "two_percent": 0.128,
+     "average_move": 0.89,
+     "average_r": -0.375,
+     "error_r": 0.033
+    },
+    "proven": false
+   },
+   "SCALP_SWING": {
+    "first70": {
+     "n": 381,
+     "won": 0.433,
+     "two_percent": 0.152,
+     "average_move": 0.89,
+     "average_r": -0.285,
+     "error_r": 0.063
+    },
+    "last30": {
+     "n": 224,
+     "won": 0.411,
+     "two_percent": 0.103,
+     "average_move": 0.88,
+     "average_r": -0.353,
+     "error_r": 0.083
+    },
+    "shuffled": {
+     "n": 596,
+     "won": 0.391,
+     "two_percent": 0.104,
+     "average_move": 0.72,
+     "average_r": -0.426,
+     "error_r": 0.05
+    },
+    "proven": false
+   },
+   "SWING": {
+    "first70": {
+     "n": 228,
+     "won": 0.395,
+     "two_percent": 0.136,
+     "average_move": 0.77,
+     "average_r": -0.392,
+     "error_r": 0.082
+    },
+    "last30": {
+     "n": 153,
+     "won": 0.438,
+     "two_percent": 0.124,
+     "average_move": 0.89,
+     "average_r": -0.258,
+     "error_r": 0.101
+    },
+    "shuffled": {
+     "n": 423,
+     "won": 0.383,
+     "two_percent": 0.144,
+     "average_move": 0.83,
+     "average_r": -0.407,
+     "error_r": 0.06
+    },
+    "proven": false
+   }
+  },
+  "base": {
+   "first70": {
+    "n": 15196,
+    "won": 0.41,
+    "two_percent": 0.118,
+    "average_move": 0.77,
+    "average_r": -0.39,
+    "error_r": 0.01
+   },
+   "last30": {
+    "n": 8119,
+    "won": 0.377,
+    "two_percent": 0.109,
+    "average_move": 0.77,
+    "average_r": -0.461,
+    "error_r": 0.014
+   }
+  }
+ },
+ "SPX": {
+  "weights": {
+   "Elliott": 42.9,
+   "Fibonacci": 33.7,
+   "Önceki dönem": 13.3,
+   "Price action": 10.1
+  },
+  "quality": {
+   "Elliott|X sonu|ABC X": 0.053,
+   "Önceki dönem|önceki hafta LOW": 1.0,
+   "Fibonacci|reshort / relong|0,709": 0.085,
+   "Elliott|X sonu|tek bacak X": 0.071,
+   "Elliott|X sonu": 0.09,
+   "Elliott|B sonu": 0.216,
+   "Elliott|B sonu|12345'ten sonra": 0.216,
+   "Elliott|12345 sonu": 0.081,
+   "Fibonacci|reshort / relong": 1.0,
+   "Fibonacci": 0.258,
+   "Price action|mum|engulfing": 1.0,
+   "Elliott|ABC sonu|zigzag": 1.0,
+   "Elliott|ABC sonu": 0.863,
+   "Fibonacci|reshort / relong|0,786": 0.12
+  },
+  "limits": {
+   "SCALP": 63.8,
+   "SCALP_SWING": 67.5,
+   "SWING": 72.8
+  },
+  "evidence": {
+   "SCALP": {
+    "first70": {
+     "n": 726,
+     "won": 0.366,
+     "two_percent": 0.113,
+     "average_move": 0.8,
+     "average_r": -0.47,
+     "error_r": 0.045
+    },
+    "last30": {
+     "n": 365,
+     "won": 0.359,
+     "two_percent": 0.115,
+     "average_move": 0.66,
+     "average_r": -0.482,
+     "error_r": 0.063
+    },
+    "shuffled": {
+     "n": 1130,
+     "won": 0.418,
+     "two_percent": 0.166,
+     "average_move": 1.0,
+     "average_r": -0.336,
+     "error_r": 0.037
+    },
+    "proven": false
+   },
+   "SCALP_SWING": {
+    "first70": {
+     "n": 350,
+     "won": 0.466,
+     "two_percent": 0.149,
+     "average_move": 1.12,
+     "average_r": -0.182,
+     "error_r": 0.067
+    },
+    "last30": {
+     "n": 306,
+     "won": 0.379,
+     "two_percent": 0.16,
+     "average_move": 0.99,
+     "average_r": -0.426,
+     "error_r": 0.07
+    },
+    "shuffled": {
+     "n": 827,
+     "won": 0.416,
+     "two_percent": 0.146,
+     "average_move": 0.96,
+     "average_r": -0.32,
+     "error_r": 0.043
+    },
+    "proven": false
+   },
+   "SWING": {
+    "first70": {
+     "n": 154,
+     "won": 0.396,
+     "two_percent": 0.13,
+     "average_move": 0.9,
+     "average_r": -0.312,
+     "error_r": 0.1
+    },
+    "last30": {
+     "n": 187,
+     "won": 0.401,
+     "two_percent": 0.203,
+     "average_move": 1.33,
+     "average_r": -0.3,
+     "error_r": 0.09
+    },
+    "shuffled": {
+     "n": 337,
+     "won": 0.454,
+     "two_percent": 0.193,
+     "average_move": 1.22,
+     "average_r": -0.211,
+     "error_r": 0.068
+    },
+    "proven": false
+   }
+  },
+  "base": {
+   "first70": {
+    "n": 12312,
+    "won": 0.405,
+    "two_percent": 0.121,
+    "average_move": 0.82,
+    "average_r": -0.403,
+    "error_r": 0.011
+   },
+   "last30": {
+    "n": 6337,
+    "won": 0.4,
+    "two_percent": 0.119,
+    "average_move": 0.81,
+    "average_r": -0.41,
+    "error_r": 0.016
+   }
+  }
+ }
+}

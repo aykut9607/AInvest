@@ -13,6 +13,10 @@ class Settings(BaseSettings):
     # (a default with a password in the code would end up in git)
     database_url: str = Field(min_length=1)
 
+    # server to server, like Finance -> IQ: these ports are not reachable for browsers through the gateway
+    finance_base_url: str = "http://localhost:5293"
+    iq_base_url: str = "http://localhost:5109"
+
 
 @lru_cache
 def get_settings() -> Settings:

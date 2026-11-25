@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "ainvest/portfolio/proposal.draft",
-  "title": "Portfolio proposal (DRAFT - service not built yet)",
-  "description": "Output of the planned Portfolio Service (Python, Aykut). It stores the user's portfolio choices, computes the allocation deterministically (no LLM) and the AI service only explains it. Until the service exists, the AI side can work against the example below. Draft: field names may still change, with the approval of both developers.",
+  "title": "Portfolio proposal (DRAFT - built 25 Nov 2026, names not yet approved by both developers)",
+  "description": "Output of the Portfolio Service (Python, Aykut). It stores the user's portfolio choices and computes the allocation deterministically (no LLM); the AI service only explains it. Optional fields added 25 Nov: basedOn.resultVersion, allocations[].label / oneTimeAmount, source, stale. Draft: field names may still change, with the approval of both developers.",
   "type": "object",
   "required": ["proposalId", "userId", "createdAt", "basedOn", "preferences", "risk", "investable", "allocations", "reasons", "disclaimer"],
   "properties": {
@@ -18,7 +18,8 @@
         "segment": { "enum": ["LOW", "MEDIUM", "HIGH"] },
         "appliedRule": { "enum": [null, "VERY_HIGH_INCOME", "VERY_HIGH_WEALTH", "EXTREME_DEBT"] },
         "iqCalculatedAt": { "type": "string", "format": "date-time" },
-        "scoringVersion": { "type": "string" }
+        "scoringVersion": { "type": "string" },
+        "resultVersion": { "type": ["integer", "null"], "description": "Optional. IQ's resultVersion; a different value in /latest means the proposal is stale." }
       }
     },
     "preferences": {
@@ -32,7 +33,7 @@
         },
         "riskLevel": { "enum": ["LOW", "MEDIUM", "HIGH"] },
         "institutionStyle": {
-          "description": "Only for INSTITUTION. ZIRAAT = protective (deposit, commodities), ISBANK = balanced (SPX, deposit), YAPIKREDI = aggressive (SPX, AI companies).",
+          "description": "Only for INSTITUTION: whose PUBLISHED allocation is used (YAPIKREDI = deposit based package, ISBANK = multi-asset fund basket, ZIRAAT = actively managed variable fund). The codes name the source, not a risk style: every institution publishes all three levels.",
           "enum": ["ZIRAAT", "ISBANK", "YAPIKREDI"]
         },
         "focusAssets": { "type": "array", "items": { "type": "string" } },
@@ -49,7 +50,7 @@
       }
     },
     "investable": {
-      "description": "sharePercent = clamp(IQ - 30, 0, 70). Applied to the monthly surplus (income - expenses - installment) and to the cash above a 3-month emergency fund. Reserve under 3 months -> 0, except when VERY_HIGH_INCOME or VERY_HIGH_WEALTH applied.",
+      "description": "sharePercent = clamp(IQ - 30, 0, 70). Applied to the monthly surplus (income - expenses - installment) and to the cash above a 3-month emergency fund. Reserve (cash + 50% of the investments, as in the score) under 3 months -> 0, except when VERY_HIGH_INCOME or VERY_HIGH_WEALTH applied.",
       "type": "object",
       "required": ["sharePercent", "monthlyAmount", "oneTimeAmount"],
       "properties": {
@@ -67,15 +68,23 @@
         "properties": {
           "asset": { "type": "string" },
           "percent": { "type": "number", "minimum": 0, "maximum": 100 },
-          "amount": { "type": "number", "minimum": 0 }
+          "amount": { "type": "number", "minimum": 0, "description": "Monthly, TL." },
+          "label": { "type": "string", "description": "Optional. Name for the screen (Turkish)." },
+          "oneTimeAmount": { "type": "number", "minimum": 0, "description": "Optional. Share of investable.oneTimeAmount, TL." }
         }
       }
     },
     "reasons": {
-      "description": "Codes that say why the allocation looks like this, e.g. EXCLUDED_ASSET_REPLACED:BTC->GOLD, IQ_TILT_TO_SAFE_ASSETS, RESERVE_FIRST. The coach turns them into sentences.",
+      "description": "Codes that say why the allocation looks like this, RESERVE_FIRST, NO_MONTHLY_SURPLUS, DEBT_FIRST (a warning, not a lock), EXCLUDED_ASSET_REPLACED:BTC->SPX, FOCUS:BTC, RISK_CEILING_REACHED, PUBLISHED_ALLOCATION:ISBANK:2026-11. Unknown codes must be ignored. The coach turns them into sentences.",
       "type": "array",
       "items": { "type": "string" }
     },
+    "source": {
+      "description": "Optional, only INSTITUTION: where the published percentages come from.",
+      "type": ["object", "null"],
+      "properties": { "name": { "type": "string" }, "period": { "type": "string" }, "url": { "type": "string" } }
+    },
+    "stale": { "type": "boolean", "description": "Optional. True when the IQ result was recalculated after this proposal." },
     "disclaimer": { "type": "string" }
   },
   "examples": [
@@ -88,13 +97,12 @@
       "risk": { "chosen": "MEDIUM", "maxAllowed": "HIGH" },
       "investable": { "sharePercent": 58, "monthlyAmount": 5800, "oneTimeAmount": 3480 },
       "allocations": [
-        { "asset": "GOLD", "percent": 30, "amount": 1740 },
-        { "asset": "TRY_DEPOSIT", "percent": 25, "amount": 1450 },
-        { "asset": "SPX", "percent": 25, "amount": 1450 },
-        { "asset": "EUR", "percent": 10, "amount": 580 },
-        { "asset": "NVDA", "percent": 10, "amount": 580 }
+        { "asset": "SPX", "label": "S&P 500", "percent": 50, "amount": 2900, "oneTimeAmount": 1739.99 },
+        { "asset": "GOLD", "label": "Altın", "percent": 16.67, "amount": 966.86, "oneTimeAmount": 580.12 },
+        { "asset": "TRY_DEPOSIT", "label": "TL mevduat", "percent": 16.67, "amount": 966.86, "oneTimeAmount": 580.12 },
+        { "asset": "EUR", "label": "Euro", "percent": 16.66, "amount": 966.28, "oneTimeAmount": 579.77 }
       ],
-      "reasons": ["EXCLUDED_ASSET_REPLACED:BTC->GOLD"],
+      "reasons": ["EXCLUDED_ASSET_REPLACED:BTC->SPX"],
       "disclaimer": "This is not investment advice."
     }
   ]

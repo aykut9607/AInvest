@@ -49,6 +49,8 @@ BINANCE_FIRST_MONTH = date(2017, 8, 1)  # BTCUSDT spot trading started on 2017-0
 
 # Yahoo interval name -> our name, and how far back Yahoo serves it
 YAHOO_SYMBOLS = {"GC=F": "gold futures (COMEX), USD", "ES=F": "E-mini S&P 500 futures (CME), USD"}
+# daily closes only, for the yearly volatility of the 4.3 basket (Yahoo closes are adjusted for splits, not for dividends)
+YAHOO_DAILY = {"NVDA": "Nvidia share, USD"}
 YAHOO_INTERVALS = [
     ("1wk", "1w", None),   # None = full history ("max")
     ("1d", "1d", None),
@@ -191,12 +193,12 @@ def download_binance(today: date, report: Report, symbol: str = "BTCUSDT") -> No
         print(f"binance {symbol} {interval}: {len(rows)} candles")
 
 
-def download_yahoo(today: date, report: Report) -> None:
+def download_yahoo(today: date, report: Report, symbols: dict[str, str], intervals: list[tuple]) -> None:
     import yfinance  # only needed here; the rest of the service does not depend on it
 
-    for symbol, description in YAHOO_SYMBOLS.items():
+    for symbol, description in symbols.items():
         out_dir = RAW_DIR / "yahoo" / symbol.replace("=", "_")
-        for yahoo_interval, interval, days_back in YAHOO_INTERVALS:
+        for yahoo_interval, interval, days_back in intervals:
             ticker = yfinance.Ticker(symbol)
             if days_back is None:
                 frame = ticker.history(period="max", interval=yahoo_interval, auto_adjust=False, actions=False)
@@ -238,7 +240,7 @@ def _describe(path: Path, source: str, symbol: str, interval: str, rows: list[di
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Download the 4.4 candle history into data/raw (local only).")
-    parser.add_argument("--only", choices=["binance", "yahoo", "paxg"], help="download one source only")
+    parser.add_argument("--only", choices=["binance", "yahoo", "daily", "paxg"], help="download one source only")
     args = parser.parse_args()
 
     today = datetime.now(timezone.utc).date()
@@ -248,7 +250,9 @@ def main() -> None:
     if args.only in (None, "paxg"):
         download_binance(today, report, "PAXGUSDT")
     if args.only in (None, "yahoo"):
-        download_yahoo(today, report)
+        download_yahoo(today, report, YAHOO_SYMBOLS, YAHOO_INTERVALS)
+    if args.only in (None, "daily"):
+        download_yahoo(today, report, YAHOO_DAILY, [("1d", "1d", None)])
 
     # what was downloaded, when, from where, and the hash of every file: the same files give the same backtest
     manifest_path = RAW_DIR / "manifest.json"
@@ -256,7 +260,8 @@ def main() -> None:
     replaced = {f["file"] for f in report.files}
     manifest["files"] = [f for f in manifest["files"] if f["file"] not in replaced] + report.files
     manifest["downloaded_at"] = datetime.now(timezone.utc).isoformat()
-    manifest["missing_archives"] = report.missing
+    if args.only not in ("yahoo", "daily"):          # Yahoo has no archives: the list of the last Binance run stays
+        manifest["missing_archives"] = report.missing
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     print(f"manifest: {manifest_path} ({len(report.files)} files, {len(report.missing)} archives missing)")
