@@ -9,17 +9,18 @@ import html
 import json
 import sys
 from bisect import bisect_left
-from statistics import median
+from statistics import mean, median
 
 from signals.data.candles import TIMEFRAMES
 from signals.rules import rules_catalog as rc
-from signals.scoring.confirm import ASSETS
+from signals.scoring.confirm import ASSETS, WORKED
 from signals.scoring.reaction import p_value
 from signals.scoring.rule_events import SPAN
 from signals.scoring.run import OUT
 
 NAME = {"BTCUSDT": "BTC", "XAU": "Altın", "SPX": "S&P"}
-MIN_N, FDR, MAX_POINTS, SURE, SPLIT = 30, 0.05, 15, 0.84, 0.7
+MIN_N, FDR, SURE, SPLIT = 30, 0.05, 0.84, 0.7
+FULL = 100               # points of one asset when every confirmation it has is present
 ORDER = ("Elliott", "Harmonik", "Uyumsuzluk", "SFP", "Price action", "Fibonacci", "Key level", "Hacim profili", "Smart money", "Önceki dönem", "EXT bandı", "Funding")
 ONE_ONLY = ("Elliott", "Harmonik")              # one category = one confirmation; the others count rule by rule
 
@@ -57,8 +58,10 @@ def stats(rows: list) -> dict[str, dict]:
         s = {"n": m}
         if m >= 5 and n - m >= 5:
             p1, p0 = wa / m, (w - wa) / (n - m)
-            se = (p1 * (1 - p1) / m + p0 * (1 - p0) / (n - m)) ** 0.5
-            s.update(rate=p1, rest=p0, move=median(r[2] for r in a), after=la / m, after_rest=(l - la) / (n - m), p=p_value(wa, m, w - wa, n - m),
+            q1, q0 = (wa + 1) / (m + 2), (w - wa + 1) / (n - m + 2)          # never zero: 35 of 35 is not certainty
+            se = (q1 * (1 - q1) / m + q0 * (1 - q0) / (n - m)) ** 0.5
+            good = [r[2] for r in a if r[3]]
+            s.update(rate=p1, rest=p0, avg=mean(good) if good else 0.0, mid=median(good) if good else 0.0, after=la / m, after_rest=(l - la) / (n - m), p=p_value(wa, m, w - wa, n - m),
                      low=p_value(m - wa, m, n - m - (w - wa), n - m), se=100 * se)
         out[k] = s
     return out
@@ -77,7 +80,7 @@ def analyse() -> dict:
             if len(fit) < 5:
                 continue
             all_[(a, f)] = {"fit_rows": fit, "exam_rows": exam, "fake_rows": fake.get(f, []), "fit": stats(fit), "exam": stats(exam), "fake": stats(fake.get(f, [])),
-                            "rate": sum(r[3] for r in fit) / len(fit), "thr": median(r[5] for r in fit)}
+                            "rate": sum(r[3] for r in fit) / len(fit), "avg": mean([r[2] for r in fit if r[3]] or [0.0])}
     pool = sorted((s for d in all_.values() for s in d["fit"].values() if s["n"] >= MIN_N and "p" in s), key=lambda s: s["p"])
     cut = max((s["p"] for i, s in enumerate(pool, 1) if s["p"] <= FDR * i / len(pool)), default=0.0)
     for d in all_.values():
@@ -92,11 +95,29 @@ def analyse() -> dict:
             s["bad"] = s["n"] >= MIN_N and s["low"] <= cut
             edge = diff(s) - SURE * s["se"] - geo
             if s["good"] and edge >= 1:
-                d["candidate"][k] = round(min(MAX_POINTS, edge))
+                d["candidate"][k] = edge
                 e = d["exam"].get(k, {})
                 if e.get("n", 0) >= 15 and "p" in e and diff(e) > geo:
                     d["points"][k] = d["candidate"][k]
+    for a in ASSETS:                                   # to 100: the best value of every confirmation of the asset adds up to FULL
+        for kind in ("points", "candidate"):
+            frames = [d for (b, _), d in all_.items() if b == a]
+            top: dict[str, float] = {}
+            for d in frames:
+                for k in d["fit"]:
+                    if "|" in k:                          # what best() can give: the rule's own value or that of its category
+                        p = max(d[kind].get(x, 0.0) for x in (k.split("|")[0], "|".join(k.split("|")[:2]), k))
+                        top[name_of(k)] = max(top.get(name_of(k), 0.0), p)
+            full = sum(top.values()) or 1.0
+            for d in frames:
+                d[kind] = {k: round(FULL * p / full, 1) for k, p in d[kind].items()}
     return all_
+
+
+def name_of(key: str) -> str:
+    """The confirmation a key belongs to: the rule, or the whole category for Elliott and harmonics."""
+    parts = key.split("|")
+    return parts[0] if parts[0] in ONE_ONLY else "|".join(parts[:2])
 
 
 def best(tags: list[str], pts: dict[str, int]) -> dict[str, int]:
@@ -143,17 +164,25 @@ def pct(v: float) -> str:
     return f"%{100 * v:.0f}"
 
 
+def point_of(d: dict, k: str) -> float:
+    return d["points"].get(k, 0)
+
+
+def fmt(v: float) -> str:
+    return f"{v:.1f}".replace(".", ",")
+
+
 def cell(d: dict | None, k: str) -> str:
     s = d["fit"].get(k) if d else None
     if not s or "p" not in s:
         return f'<td class="az">{s["n"] if s else ""}</td>'
-    css = "saygı" if s["good"] else "ters" if s["bad"] else "az" if s["n"] < MIN_N else "yok"
+    css = "saygı" if point_of(d, k) else "az" if s["n"] < MIN_N else "yok"
     e, g = d["exam"].get(k, {}), d["fake"].get(k, {})
-    tip = (f"çalıştı {pct(s['rate'])}, bu onay yokken {pct(s['rest'])}; ortanca hareket %{s['move']:.1f}; tepe kesinleştikten sonra {pct(s['after'])} / {pct(s['after_rest'])}; "
+    tip = (f"çalıştı {pct(s['rate'])}, bu onay yokken {pct(s['rest'])} (fark {diff(s):+.1f}); çalışanlarda ortalama hareket %{s['avg']:.1f}, ortanca %{s['mid']:.1f}; tepe kesinleştikten sonra {pct(s['after'])} / {pct(s['after_rest'])}; "
            f"son %30: {pct(e['rate']) + ' / ' + pct(e['rest']) + ' (' + str(e['n']) + ' kez)' if 'p' in e else 'az örnek'}; karıştırılmış fiyatta fark {diff(g):+.0f}" if "p" in g else
-           f"çalıştı {pct(s['rate'])}, bu onay yokken {pct(s['rest'])}; ortanca hareket %{s['move']:.1f}")
-    point = d["points"].get(k)
-    return f'<td class="{css}" title="{tip}"><b>{pct(s["rate"])}</b> <i>{diff(s):+.0f}</i><br><small>{s["n"]} kez{f" · <b>{point} puan</b>" if point else ""}</small></td>'
+           f"çalıştı {pct(s['rate'])}, bu onay yokken {pct(s['rest'])}; çalışanlarda ortalama hareket %{s['avg']:.1f}, ortanca %{s['mid']:.1f}")
+    point = point_of(d, k)
+    return f'<td class="{css}" title="{tip}"><b>{pct(s["rate"])}</b> <i>yokken {pct(s["rest"])}</i><br><small>ort. %{s["avg"]:.1f} · {s["n"]} kez{f"<br><b>{fmt(point)} puan</b>" if point else ""}</small></td>'
 
 
 def tree(a: str, all_: dict) -> str:
@@ -168,11 +197,11 @@ def tree(a: str, all_: dict) -> str:
             body += row(r, "— " + r.split("|")[1], "rule")
             for v in sorted(k for k in ks if k.startswith(r + "|")):
                 body += row(v, "— — " + v.split("|")[2], "var")
-    base = "".join(f'<td>{pct(all_[(a, f)]["rate"])}<br><small>eşik %{all_[(a, f)]["thr"]:.1f}</small></td>' if (a, f) in all_ else "<td></td>" for f in TIMEFRAMES)
+    base = "".join(f'<td>{pct(all_[(a, f)]["rate"])}<br><small>ort. %{all_[(a, f)]["avg"]:.1f}</small></td>' if (a, f) in all_ else "<td></td>" for f in TIMEFRAMES)
     return f'<div class="scroll"><table class="bt left tree"><tr><th>Kural</th>{head}</tr><tr><td><i>bütün tepe/dipler</i></td>{base}</tr>{body}</table></div>'
 
 
-BUCKETS = ((0, 1), (1, 10), (10, 20), (20, 30), (30, 40), (40, 55), (55, 999))
+BUCKETS = ((0, 0.01), (0.01, 5), (5, 10), (10, 15), (15, 20), (20, 30), (30, 40), (40, 999))
 
 
 def score_tables(a: str, sc: dict) -> str:
@@ -185,11 +214,11 @@ def score_tables(a: str, sc: dict) -> str:
             tds = ""
             for part in ("fit_rows", "exam_rows", "fake_rows"):
                 s = [r for p, _, r in sc[part].get((a, f), []) if lo <= p < hi]
-                tds += (f'<td>{pct(sum(r[3] for r in s) / len(s))} <small>({len(s)})</small></td><td>{pct(sum(r[4] for r in s) / len(s))}</td><td>%{median(r[2] for r in s):.1f}</td>' if len(s) >= 5
+                tds += (f'<td>{pct(sum(r[3] for r in s) / len(s))} <small>({len(s)})</small></td><td>{pct(sum(r[4] for r in s) / len(s))}</td><td>%{mean([r[2] for r in s if r[3]] or [0.0]):.1f}</td>' if len(s) >= 5
                         else f"<td><small>({len(s)})</small></td><td></td><td></td>")
-            rows += f'<tr><td>{lo if hi - lo == 1 else f"{lo}–{hi - 1}" if hi < 999 else f"{lo}+"}</td>{tds}</tr>'
+            rows += f'<tr><td>{"0" if hi < 1 else f"{lo:.0f}–{hi}" if hi < 999 else f"{lo}+"}</td>{tds}</tr>'
         out += (f'<details{" open" if f in ("1h", "4h") else ""}><summary>{f}</summary><div class="scroll"><table class="bt"><tr><th rowspan="2">Toplam puan</th><th colspan="3">İlk %70</th><th colspan="3">Son %30</th><th colspan="3">Karıştırılmış fiyat</th></tr>'
-                f'<tr>{"<th>çalıştı</th><th>kesinleştikten sonra</th><th>ortanca hareket</th>" * 3}</tr>{rows}</table></div></details>')
+                f'<tr>{"<th>çalıştı</th><th>kesinleştikten sonra</th><th>ortalama hareket</th>" * 3}</tr>{rows}</table></div></details>')
     return out
 
 
@@ -204,16 +233,16 @@ def main() -> None:
     all_ = analyse()
     sc = {p: scores(all_, p) for p in ("fit_rows", "exam_rows", "fake_rows")}
     from signals.scoring.report import CSS as REPORT_CSS
-    lead = ("Her satır bir kural, her sütun bir zaman dilimi. Aday = o dilimde oluşan tepe ya da dip (önünde 5, arkasında 2 mum). <b>Çalıştı</b> = 15 dakikalık mumlarda, tepe/dip geçilmeden, o dilimin 3 ATR'si kadar hareket geldi "
-            "(40 mum içinde; 1w 2 ATR / 26 mum, 1M 1,5 ATR / 12 mum; ortanca eşik sütunun başında). Hücrede: çalışma oranı, yanında bu onayın <b>olmadığı</b> tepe/diplerden farkı, altında kaç kez oluştuğu ve aldığı puan. Yeşil: anlamlı iyi ve karıştırılmış fiyattaki "
-            "farktan da büyük. Kırmızı: anlamlı kötü. Soluk: 30'dan az örnek. Puan = emin olunan fark (en çok 15), son %30'da da tutan kurala. Hücrenin üstüne gelince ayrıntı çıkar.")
+    lead = ("Her satır bir kural, her sütun bir zaman dilimi. Aday = o dilimde oluşan tepe ya da dip (önünde 5, arkasında 2 mum). <b>Çalıştı</b> = 15 dakikalık mumlarda, tepe/dip (0,25 ATR'den fazla) geçilmeden en az <b>%2</b> hareket geldi (o dilimin 40 mumu içinde; 1w 26, 1M 12). "
+            "Hücrede: çalışma oranı, yanında bu onayın <b>olmadığı</b> tepe/diplerin oranı; altında çalışanların <b>ortalama</b> hareketi, kaç kez oluştuğu ve puanı. Yeşil: puan aldı (onay varken oran, yokken ve karıştırılmış fiyattaki "
+            "farktan anlamlı büyük, son %30'da da tutmuş). Renksiz: puan almadı; eksi puan yok. Soluk: 30'dan az örnek. Puan 100 üzerinden: bir paritenin bütün onayları aynı anda olsa 100 eder (Elliott ve harmonik birer onay). Hücrenin üstüne gelince ayrıntı çıkar.")
     blocks = "".join(f'<h2 id="{a}">{NAME[a]}</h2>{tree(a, all_)}<h3>{NAME[a]}: toplam puan ne kadar yüksekse o kadar mı iyi?</h3>'
                      f"<p>Toplam puan = o tepedeki bütün onayların puanları (aynı tepedeki alt dilim onayları dahil; Elliott ve harmonik birer onay sayılır).</p>{score_tables(a, sc)}" for a in ASSETS)
     page = ('<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Onay backtesti</title>'
             f"<style>{rc.CSS}{rc.CHART_CSS}{rc.EXTRA_CSS}{REPORT_CSS}{CSS}</style></head><body><main><h1>Onay backtesti: kural × zaman dilimi × parite</h1><p class=\"lead\">{lead}</p>"
             f"<p>{' · '.join(f'<a href=#{a}>{NAME[a]}</a>' for a in ASSETS)}</p>{blocks}</main></body></html>")
     (rc.HERE / "confirmations.html").write_text(page, encoding="utf-8")
-    (OUT / "confirm_points.json").write_text(json.dumps({"version": "v3", "points": {f"{a} {f}": d["points"] for (a, f), d in all_.items()}, "fit": {f"{a} {f}": d["fit"] for (a, f), d in all_.items()},
+    (OUT / "confirm_points.json").write_text(json.dumps({"version": "v4", "worked_percent": WORKED, "points": {f"{a} {f}": d["points"] for (a, f), d in all_.items()}, "fit": {f"{a} {f}": d["fit"] for (a, f), d in all_.items()},
                                                          "exam": {f"{a} {f}": d["exam"] for (a, f), d in all_.items()}}, ensure_ascii=False), encoding="utf-8")
     for a in ASSETS:
         print("==", a)
@@ -221,13 +250,13 @@ def main() -> None:
             if (a, f) in all_:
                 d = all_[(a, f)]
                 line = []
-                for lo, hi in ((0, 10), (20, 30), (30, 40), (40, 55), (55, 999)):
+                for lo, hi in ((0, 5), (10, 20), (20, 30), (30, 40), (40, 999)):
                     c = []
                     for part in ("fit_rows", "exam_rows", "fake_rows"):
                         s = [r for p, _, r in sc[part].get((a, f), []) if lo <= p < hi]
                         c.append(f"{100 * sum(r[3] for r in s) / len(s):.0f}>{100 * sum(r[4] for r in s) / len(s):.0f}({len(s)})" if len(s) >= 10 else "-")
                     line.append(f"{lo}+: " + " / ".join(c))
-                print(f, len(d["fit_rows"]), f"eşik %{d['thr']:.1f}", pct(d["rate"]), "puan alan", len(d["points"]), "|", " | ".join(line))
+                print(f, len(d["fit_rows"]), f"ort %{d['avg']:.1f}", pct(d["rate"]), "puan alan", len(d["points"]), "|", " | ".join(line))
 
 
 if __name__ == "__main__":

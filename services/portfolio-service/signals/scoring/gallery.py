@@ -18,7 +18,7 @@ import numpy as np
 from signals.data.candles import TIMEFRAMES
 from signals.data.download import SERVICE_DIR
 from signals.rules import pa_detect
-from signals.scoring.confirm import ASSETS, BANDS, DEGREES, bars_of, ROOM, Frame, elliott, five_waves, harmonics, shared_levels
+from signals.scoring.confirm import ASSETS, BANDS, DEGREES, bars_of, ROOM, WORKED, Frame, elliott, five_waves, harmonics, shared_levels
 from signals.scoring.confirm_report import NAME, ORDER, load, pct
 from signals.scoring.run import OUT
 from signals.scoring.turns import load_full
@@ -37,6 +37,7 @@ class Evidence:
         self.levels: list[tuple[float, str, int]] = []        # price, name, first bar
         self.panel: tuple[str, np.ndarray, int, int] | None = None
         self.words = ""
+        self.until: int | None = None                          # bar the picture must reach
 
 
 WAVES = {"12345 sonu": ("0", "1", "2", "3", "4", "5"), "4. dalga sonu": ("0", "1", "2", "3", "4"), "ABC sonu": ("5", "A", "B", "C"), "B sonu": ("5", "A", "B"),
@@ -181,7 +182,7 @@ def evidence(fr: Frame, tag: str, j: int, conf: int, price: float, side: int) ->
 def draw(fr: Frame, e: Evidence, j: int, price: float, side: int, thr: float, worked: bool, hit: int | None) -> str:
     b, n = fr.x.bars, len(fr.x.candles)
     marks = [i for i, _, _ in e.points] + [i for a in e.lines for i in (a[0],)] + [max(f, j - 60) for _, _, f in e.levels]
-    a, z = max(0, min(marks + [j]) - 8, j - 420), min(n - 1, j + bars_of(fr.f) + 4)
+    a, z = max(0, min(marks + [j]) - 8, j - 420), min(n - 1, max(j + bars_of(fr.f), min(e.until or 0, j + 300)) + 4)
     m = z - a + 1
     lo, hi = float(b.low[a:z + 1].min()), float(b.high[a:z + 1].max())
     target = price + side * thr
@@ -224,7 +225,8 @@ def draw(fr: Frame, e: Evidence, j: int, price: float, side: int, thr: float, wo
 
 
 def chart(fr: Frame, tag: str, row: list, j: int, conf: int) -> str:
-    t, side, move, worked, after, thr_pct, _, _ = row
+    t, side, move, worked, after, _, _, _ = row
+    thr_pct = WORKED
     b = fr.x.bars
     price = float(b.high[j] if side == -1 else b.low[j])
     thr = thr_pct / 100 * price
@@ -234,6 +236,7 @@ def chart(fr: Frame, tag: str, row: list, j: int, conf: int) -> str:
     over = np.nonzero(b.high[j + 1:end + 1] > price + room)[0] if side == -1 else np.nonzero(b.low[j + 1:end + 1] < price - room)[0]
     reach = np.nonzero(b.low[j + 1:end + 1] <= price - thr)[0] if side == -1 else np.nonzero(b.high[j + 1:end + 1] >= price + thr)[0]
     hit = j + 1 + int((reach if worked else over)[0]) if len(reach if worked else over) else None
+    e.until = hit
     top, moved = ("tepe", "düştü") if side == -1 else ("dip", "yükseldi")
     if worked:
         why = f"Başarılı: {top} geçilmeden %{move:.1f} {moved} (gereken %{thr_pct:.1f})" + (f", {hit - j} mumda hedef" if hit else "")
@@ -328,7 +331,7 @@ def main() -> None:
             links += f'<li><a href="{name}">{cat}</a> ({len(mine)} kural)</li>'
         index += f"<h2>{NAME[a]}</h2><ul>{links}</ul>"
     lead = ('<p>Her kuralın her zaman diliminde biri <b>başarılı</b> (yeşil), biri <b>başarısız</b> (kırmızı) gerçek örneği: en yeni olanlar, senin gösterdiğin tarihler hariç. Kırmızı kesik çizgi: tepe/dip (geçilirse başarısız). '
-            f'Yeşil kesik çizgi: gereken hareket (o dilimin 3 ATR kadarı; 1w 2, 1M 1,5). Toplam {total["başarılı"]} başarılı, {total["başarısız"]} başarısız grafik.</p>')
+            f'Yeşil kesik çizgi: gereken %2 hareket. Toplam {total["başarılı"]} başarılı, {total["başarısız"]} başarısız grafik.</p>')
     (FOLDER / "index.html").write_text(page("Kural galerisi", lead + index), encoding="utf-8")
     print(total)
 

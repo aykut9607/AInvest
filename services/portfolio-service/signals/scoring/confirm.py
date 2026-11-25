@@ -1,12 +1,13 @@
 r"""Every rule on every timeframe (15m ... 1M) of every asset, at the tops and bottoms of that timeframe (Aykut, 25 Nov).
 
   .\venv\Scripts\python.exe -m signals.scoring.confirm          -> data/reports/confirm_<asset>_<seed>.json
+  .\venv\Scripts\python.exe -m signals.scoring.confirm rescore  only the outcomes again (WORKED or ROOM changed)
 
 Candidate: a pivot of the timeframe (5 bars before, 2 after; known two bars later). At each one: which rules were present ON THAT TIMEFRAME,
 using only what was known when the pivot was known. Then the 15m candles: how far did price go before the pivot was exceeded (by more than
 0.25 ATR)?
-  worked   at least 3 x ATR(14) of the timeframe, inside 40 bars of it (1w: 2 ATR in 26 bars, 1M: 1.5 ATR in 12 bars)
-  after    the same distance again from the close at which the pivot was known
+  worked   at least 2 % inside 40 bars (1w: 26, 1M: 12; Aykut: "2 % is a confirmation"); the average move of those is reported
+  after    2 % again from the close at which the pivot was known
 Rules are a tree: category -> rule -> variation ("Elliott|ABC|yassı (genişleyen)"). Elliott corrections count only after a finished 12345.
 """
 
@@ -22,7 +23,6 @@ import numpy as np
 
 from signals.data.candles import TIMEFRAMES
 from signals.indicators.cvd import cvd
-from signals.indicators.rsi_divergence import HIDDEN_BEARISH, HIDDEN_BULLISH, REGULAR_BEARISH, REGULAR_BULLISH
 from signals.patterns import elliott as ew
 from signals.patterns.fib import in_range, near
 from signals.rules import elliott_check, pa_detect, smc_detect
@@ -37,15 +37,19 @@ from signals.structure.zigzag import SwingPoint, zigzag
 ASSETS = ("BTCUSDT", "XAU", "SPX")
 LEFT, RIGHT = 5, 2
 ROOM = 0.25            # x ATR: a top counts as exceeded only beyond this (Aykut: a few dollars over it do not matter)
-THRESHOLDS, WINDOWS = {"1w": 2.0, "1M": 1.5}, {"1w": 26, "1M": 12}          # the long frames have few bars; everything else 3 ATR in 40 bars
-
-
-def threshold(f: str) -> float:
-    return THRESHOLDS.get(f, 3.0)
+WORKED = 2.0           # % : Aykut's rule, "if it moved 2 % before the top was exceeded, it worked" (every frame and asset)
+WINDOWS = {"1w": 26, "1M": 12}          # bars the move may take (40 on the other frames): later moves are not this top's doing
 
 
 def bars_of(f: str) -> int:
     return WINDOWS.get(f, 40)
+
+
+def outcome(path, begin: float, known: float, window: float, price: float, entry: float, side: int, room: float) -> tuple:
+    """(move %, worked, worked after the pivot was known, that move %)."""
+    move = 100 * path.reaction(begin, begin + window, price, side, room) / price
+    later = 100 * (path.reaction(known, known + window, price, side, room) - abs(price - entry)) / entry
+    return round(move, 3), move >= WORKED, later >= WORKED, round(max(0.0, later), 3)
 
 
 DEGREES = (1.5, 2.0, 3.0, 4.0)
@@ -187,10 +191,6 @@ class Frame:
         self.sfp: dict[int, list] = {1: [], -1: []}
         for s in find_open_sfps(x.candles):
             self.sfp[1 if s.direction == "bullish" else -1].append((s.sweep_index, s.confirmed_at, s.pivot_index, s.extreme))
-        self.label: dict = {}
-        for src, rows in (("RSI", x.divergences), ("CVD", x.cvd_div if asset == "BTCUSDT" else [])):
-            for d in rows:
-                self.label.setdefault((src, d.kind), {})[d.pivot_index] = d.confirmed_at
         self.candle: dict[int, set] = {}
         for i, n, d in smc_detect.candle_patterns(x.candles):
             if d and n in (smc_detect.PIN, smc_detect.ENGULFING):
@@ -276,10 +276,12 @@ class Frame:
         return out
 
     def at(self, j: int, conf: int, price: float, side: int) -> set[str]:
-        x, b, out = self.x, self.x.bars, set()
-        atr, kind = b.atr[j - 1], HIGH if side == -1 else LOW
-        t, hi = self.t[j], (b.high if side == -1 else -b.low)
-        # --- divergences at the top itself
+        return self.momentum(j, side) | self.structure(j, conf, price, side, self.t[j] + self.span)
+
+    def momentum(self, j: int, side: int) -> set[str]:
+        """Divergences at the top itself (bar j closed). The indicator's own label is not used: it needs 5 later bars."""
+        b, out = self.x.bars, set()
+        atr, hi = b.atr[j - 1], (b.high if side == -1 else -b.low)
         a = max(0, j - 60)
         if j - a > 6:
             r = self.rsi * (1 if side == -1 else -1)
@@ -297,12 +299,14 @@ class Frame:
                     out.add(f"Uyumsuzluk|{name}|tepede anlık")
             if hi[j] < hi[u] and r[j] > r[u] + 0.5 and j - u >= 5:
                 out.add("Uyumsuzluk|Trend Devam (gizli)|tepede anlık")
-        for (src, k), rows in self.label.items():
-            wanted = {REGULAR_BEARISH: -1, REGULAR_BULLISH: 1}.get(k)
-            hidden = {HIDDEN_BEARISH: -1, HIDDEN_BULLISH: 1}.get(k)
-            for i in (j - 1, j, j + 1):
-                if rows.get(i, 10**9) <= conf + 3 and side in (wanted, hidden):
-                    out.add(f"Uyumsuzluk|{src if wanted else 'Trend Devam (gizli)'}|gösterge etiketi")
+        return out
+
+    def structure(self, j: int, conf: int, price: float, side: int, when: float, near: float | None = None, skip: frozenset = frozenset()) -> set[str]:
+        """Everything that is not momentum; reads nothing of bars after `conf`, and of bar j only `price`. `near`: the most that counts as
+        "at the level" (default 0.3 ATR of the frame); levels named in `skip` are not looked at."""
+        x, b, out = self.x, self.x.bars, set()
+        atr, kind = b.atr[j - 1], HIGH if side == -1 else LOW
+        tol = 0.3 * atr if near is None else min(near, 0.3 * atr)
         # --- SFP
         for sweep, done, pivot, extreme in self.sfp[side][bisect_left(self.sfp[side], (j - 1,)):]:
             if sweep > j:
@@ -344,14 +348,14 @@ class Frame:
                 if lo <= r <= hi_:
                     out.add(f"Fibonacci|reshort / relong|{n}")
         # --- candles, trend lines, levels
-        for i in (j, j + 1):
+        for i in range(j, min(j + 1, conf) + 1):
             for n, d in self.candle.get(i, ()):
                 if d == side:
                     out.add(f"Price action|mum|{n}")
-        if any(d == side and k < j <= e and j - line.touches[-1].index < 300 and abs(line.at(j) - price) <= 0.3 * atr for line, k, e, d in self.lines):
+        if any(d == side and k < j <= e and j - line.touches[-1].index < 300 and abs(line.at(j) - price) <= tol for line, k, e, d in self.lines):
             out.add("Price action|trend çizgisi|yeni temas")
         for name, lv in self.levels.items():
-            if lv.hit(side, t + self.span, price, 0.3 * atr):
+            if name not in skip and lv.hit(side, when, price, tol):
                 out.add(name)
         return out
 
@@ -417,18 +421,46 @@ def job(asset: str, f: str, seed: int) -> list:
             begin, known = fr.t[j] + fr.span, fr.t[conf] + fr.span
             if begin + window > path.t[-1]:
                 continue
-            thr = threshold(f) * atr
-            move = path.reaction(begin, begin + window, p.value, side, ROOM * atr)
-            later = path.reaction(known, known + window, p.value, side, ROOM * atr) - abs(p.value - b.close[conf])
+            got = outcome(path, begin, known, window, p.value, b.close[conf], side, ROOM * atr)
             tags = fr.at(j, conf, p.value, side)
             i = bisect_right(funding[0], fr.t[j]) - 1
             if i >= 0 and fr.t[j] - funding[0][i] < 9 * 3600 and -side * funding[1][i] >= 0.0005:
                 tags.add("Funding|aşırı|±%0,05")
-            rows.append([fr.t[j], side, round(100 * move / p.value, 3), bool(move >= thr), bool(later >= thr), round(100 * thr / p.value, 2), sorted(tags), round(p.value, 2)])
+            rows.append([fr.t[j], side, *got, sorted(tags), round(p.value, 2)])
     return sorted(rows)
 
 
+def rescore(asset: str, seed: int) -> dict:
+    """The stored candidates (their confirmations do not change) with a new outcome: for a changed WORKED or ROOM."""
+    if seed == 0:
+        cache = load_full(asset)
+    else:
+        from signals.scoring.null import null_cache
+        cache = null_cache(asset, seed, lambda c: c)
+    path = Path15(cache[(asset, "15m")])
+    old = json.loads((OUT / f"confirm_{asset}_{seed}.json").read_text(encoding="utf-8"))
+    for f, rows in old.items():
+        x, span, new = Context(asset, f, cache), SPAN[f].total_seconds(), []
+        b, at = x.bars, {ts(c): i for i, c in enumerate(x.times)}
+        for r in rows:
+            j = at[r[0]]
+            conf, side = j + RIGHT, r[1]
+            price = float(b.high[j] if side == -1 else b.low[j])
+            got = outcome(path, r[0] + span, ts(x.times[conf]) + span, bars_of(f) * span, price, float(b.close[conf]), side, ROOM * b.atr[j - 1])
+            r[6] = [g for g in r[6] if not g.endswith("|gösterge etiketi")]          # needed bars after the candidate was known (25 Nov)
+            new.append([r[0], side, *(v.item() if hasattr(v, 'item') else v for v in got), r[6], r[7]])
+        old[f] = new
+    (OUT / f"confirm_{asset}_{seed}.json").write_text(json.dumps(old, ensure_ascii=False), encoding="utf-8")
+    return {f: len(v) for f, v in old.items()}
+
+
 def main() -> None:
+    if "rescore" in sys.argv:
+        jobs = [(a, s) for a in ASSETS for s in (0, 1)]
+        with ProcessPoolExecutor(max_workers=3) as pool:
+            for j, n in zip(jobs, pool.map(rescore, *zip(*jobs))):
+                print(*j, n, flush=True)
+        return
     assets = [a for a in sys.argv[1:] if a in ASSETS] or list(ASSETS)
     frames = [f for f in sys.argv[1:] if f in TIMEFRAMES] or TIMEFRAMES
     jobs = [(a, f, s) for a in assets for s in (0, 1) for f in frames]
