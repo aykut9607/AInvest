@@ -1,15 +1,15 @@
 {
  "BTCUSDT": {
   "weights": {
-   "Elliott": 17.4,
-   "Funding": 14.6,
-   "Uyumsuzluk": 13.7,
-   "EXT bandı": 12.3,
-   "Harmonik": 10.8,
-   "Fibonacci": 9.1,
-   "SFP": 8.2,
-   "Smart money": 7.3,
-   "Hacim profili": 6.5
+   "Elliott": 17.5,
+   "Funding": 14.9,
+   "Uyumsuzluk": 14.0,
+   "EXT bandı": 12.5,
+   "Harmonik": 11.1,
+   "Fibonacci": 9.3,
+   "SFP": 7.6,
+   "Hacim profili": 6.7,
+   "Smart money": 6.3
   },
   "quality": {
    "Elliott|12345 sonu": 0.5,
@@ -19,23 +19,18 @@
    "Elliott|12345 sonu|5. dalga uzayan": 0.754,
    "Elliott|12345 sonu|1. dalga uzayan": 0.592,
    "Elliott|12345 sonu|uzamasız": 1.0,
-   "EXT bandı": 0.862,
    "EXT bandı|Pazartesi|1,114–1,214": 1.0,
    "EXT bandı|Pazartesi": 1.0,
-   "Funding": 1.0,
    "Funding|aşırı": 1.0,
    "Funding|aşırı|±%0,05": 1.0,
-   "Uyumsuzluk": 0.325,
    "Uyumsuzluk|hacim|tepede anlık": 1.0,
    "Uyumsuzluk|hacim": 1.0,
    "Uyumsuzluk|RSI|tepede anlık": 0.861,
    "Uyumsuzluk|RSI": 0.861,
-   "Smart money|order block": 0.71,
-   "Smart money|order block|ilk dokunuş": 0.71,
-   "Smart money": 1.0,
-   "Smart money|FVG|ilk dokunuş": 0.5,
-   "Smart money|FVG": 0.5,
-   "Elliott": 0.642,
+   "Smart money|order block": 1.0,
+   "Smart money|order block|ilk dokunuş": 1.0,
+   "Smart money|FVG|ilk dokunuş": 0.705,
+   "Smart money|FVG": 0.705,
    "Elliott|B sonu": 0.293,
    "Elliott|B sonu|12345'ten sonra": 0.293,
    "Elliott|ABC sonu|zigzag": 0.444,
@@ -47,14 +42,12 @@
    "Fibonacci|trend fib hedefi|1,618": 0.903,
    "Elliott|12345 sonu|iç yapı 5-3-5-3-5 tutuyor": 0.426,
    "Hacim profili|önceki ay VAL": 1.0,
-   "Harmonik": 0.176,
    "Fibonacci|trend fib hedefi": 0.667,
    "Fibonacci|trend fib hedefi|1,272": 0.403,
    "Fibonacci|trend fib hedefi|1,79": 1.0,
    "Harmonik|Butterfly": 1.0,
    "SFP|RSI ve hacim uyumsuz": 1.0,
    "Elliott|12345 sonu|güdük 5": 0.074,
-   "SFP": 0.309,
    "Elliott|WXY sonu": 0.112,
    "Elliott|WXY sonu|tek bacak X": 0.092,
    "Elliott|ABC sonu|iç yapı 5-3-5 tutuyor": 0.101,
@@ -63,89 +56,89 @@
    "Elliott|WXY sonu|ABC X": 0.13
   },
   "limits": {
-   "SCALP": 34.9,
-   "SCALP_SWING": 40.8,
-   "SWING": 46.3
+   "SCALP": 29.3,
+   "SCALP_SWING": 34.5,
+   "SWING": 40.5
   },
   "evidence": {
    "SCALP": {
     "first70": {
-     "n": 1464,
-     "won": 0.443,
-     "two_percent": 0.349,
-     "average_move": 3.0,
-     "average_r": -0.042,
+     "n": 1466,
+     "won": 0.43,
+     "two_percent": 0.36,
+     "average_move": 3.05,
+     "average_r": -0.067,
      "error_r": 0.033
     },
     "last30": {
-     "n": 785,
-     "won": 0.399,
-     "two_percent": 0.21,
-     "average_move": 1.53,
-     "average_r": -0.224,
-     "error_r": 0.043
+     "n": 729,
+     "won": 0.403,
+     "two_percent": 0.226,
+     "average_move": 1.5,
+     "average_r": -0.217,
+     "error_r": 0.045
     },
     "shuffled": {
-     "n": 3007,
-     "won": 0.398,
-     "two_percent": 0.257,
-     "average_move": 2.08,
-     "average_r": -0.211,
-     "error_r": 0.022
+     "n": 2828,
+     "won": 0.39,
+     "two_percent": 0.238,
+     "average_move": 1.94,
+     "average_r": -0.235,
+     "error_r": 0.023
     },
     "proven": false
    },
    "SCALP_SWING": {
     "first70": {
-     "n": 614,
-     "won": 0.386,
-     "two_percent": 0.292,
-     "average_move": 2.89,
-     "average_r": -0.183,
+     "n": 615,
+     "won": 0.402,
+     "two_percent": 0.327,
+     "average_move": 3.16,
+     "average_r": -0.144,
      "error_r": 0.049
     },
     "last30": {
-     "n": 279,
-     "won": 0.419,
-     "two_percent": 0.208,
-     "average_move": 1.35,
-     "average_r": -0.166,
-     "error_r": 0.073
+     "n": 277,
+     "won": 0.437,
+     "two_percent": 0.264,
+     "average_move": 1.67,
+     "average_r": -0.121,
+     "error_r": 0.075
     },
     "shuffled": {
-     "n": 1013,
-     "won": 0.442,
-     "two_percent": 0.302,
-     "average_move": 2.38,
-     "average_r": -0.098,
-     "error_r": 0.039
+     "n": 1170,
+     "won": 0.413,
+     "two_percent": 0.271,
+     "average_move": 2.13,
+     "average_r": -0.182,
+     "error_r": 0.036
     },
     "proven": false
    },
    "SWING": {
     "first70": {
-     "n": 366,
-     "won": 0.418,
-     "two_percent": 0.391,
-     "average_move": 3.86,
-     "average_r": -0.093,
-     "error_r": 0.065
+     "n": 364,
+     "won": 0.481,
+     "two_percent": 0.401,
+     "average_move": 3.32,
+     "average_r": 0.055,
+     "error_r": 0.066
     },
     "last30": {
-     "n": 101,
-     "won": 0.297,
-     "two_percent": 0.238,
-     "average_move": 2.17,
-     "average_r": -0.45,
-     "error_r": 0.115
+     "n": 121,
+     "won": 0.405,
+     "two_percent": 0.298,
+     "average_move": 2.7,
+     "average_r": -0.164,
+     "error_r": 0.111
     },
     "shuffled": {
-     "n": 250,
-     "won": 0.46,
-     "two_percent": 0.32,
-     "average_move": 2.36,
-     "average_r": -0.052,
-     "error_r": 0.08
+     "n": 280,
+     "won": 0.496,
+     "two_percent": 0.346,
+     "average_move": 2.58,
+     "average_r": 0.025,
+     "error_r": 0.075
     },
     "proven": false
    }
@@ -186,98 +179,96 @@
    "Elliott|ABCDE üçgen sonu": 0.269,
    "Elliott|ABCDE üçgen sonu|12345'ten sonra": 0.269,
    "SFP|uyumsuzluk yok": 0.464,
-   "SFP": 0.75,
    "Smart money|FVG|ilk dokunuş": 1.0,
    "Smart money|FVG": 1.0,
-   "Smart money": 0.885,
    "SFP|RSI uyumsuz": 1.0,
    "Elliott|12345 sonu|güdük 5": 1.0,
    "Önceki dönem|önceki gün LOW": 1.0
   },
   "limits": {
-   "SCALP": 42.7,
-   "SCALP_SWING": 49.0,
-   "SWING": 54.4
+   "SCALP": 38.0,
+   "SCALP_SWING": 45.6,
+   "SWING": 51.6
   },
   "evidence": {
    "SCALP": {
     "first70": {
-     "n": 914,
-     "won": 0.42,
-     "two_percent": 0.118,
-     "average_move": 0.8,
-     "average_r": -0.337,
+     "n": 912,
+     "won": 0.431,
+     "two_percent": 0.13,
+     "average_move": 0.87,
+     "average_r": -0.304,
      "error_r": 0.041
     },
     "last30": {
-     "n": 625,
-     "won": 0.398,
-     "two_percent": 0.123,
-     "average_move": 0.95,
-     "average_r": -0.386,
-     "error_r": 0.05
+     "n": 541,
+     "won": 0.373,
+     "two_percent": 0.115,
+     "average_move": 0.8,
+     "average_r": -0.447,
+     "error_r": 0.052
     },
     "shuffled": {
-     "n": 1455,
-     "won": 0.41,
-     "two_percent": 0.128,
-     "average_move": 0.89,
-     "average_r": -0.375,
-     "error_r": 0.033
+     "n": 1490,
+     "won": 0.388,
+     "two_percent": 0.121,
+     "average_move": 0.84,
+     "average_r": -0.427,
+     "error_r": 0.032
     },
     "proven": false
    },
    "SCALP_SWING": {
     "first70": {
-     "n": 381,
-     "won": 0.433,
-     "two_percent": 0.152,
-     "average_move": 0.89,
-     "average_r": -0.285,
-     "error_r": 0.063
+     "n": 379,
+     "won": 0.406,
+     "two_percent": 0.132,
+     "average_move": 0.78,
+     "average_r": -0.363,
+     "error_r": 0.062
     },
     "last30": {
-     "n": 224,
-     "won": 0.411,
-     "two_percent": 0.103,
-     "average_move": 0.88,
-     "average_r": -0.353,
-     "error_r": 0.083
+     "n": 287,
+     "won": 0.418,
+     "two_percent": 0.118,
+     "average_move": 0.85,
+     "average_r": -0.337,
+     "error_r": 0.073
     },
     "shuffled": {
-     "n": 596,
-     "won": 0.391,
-     "two_percent": 0.104,
-     "average_move": 0.72,
-     "average_r": -0.426,
-     "error_r": 0.05
+     "n": 593,
+     "won": 0.422,
+     "two_percent": 0.147,
+     "average_move": 0.88,
+     "average_r": -0.349,
+     "error_r": 0.051
     },
     "proven": false
    },
    "SWING": {
     "first70": {
-     "n": 228,
-     "won": 0.395,
-     "two_percent": 0.136,
-     "average_move": 0.77,
-     "average_r": -0.392,
-     "error_r": 0.082
+     "n": 230,
+     "won": 0.404,
+     "two_percent": 0.161,
+     "average_move": 0.88,
+     "average_r": -0.361,
+     "error_r": 0.081
     },
     "last30": {
-     "n": 153,
-     "won": 0.438,
-     "two_percent": 0.124,
-     "average_move": 0.89,
-     "average_r": -0.258,
-     "error_r": 0.101
+     "n": 132,
+     "won": 0.477,
+     "two_percent": 0.136,
+     "average_move": 0.96,
+     "average_r": -0.174,
+     "error_r": 0.111
     },
     "shuffled": {
-     "n": 423,
-     "won": 0.383,
-     "two_percent": 0.144,
-     "average_move": 0.83,
-     "average_r": -0.407,
-     "error_r": 0.06
+     "n": 361,
+     "won": 0.391,
+     "two_percent": 0.147,
+     "average_move": 0.86,
+     "average_r": -0.394,
+     "error_r": 0.065
     },
     "proven": false
    }
@@ -318,96 +309,95 @@
    "Elliott|B sonu|12345'ten sonra": 0.216,
    "Elliott|12345 sonu": 0.081,
    "Fibonacci|reshort / relong": 1.0,
-   "Fibonacci": 0.258,
    "Price action|mum|engulfing": 1.0,
    "Elliott|ABC sonu|zigzag": 1.0,
    "Elliott|ABC sonu": 0.863,
    "Fibonacci|reshort / relong|0,786": 0.12
   },
   "limits": {
-   "SCALP": 63.8,
-   "SCALP_SWING": 67.5,
-   "SWING": 72.8
+   "SCALP": 36.5,
+   "SCALP_SWING": 40.4,
+   "SWING": 43.5
   },
   "evidence": {
    "SCALP": {
     "first70": {
-     "n": 726,
-     "won": 0.366,
-     "two_percent": 0.113,
-     "average_move": 0.8,
-     "average_r": -0.47,
-     "error_r": 0.045
+     "n": 506,
+     "won": 0.431,
+     "two_percent": 0.142,
+     "average_move": 0.91,
+     "average_r": -0.29,
+     "error_r": 0.055
     },
     "last30": {
-     "n": 365,
-     "won": 0.359,
-     "two_percent": 0.115,
-     "average_move": 0.66,
-     "average_r": -0.482,
-     "error_r": 0.063
+     "n": 367,
+     "won": 0.431,
+     "two_percent": 0.114,
+     "average_move": 0.78,
+     "average_r": -0.331,
+     "error_r": 0.065
     },
     "shuffled": {
-     "n": 1130,
-     "won": 0.418,
-     "two_percent": 0.166,
-     "average_move": 1.0,
-     "average_r": -0.336,
-     "error_r": 0.037
+     "n": 1041,
+     "won": 0.405,
+     "two_percent": 0.143,
+     "average_move": 0.95,
+     "average_r": -0.36,
+     "error_r": 0.038
     },
     "proven": false
    },
    "SCALP_SWING": {
     "first70": {
-     "n": 350,
-     "won": 0.466,
-     "two_percent": 0.149,
-     "average_move": 1.12,
-     "average_r": -0.182,
-     "error_r": 0.067
+     "n": 309,
+     "won": 0.44,
+     "two_percent": 0.152,
+     "average_move": 1.16,
+     "average_r": -0.248,
+     "error_r": 0.071
     },
     "last30": {
-     "n": 306,
-     "won": 0.379,
-     "two_percent": 0.16,
-     "average_move": 0.99,
-     "average_r": -0.426,
-     "error_r": 0.07
+     "n": 258,
+     "won": 0.426,
+     "two_percent": 0.159,
+     "average_move": 1.16,
+     "average_r": -0.279,
+     "error_r": 0.076
     },
     "shuffled": {
-     "n": 827,
-     "won": 0.416,
-     "two_percent": 0.146,
-     "average_move": 0.96,
-     "average_r": -0.32,
-     "error_r": 0.043
+     "n": 574,
+     "won": 0.451,
+     "two_percent": 0.181,
+     "average_move": 1.12,
+     "average_r": -0.235,
+     "error_r": 0.052
     },
     "proven": false
    },
    "SWING": {
     "first70": {
-     "n": 154,
-     "won": 0.396,
-     "two_percent": 0.13,
-     "average_move": 0.9,
-     "average_r": -0.312,
-     "error_r": 0.1
+     "n": 184,
+     "won": 0.5,
+     "two_percent": 0.103,
+     "average_move": 0.8,
+     "average_r": -0.122,
+     "error_r": 0.094
     },
     "last30": {
-     "n": 187,
-     "won": 0.401,
-     "two_percent": 0.203,
-     "average_move": 1.33,
-     "average_r": -0.3,
-     "error_r": 0.09
+     "n": 205,
+     "won": 0.4,
+     "two_percent": 0.151,
+     "average_move": 1.05,
+     "average_r": -0.322,
+     "error_r": 0.087
     },
     "shuffled": {
-     "n": 337,
-     "won": 0.454,
-     "two_percent": 0.193,
-     "average_move": 1.22,
-     "average_r": -0.211,
-     "error_r": 0.068
+     "n": 346,
+     "won": 0.39,
+     "two_percent": 0.133,
+     "average_move": 1.01,
+     "average_r": -0.38,
+     "error_r": 0.066
     },
     "proven": false
    }

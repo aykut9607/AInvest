@@ -27,10 +27,9 @@ def tables() -> dict:
 
 
 def quality_of(tag: str, table: dict) -> float:
-    """0-1: the backtest value of this rule compared with the best rule of its category; a rule that proved nothing gives 0."""
-    category, rule, _ = tag.split("|")
-    q = table["quality"]
-    return max(q.get(tag, 0.0), q.get(f"{category}|{rule}", 0.0), q.get(category, 0.0))
+    """0-1: the backtest value of exactly this rule (with its variant) compared with the best rule of its category. A rule that proved nothing
+    gives 0: what its category or its sibling variants proved is not lent to it (Aykut)."""
+    return table["quality"].get(tag.removesuffix("|"), 0.0)
 
 
 def score(tags: dict[str, list[str]], table: dict) -> Score:

@@ -35,7 +35,7 @@ def weights_of(asset: str, points: dict) -> tuple[dict, dict]:
     for f in TIMEFRAMES:
         key = f"{asset} {f}"
         for k, p in points["points"].get(key, {}).items():
-            if points["fit"][key][k]["n"] >= MIN_CASES:
+            if "|" in k and points["fit"][key][k]["n"] >= MIN_CASES:          # rules only: the total of a whole category is not a rule
                 cells.setdefault(k, {})[f] = p
     raw: dict[str, float] = {}
     for c in {k.split("|")[0] for k in cells}:

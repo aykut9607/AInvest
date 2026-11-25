@@ -37,9 +37,10 @@ def test_frames_weigh_more_the_higher_they_are():
 
 def test_a_category_counts_once_with_its_best_rule_and_frame():
     s = score({"15m": ["Elliott|12345 sonu|diyagonal", "SFP|RSI uyumsuz|"], "1M": ["Elliott|12345 sonu|uzamasız", "SFP|uyumsuzluk yok|"]}, TABLE)
-    assert s.categories["Elliott"]["points"] == pytest.approx(60 * 0.45 * 0.5)          # better than 60 x 1.0 x 0.2 on 1M
+    assert s.categories["Elliott"]["points"] == pytest.approx(60 * 0.45 * 0.5)
     assert s.categories["SFP"] == {"points": 18.0, "frame": "15m", "rule": "SFP|RSI uyumsuz|"}
     assert s.total == pytest.approx(13.5 + 18)
+    assert score({"1M": ["Elliott|12345 sonu|uzamasız", "SFP|uyumsuzluk yok|"]}, TABLE).total == 0          # only the rule's own value counts
     assert score({"1M": ["Harmonik|Bat|"]}, TABLE).total == 0          # nothing proven, nothing earned
 
 
