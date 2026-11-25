@@ -12,8 +12,8 @@ Varlıklar: BTCUSDT, altın (GC=F), S&P (ES=F), hepsi USD. Veri ve temizlik: `si
 ## 1. Zaman dilimleri
 | Rol | Dilimler |
 |---|---|
-| HTF (yön, bölge, dönüş kapanışı) | 1W, 1D, **4h** (24 Kas kararı) |
-| LTF (onay: SFP, uyumsuzluk) | 1h, 45m, 30m, 15m |
+| HTF (yön, bölge, dönüş kapanışı) | 1M, 1W, 3D, 1D, 12h, 6h, 4h (25 Kas) |
+| LTF (onay: SFP, uyumsuzluk) | 2h, 1h, 45m, 30m, 15m |
 
 Altın/S&P'de 15–45m yalnızca son ~60 gün var; uzun backtest'te LTF onayı bu varlıklarda 1h ile yapılır (o da ~2 yıl; öncesi için onay ölçülemez).
 
@@ -69,7 +69,7 @@ Altın/S&P'de 15–45m yalnızca son ~60 gün var; uzun backtest'te LTF onayı b
 | Tanı | [3] ≥ 1,618 [1] | [1] ≈ [3] | [1] en uzun, [3] ≈ [5] |
 | [2] | [1]'in 0,382/0,5/0,618'i | aynı | aynı |
 | [4] | [3]'ün 0,236–0,382'si (ideal 0,382) | aynı | aynı |
-| [5] hedefi (4'ten) | = [1] veya 0,618 [3] | 1,618 × (0→3), alt. 1,618 [1] | = [1] veya 0,618 [3] |
+| [5] hedefi (4'ten) | = [1] veya 0,618 [3] | 1,618 × (0→3), alt. 1,618 [1] | 0,618 [3] … [3] ([5] = [1] olamaz: 3 en kısa kalır, E-14) |
 | Not | [3] > 2,618 [1] → güdük 5 riski (~0,618 [1], yeni tepe yok) | | |
 
 - Dalga 3 hedefi: 0-1-2 trend extension (1 · 1,618 · 2,618). Dalga 5 bölgesi: 2-3-4 extension (0,618 · 1 · 1,618) +
@@ -79,7 +79,7 @@ Altın/S&P'de 15–45m yalnızca son ~60 gün var; uzun backtest'te LTF onayı b
 **Düzeltmeler**
 | Yapı | Kural / oran |
 |---|---|
-| Zigzag 5-3-5 | B = A'nın 0,382 (en sık) / 0,5 / 0,618'i; **B ≥ 0,786 ise zigzag değil (muhtemelen flat)**; C ≈ A veya 1,618 A |
+| Zigzag 5-3-5 | B = A'nın 0,382 (en sık) / 0,5 / 0,618'i; **B ≥ 0,786 ise şüpheli, yassıya da bak** (kesin sınır: B, A'nın başını geçmez); C ≈ A veya 1,618 A |
 | Flat 3-3-5 | B = A'nın %90–138,2'si; C = A'nın %100–161,8'i; normal: B ≈ A başı, C ≈ A; genişleyen flat tepe geçişlerinde |
 | Üçgen 3-3-3-3-3 | daralan; D genelde B'yi geçmez; E kısa/sahte kırılım olabilir; çıkış trend yönünde sert |
 | W-X-Y, W-X-Y-X-Z | karmaşık yapı: **plan üretilmez**, netleşmesi beklenir |
@@ -111,7 +111,7 @@ Bat yazı-tura, Crab zararlı; aynı formasyon altında farklı sonuç). Puanlar
 - **HTF:** bölgeye ilk dokunuştan sonraki 5 günlük mum içinde günlük kapanış bölgenin dönüş tarafında (tepede bölgenin
   altında, dipte üstünde). Haftalık kapanış da öyleyse ek puan.
 - **LTF:** 1h ve altında SFP + P.U/N.U (SFP kapanışı kendi mumunda).
-- **İptal:** fiyat geçersizlik seviyesinin ötesinde kapanırsa plan geçersiz. Planda ayrıca mikro geçersizlik ve
+- **İptal:** Elliott kesin kuralı **fitille** bozulur ve plan biter (E-94, E-102); öbür geçersizlikler kapanışla. Planda ayrıca mikro geçersizlik ve
   "key level" (modelin teyit edildiği seviye) yazılır.
 
 ## 8. Çıktı (plan)

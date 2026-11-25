@@ -8,7 +8,7 @@ Grafik kuralı olmadığı için görsel yok; formüller örnekle doğrulandı.
 |---|---|---|
 | RK-01 | İşlem başına risk hesabın en çok **%1–2**'si | N |
 | RK-02 | Miktar = (hesap × risk %) / \|giriş − stop\|. Örnek: 10.000 × %1 / 2.000 = 0,05 BTC. (Komisyon ve kayma paydaya eklenir: E-98) | N + B9 |
-| RK-03 | R/R en az 1:2, iyisi 1:3 | N |
+| RK-03 | R/R en az 1:1,5 (25 Kas, Aykut; derslerde 1:2), iyisi 1:3 | N |
 | RK-04 | Başabaş oranı = 1 / (1 + R/R): 1:1 → %50, 1:2 → %33, 1:3 → %25. Notla uyumlu (1:2'de %40 kârlı, 1:1'de %40 zararlı) | N + M |
 | RK-05 | Stop'suz işlem yok; günlük kayıp sınırı %2–3, haftalık %5–6; ulaşınca dur | N |
 | RK-06 | Kaybı geri almak daha çok kazanç ister: −%10 → +%11, −%50 → +%100 | V + M |
@@ -29,7 +29,7 @@ Grafik kuralı olmadığı için görsel yok; formüller örnekle doğrulandı.
 ## 2. Psikoloji (kontrol listesi)
 | No | Kural |
 |---|---|
-| RK-20 | İşlemden önce 5/5: tanımlı ve test edilmiş kurulum · R/R ≥ 1:2 · kesin stop · kaybı kabul · plan içinde (FOMO değil) |
+| RK-20 | İşlemden önce 5/5: tanımlı ve test edilmiş kurulum · R/R ≥ 1:1,5 · kesin stop · kaybı kabul · plan içinde (FOMO değil) |
 | RK-21 | Günde en çok 3 işlem; üst üste 2 kayıptan sonra o gün bitti; kayıptan sonra en az 1 saat ara |
 | RK-22 | Kazanırken de aynı kurallar; süreç sonuçtan önemli; günlük tutulur |
 
