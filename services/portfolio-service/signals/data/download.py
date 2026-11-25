@@ -5,14 +5,14 @@ nothing goes to a database or a cloud. After the download the 4.4 module works o
 
 Sources (all in US dollars):
   BTCUSDT  Binance public data archive, https://data.binance.vision (docs: github.com/binance/binance-public-data)
-           spot klines 15m, 30m, 1h, 4h, 1d since 2017-08; every zip is checked against Binance's SHA-256 file.
+           spot klines 15m, 30m, 1h, 2h, 4h, 6h, 12h, 1d since 2017-08; every zip is checked against Binance's SHA-256 file.
            Intraday gaps in the data are real exchange outages (e.g. 2018-02-08/09, ~33 h), they are not filled.
            Each candle carries the taker-buy volume, so CVD can be computed without trade-level data.
   GC=F     COMEX gold futures, front month, via Yahoo Finance (library: yfinance, Apache 2.0)
   ES=F     E-mini S&P 500 futures, front month, via Yahoo Finance
            Yahoo limits: 1d/1w full history, 1h the last ~730 days, 15m/30m the last ~60 days.
 
-Kept raw on purpose: 45m (3 x 15m), BTC 1w (from 1d), 4h for the futures (from 1h) and the futures roll
+Kept raw on purpose: 45m (3 x 15m), BTC 1w / 3d / 1M (from 1d), 2h-12h for the futures (from 1h), 3d / 1M (from 1d) and the futures roll
 adjustment are built later,
 in code, from these files, so the raw data always stays exactly what the source sent.
 
@@ -41,11 +41,11 @@ SERVICE_DIR = Path(__file__).resolve().parents[2]
 RAW_DIR = SERVICE_DIR / "data" / "raw"
 
 BINANCE_BASE = "https://data.binance.vision/data/spot"
-BINANCE_SYMBOL = "BTCUSDT"
+BINANCE_SYMBOLS = {"BTCUSDT": ["15m", "30m", "1h", "2h", "4h", "6h", "12h", "1d"],
+                   "PAXGUSDT": ["15m", "30m", "1h", "2h"]}      # tokenised gold: long lower-frame history (Yahoo gives 60 days)
 BINANCE_FIRST_MONTH = date(2017, 8, 1)  # BTCUSDT spot trading started on 2017-08-17
 # no "1w": the archive's weekly files miss the weeks that cross a month boundary (8 gaps found on 23 Nov 2026)
 # and there are no daily files for it, so the weekly candles are built from the gap-free 1d file instead
-BINANCE_INTERVALS = ["15m", "30m", "1h", "4h", "1d"]
 
 # Yahoo interval name -> our name, and how far back Yahoo serves it
 YAHOO_SYMBOLS = {"GC=F": "gold futures (COMEX), USD", "ES=F": "E-mini S&P 500 futures (CME), USD"}
@@ -150,10 +150,10 @@ def _http_get(url: str, retries: int = 3) -> bytes | None:
     return None
 
 
-def _binance_archive(kind: str, interval: str, stamp: str, zips_dir: Path, report: Report) -> list[dict]:
+def _binance_archive(symbol: str, kind: str, interval: str, stamp: str, zips_dir: Path, report: Report) -> list[dict]:
     """One monthly or daily archive: cached zip if its checksum still matches, otherwise download + verify."""
-    name = f"{BINANCE_SYMBOL}-{interval}-{stamp}.zip"
-    url = f"{BINANCE_BASE}/{kind}/klines/{BINANCE_SYMBOL}/{interval}/{name}"
+    name = f"{symbol}-{interval}-{stamp}.zip"
+    url = f"{BINANCE_BASE}/{kind}/klines/{symbol}/{interval}/{name}"
     zip_path = zips_dir / interval / name
     checksum_raw = _http_get(url + ".CHECKSUM")
     if checksum_raw is None:
@@ -175,20 +175,20 @@ def _binance_archive(kind: str, interval: str, stamp: str, zips_dir: Path, repor
         return parse_binance_kline_csv(archive.read(archive.namelist()[0]).decode())
 
 
-def download_binance(today: date, report: Report) -> None:
-    out_dir = RAW_DIR / "binance" / BINANCE_SYMBOL
+def download_binance(today: date, report: Report, symbol: str = "BTCUSDT") -> None:
+    out_dir = RAW_DIR / "binance" / symbol
     zips_dir = RAW_DIR / "binance" / "_zips"
-    for interval in BINANCE_INTERVALS:
+    for interval in BINANCE_SYMBOLS[symbol]:
         rows: list[dict] = []
         for month in binance_months(BINANCE_FIRST_MONTH, today):
-            rows += _binance_archive("monthly", interval, month.strftime("%Y-%m"), zips_dir, report)
+            rows += _binance_archive(symbol, "monthly", interval, month.strftime("%Y-%m"), zips_dir, report)
         for day in binance_days_of_current_month(today):
-            rows += _binance_archive("daily", interval, day.isoformat(), zips_dir, report)
+            rows += _binance_archive(symbol, "daily", interval, day.isoformat(), zips_dir, report)
         rows = dedupe_sorted(rows)
         path = _write_csv(out_dir / f"{interval}.csv", rows)
-        report.files.append(_describe(path, "binance", BINANCE_SYMBOL, interval, rows,
-                                      f"{BINANCE_BASE}/(monthly|daily)/klines/{BINANCE_SYMBOL}/{interval}/"))
-        print(f"binance {BINANCE_SYMBOL} {interval}: {len(rows)} candles")
+        report.files.append(_describe(path, "binance", symbol, interval, rows,
+                                      f"{BINANCE_BASE}/(monthly|daily)/klines/{symbol}/{interval}/"))
+        print(f"binance {symbol} {interval}: {len(rows)} candles")
 
 
 def download_yahoo(today: date, report: Report) -> None:
@@ -238,13 +238,15 @@ def _describe(path: Path, source: str, symbol: str, interval: str, rows: list[di
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Download the 4.4 candle history into data/raw (local only).")
-    parser.add_argument("--only", choices=["binance", "yahoo"], help="download one source only")
+    parser.add_argument("--only", choices=["binance", "yahoo", "paxg"], help="download one source only")
     args = parser.parse_args()
 
     today = datetime.now(timezone.utc).date()
     report = Report()
     if args.only in (None, "binance"):
         download_binance(today, report)
+    if args.only in (None, "paxg"):
+        download_binance(today, report, "PAXGUSDT")
     if args.only in (None, "yahoo"):
         download_yahoo(today, report)
 

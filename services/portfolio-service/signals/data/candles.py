@@ -1,8 +1,8 @@
 """Clean candles for the 4.4 rules, built from the raw files in data/raw (see download.py).
 
 What happens between the raw files and the rules (every step deterministic and unit-tested):
-  1. derived timeframes: 45m = 3 x 15m (both markets), BTC 1w = 7 x 1d (the archive's weekly files have gaps),
-     futures 4h = 1h grouped into 4-hour UTC blocks. Buckets are aligned to UTC midnight / Monday 00:00 UTC,
+  1. derived timeframes: 45m = 3 x 15m (both markets), BTC 1w = 7 x 1d (the archive's weekly files have gaps), 3d and 1M from 1d,
+     futures 2h / 4h / 6h / 12h = 1h grouped into UTC blocks, futures 3d = three consecutive sessions. Buckets are aligned to UTC midnight / Monday 00:00 UTC,
      like Binance. For BTC an incomplete bucket (an exchange outage, the running week) is dropped.
   2. bad rows out: a candle whose open/close lies outside its own low-high range; gold daily/weekly before 2012
      (Yahoo's old GC=F mixes settlement closes with thin-contract highs/lows: 441 such days 2003-2011).
@@ -21,7 +21,9 @@ import csv
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta, timezone
+from functools import lru_cache
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from signals.data.download import RAW_DIR
 
@@ -30,8 +32,13 @@ ASSETS = {
     "BTCUSDT": ("binance", "BTCUSDT"),
     "GC": ("yahoo", "GC_F"),
     "ES": ("yahoo", "ES_F"),
+    "XAU": ("histdata", "XAUUSD"),         # spot gold and S&P 500 CFD, no volume: the 15m-12h frames Yahoo lacks (histdata.py)
+    "SPX": ("histdata", "SPXUSD"),
 }
-TIMEFRAMES = ["15m", "30m", "45m", "1h", "4h", "1d", "1w"]
+TIMEFRAMES = ["15m", "30m", "45m", "1h", "2h", "4h", "6h", "12h", "1d", "3d", "1w", "1M"]
+LTF = ["15m", "30m", "45m", "1h", "2h"]               # confirmation frames (Aykut, 25 Nov)
+HTF = ["4h", "6h", "12h", "1d", "3d", "1w", "1M"]     # zone and reversal frames
+HOURS = {"2h": 2, "4h": 4, "6h": 6, "12h": 12}
 GOLD_CLEAN_FROM = datetime(2012, 1, 1, tzinfo=timezone.utc)
 ROLL_VOLUME_JUMP = 3.0
 JUMP_THRESHOLD = 0.004   # 0.4% between back-to-back candles inside a session
@@ -86,6 +93,58 @@ def bucket_start_week(moment: datetime) -> datetime:
     """Monday 00:00 UTC of the moment's week (Binance's weekly candles start on Monday)."""
     day = moment.replace(hour=0, minute=0, second=0, microsecond=0)
     return day - timedelta(days=day.weekday())
+
+
+def bucket_start_3d(moment: datetime) -> datetime:
+    """Binance's 3-day block: counted from 1970-01-02 (checked against Binance's own 3d candles on 25 Nov 2026)."""
+    days = (moment.date() - date(1970, 1, 2)).days
+    return datetime(1970, 1, 2, tzinfo=timezone.utc) + timedelta(days=days - days % 3)
+
+
+def bucket_start_month(moment: datetime) -> datetime:
+    return moment.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+
+def in_threes(candles: list[Candle]) -> list[Candle]:
+    """Futures 3d: three consecutive sessions, counted from the first session of each year (a calendar block would
+    hold one to three sessions because of weekends). The last block of a year may be shorter; a running block is kept out."""
+    years: dict[int, list[Candle]] = {}
+    for c in candles:
+        years.setdefault(c.time.year, []).append(c)
+    out = []
+    for year in sorted(years):
+        own = years[year]
+        for k in range(0, len(own), 3):
+            part = own[k:k + 3]
+            if len(part) == 3 or year != max(years):
+                out += resample(part, lambda t, start=part[0].time: start, None)[0]
+    return out
+
+
+NEW_YORK = ZoneInfo("America/New_York")
+
+
+def session_date(moment: datetime) -> date:
+    """Trading day of gold and the S&P: from 18:00 New York the evening before (like TradingView's daily candle)."""
+    return (moment.astimezone(NEW_YORK) + timedelta(hours=6)).date()
+
+
+def bucket_session(moment: datetime, minutes: int) -> datetime:
+    """Start of the n-minute block counted from 18:00 New York (TradingView's 45m, 2h, 4h, 6h, 12h candles of GC1! / ES1!)."""
+    local = moment.astimezone(NEW_YORK)
+    elapsed = (local.hour * 60 + local.minute - 18 * 60) % 1440
+    return moment - timedelta(minutes=elapsed % minutes, seconds=moment.second)
+
+
+def session_start(label: datetime) -> datetime:
+    """The real start of the period labelled by this trading day: 18:00 New York the evening before."""
+    d = label.date() - timedelta(days=1)
+    return datetime(d.year, d.month, d.day, 18, tzinfo=NEW_YORK).astimezone(timezone.utc)
+
+
+def bucket_session_day(moment: datetime) -> datetime:
+    d = session_date(moment)
+    return datetime(d.year, d.month, d.day, tzinfo=timezone.utc)
 
 
 def resample(candles: Iterable[Candle], bucket_of, expected_parts: int | None) -> tuple[list[Candle], int]:
@@ -185,13 +244,46 @@ def _roll_days(asset: str, raw_dir: Path) -> set[date]:
     return calendar | jump_days(_raw(asset, "1h", raw_dir))
 
 
+@lru_cache(maxsize=2)
+def _spot_15m(asset: str, raw_dir: Path) -> tuple[Candle, ...]:
+    """The newest part without a hole of more than 200 days (missing year files); weekend stubs of under two hours are left out."""
+    raw = read_raw(raw_dir / "histdata" / f"{ASSETS[asset][1]}_15m.csv")
+    start = max((i + 1 for i, (p, c) in enumerate(zip(raw, raw[1:])) if c.time - p.time > timedelta(days=200)), default=0)
+    days: dict[date, list[Candle]] = {}
+    for c in raw[start:]:
+        if is_consistent(c):
+            days.setdefault(session_date(c.time), []).append(c)
+    return tuple(c for d in sorted(days) if d.weekday() < 5 and len(days[d]) >= 8 for c in days[d])
+
+
+def frames_from_15m(candles: list[Candle], timeframe: str) -> list[Candle]:
+    """Session-aligned frames of gold and the S&P."""
+    if timeframe == "15m":
+        return list(candles)
+    minutes = {"30m": 30, "45m": 45, "1h": 60, **{f: h * 60 for f, h in HOURS.items()}}.get(timeframe)
+    if minutes:
+        return resample(candles, lambda m: bucket_session(m, minutes), None)[0]
+    daily = resample(candles, bucket_session_day, None)[0]
+    if timeframe == "1d":
+        return daily
+    if timeframe == "3d":
+        return in_threes(daily)
+    return resample(daily, bucket_start_week if timeframe == "1w" else bucket_start_month, None)[0][:-1]
+
+
+def _spot(asset: str, timeframe: str, raw_dir: Path) -> Series:
+    return Series(asset, timeframe, frames_from_15m(list(_spot_15m(asset, raw_dir)), timeframe), {})
+
+
 def load_series(asset: str, timeframe: str, raw_dir: Path = RAW_DIR) -> Series:
     """Clean candles of one asset and timeframe, oldest first, with a count of everything left out."""
     if asset not in ASSETS or timeframe not in TIMEFRAMES:
         raise ValueError(f"Unknown asset/timeframe {asset}/{timeframe}")
     dropped: dict[str, int] = {}
-    is_crypto = asset == "BTCUSDT"
-    intraday = timeframe not in ("1d", "1w")
+    is_crypto = ASSETS[asset][0] == "binance"
+    if ASSETS[asset][0] == "histdata":
+        return _spot(asset, timeframe, raw_dir)
+    intraday = timeframe not in ("1d", "3d", "1w", "1M")
 
     if timeframe == "45m":
         candles, incomplete = resample(_raw(asset, "15m", raw_dir), lambda t: bucket_start_minutes(t, 45),
@@ -200,10 +292,29 @@ def load_series(asset: str, timeframe: str, raw_dir: Path = RAW_DIR) -> Series:
     elif timeframe == "1w" and is_crypto:
         candles, incomplete = resample(_raw(asset, "1d", raw_dir), bucket_start_week, expected_parts=7)
         dropped["incomplete_buckets"] = incomplete
-    elif timeframe == "4h" and not is_crypto:
-        candles, _ = resample(_raw(asset, "1h", raw_dir), lambda t: bucket_start_minutes(t, 240), expected_parts=None)
+    elif timeframe in HOURS and not is_crypto:
+        size = HOURS[timeframe] * 60
+        candles, _ = resample(_raw(asset, "1h", raw_dir), lambda t: bucket_session(t, size), expected_parts=None)
+    elif timeframe == "3d":
+        daily = _raw(asset, "1d", raw_dir)
+        if is_crypto:
+            candles, dropped["incomplete_buckets"] = resample(daily, bucket_start_3d, expected_parts=3)
+        else:
+            candles = in_threes(daily)
+    elif timeframe == "1M":
+        daily = _raw(asset, "1d", raw_dir)
+        candles, _ = resample(daily, bucket_start_month, expected_parts=None)
+        candles = [c for c in candles if c.time < bucket_start_month(daily[-1].time)]      # the running month is not a candle yet
     else:
         candles = _raw(asset, timeframe, raw_dir)
+
+    if not is_crypto and timeframe in ("1d", "1w") and (raw_dir / ASSETS[asset][0] / ASSETS[asset][1] / "1h.csv").exists():
+        # Yahoo's newest daily / weekly row is the running session: not a candle yet
+        newest = _raw(asset, "1h", raw_dir)[-1].time
+        span = timedelta(days=1 if timeframe == "1d" else 7)
+        before = len(candles)
+        candles = [c for c in candles if c.time + span <= newest]
+        dropped["running"] = before - len(candles)
 
     if asset == "GC" and not intraday:
         before = len(candles)
