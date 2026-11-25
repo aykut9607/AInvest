@@ -233,7 +233,7 @@ def main() -> None:
     all_ = analyse()
     sc = {p: scores(all_, p) for p in ("fit_rows", "exam_rows", "fake_rows")}
     from signals.scoring.report import CSS as REPORT_CSS
-    lead = ("Her satır bir kural, her sütun bir zaman dilimi. Aday = o dilimde oluşan tepe ya da dip (önünde 5, arkasında 2 mum). <b>Çalıştı</b> = 15 dakikalık mumlarda, tepe/dip (0,25 ATR'den fazla) geçilmeden en az <b>%2</b> hareket geldi (o dilimin 40 mumu içinde; 1w 26, 1M 12). "
+    lead = ("Her satır bir kural, her sütun bir zaman dilimi. Aday = o dilimde oluşan tepe ya da dip (önünde 5, arkasında 2 mum). <b>Çalıştı</b> = 15 dakikalık mumlarda, tepe/dip (0,25 ATR'den fazla) geçilmeden en az <b>BTC'de %2, altında %0,52, S&P'de %0,57</b> hareket geldi (oynaklığa göre aynı zorluk) (o dilimin 40 mumu içinde; 1w 26, 1M 12). "
             "Hücrede: çalışma oranı, yanında bu onayın <b>olmadığı</b> tepe/diplerin oranı; altında çalışanların <b>ortalama</b> hareketi, kaç kez oluştuğu ve puanı. Yeşil: puan aldı (onay varken oran, yokken ve karıştırılmış fiyattaki "
             "farktan anlamlı büyük, son %30'da da tutmuş). Renksiz: puan almadı; eksi puan yok. Soluk: 30'dan az örnek. Puan 100 üzerinden: bir paritenin bütün onayları aynı anda olsa 100 eder (Elliott ve harmonik birer onay). Hücrenin üstüne gelince ayrıntı çıkar.")
     blocks = "".join(f'<h2 id="{a}">{NAME[a]}</h2>{tree(a, all_)}<h3>{NAME[a]}: toplam puan ne kadar yüksekse o kadar mı iyi?</h3>'

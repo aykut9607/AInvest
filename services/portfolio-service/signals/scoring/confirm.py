@@ -37,7 +37,10 @@ from signals.structure.zigzag import SwingPoint, zigzag
 ASSETS = ("BTCUSDT", "XAU", "SPX")
 LEFT, RIGHT = 5, 2
 ROOM = 0.25            # x ATR: a top counts as exceeded only beyond this (Aykut: a few dollars over it do not matter)
-WORKED = 2.0           # % : Aykut's rule, "if it moved 2 % before the top was exceeded, it worked" (every frame and asset)
+# %: Aykut's rule, "if it moved 2 % before the top was exceeded, it worked", set for BTC. Gold and the S&P move less (yearly volatility 16.8 and 18.3 %
+# against 64.7 %, January 2018 - November 2026), so the same difficulty is 2 % x their volatility / that of BTC. With 2 % only 2 % of their 15m tops
+# "worked" and no rule could be told from another.
+WORKED = {"BTCUSDT": 2.0, "XAU": 0.52, "SPX": 0.57}
 WINDOWS = {"1w": 26, "1M": 12}          # bars the move may take (40 on the other frames): later moves are not this top's doing
 
 
@@ -45,11 +48,11 @@ def bars_of(f: str) -> int:
     return WINDOWS.get(f, 40)
 
 
-def outcome(path, begin: float, known: float, window: float, price: float, entry: float, side: int, room: float) -> tuple:
+def outcome(path, begin: float, known: float, window: float, price: float, entry: float, side: int, room: float, worked: float) -> tuple:
     """(move %, worked, worked after the pivot was known, that move %)."""
     move = 100 * path.reaction(begin, begin + window, price, side, room) / price
     later = 100 * (path.reaction(known, known + window, price, side, room) - abs(price - entry)) / entry
-    return round(move, 3), move >= WORKED, later >= WORKED, round(max(0.0, later), 3)
+    return round(move, 3), bool(move >= worked), bool(later >= worked), round(max(0.0, later), 3)
 
 
 DEGREES = (1.5, 2.0, 3.0, 4.0)
@@ -110,6 +113,13 @@ def elliott(points: list[SwingPoint], ended: dict[int, int] | None = None, known
         s = 1 if p1.kind == HIGH else -1
         if s * p2.price > s * p0.price and s * p3.price > s * p1.price and s * p4.price > s * p1.price:
             out.add("4. dalga sonu|1'in alanına girmeden")
+
+    if n >= 3:          # wave 2 of a new move: the next leg would be wave 3 (E-01, E-10: deeper than 0.382, never beyond the start)
+        p0, p1, p2 = points[-3:]
+        back = abs(p2.price - p1.price) / max(abs(p1.price - p0.price), 1e-12)
+        if 0.382 <= back <= 0.886:
+            start = (ended or {}).get(p0.index, 10**10) <= known          # a 12345 of the other direction ended where this move began
+            out.add("2. dalga sonu|" + ("önceki 12345'in bittiği yerden" if start else "başlangıcı belirsiz"))
 
     def after_impulse(legs: int) -> bool:
         i = n - 1 - legs                                                  # index of the point the correction starts from
@@ -421,12 +431,12 @@ def job(asset: str, f: str, seed: int) -> list:
             begin, known = fr.t[j] + fr.span, fr.t[conf] + fr.span
             if begin + window > path.t[-1]:
                 continue
-            got = outcome(path, begin, known, window, p.value, b.close[conf], side, ROOM * atr)
+            got = outcome(path, begin, known, window, p.value, b.close[conf], side, ROOM * atr, WORKED[asset])
             tags = fr.at(j, conf, p.value, side)
             i = bisect_right(funding[0], fr.t[j]) - 1
             if i >= 0 and fr.t[j] - funding[0][i] < 9 * 3600 and -side * funding[1][i] >= 0.0005:
                 tags.add("Funding|aşırı|±%0,05")
-            rows.append([fr.t[j], side, *got, sorted(tags), round(p.value, 2)])
+            rows.append([float(fr.t[j]), side, *(v.item() if hasattr(v, "item") else v for v in got), sorted(tags), round(p.value, 2)])
     return sorted(rows)
 
 
@@ -446,7 +456,7 @@ def rescore(asset: str, seed: int) -> dict:
             j = at[r[0]]
             conf, side = j + RIGHT, r[1]
             price = float(b.high[j] if side == -1 else b.low[j])
-            got = outcome(path, r[0] + span, ts(x.times[conf]) + span, bars_of(f) * span, price, float(b.close[conf]), side, ROOM * b.atr[j - 1])
+            got = outcome(path, r[0] + span, ts(x.times[conf]) + span, bars_of(f) * span, price, float(b.close[conf]), side, ROOM * b.atr[j - 1], WORKED[asset])
             r[6] = [g for g in r[6] if not g.endswith("|gösterge etiketi")]          # needed bars after the candidate was known (25 Nov)
             new.append([r[0], side, *(v.item() if hasattr(v, 'item') else v for v in got), r[6], r[7]])
         old[f] = new

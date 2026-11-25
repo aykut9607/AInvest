@@ -15,13 +15,15 @@ from concurrent.futures import ProcessPoolExecutor
 
 import numpy as np
 
-from signals.live.plan import HORIZON, MIN_STOP
+from signals.live.auxvol import SOURCES, AuxVolume
+from signals.live.plan import MIN_STOP
 from signals.live.scan import Event, Scanner
 from signals.scoring.confirm import ASSETS
 from signals.scoring.run import OUT
 from signals.scoring.turns import load_full, ts
 
 STOP_ROOM = 0.25
+HORIZON = 480          # 15m bars (5 days) this study looks ahead; a virtual trade itself has no time limit
 
 
 def stop_price(e: Event) -> float:
@@ -57,7 +59,7 @@ def job(asset: str, seed: int) -> str:
     else:
         from signals.scoring.null import null_cache
         cache = null_cache(asset, seed, lambda c: c)
-    sc = Scanner(asset, cache, funding_tags() if asset == "BTCUSDT" and seed == 0 else None)
+    sc = Scanner(asset, cache, funding_tags() if asset == "BTCUSDT" and seed == 0 else None, AuxVolume(asset) if asset in SOURCES and seed == 0 else None)
     b = sc.base.x.bars
     names: dict[str, int] = {}
     rows = []

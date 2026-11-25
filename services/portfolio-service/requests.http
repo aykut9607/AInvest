@@ -35,3 +35,19 @@ Authorization: Bearer {{Token}}
 ### last proposal (stale=true when the IQ changed after it)
 GET {{Gateway}}/api/portfolio/{{UserId}}/latest
 Authorization: Bearer {{Token}}
+
+### 4.4 paper account
+GET {{Gateway}}/api/portfolio/market/account
+Authorization: Bearer {{Token}}
+
+### 4.4 ledger (status = OPEN or CLOSED; without it both)
+GET {{Gateway}}/api/portfolio/market/trades?asset=BTC&status=CLOSED
+Authorization: Bearer {{Token}}
+
+### 4.4 one trade: events, every confirmation, trader and standard story
+GET {{Gateway}}/api/portfolio/market/trades/00000000-0000-0000-0000-000000000000
+Authorization: Bearer {{Token}}
+
+### 4.4 statistics
+GET {{Gateway}}/api/portfolio/market/performance
+Authorization: Bearer {{Token}}

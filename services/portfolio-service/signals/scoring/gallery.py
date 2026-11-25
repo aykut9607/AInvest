@@ -226,7 +226,7 @@ def draw(fr: Frame, e: Evidence, j: int, price: float, side: int, thr: float, wo
 
 def chart(fr: Frame, tag: str, row: list, j: int, conf: int) -> str:
     t, side, move, worked, after, _, _, _ = row
-    thr_pct = WORKED
+    thr_pct = WORKED[fr.asset]
     b = fr.x.bars
     price = float(b.high[j] if side == -1 else b.low[j])
     thr = thr_pct / 100 * price

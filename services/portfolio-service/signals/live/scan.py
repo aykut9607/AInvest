@@ -10,9 +10,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from bisect import bisect_left
+
 import numpy as np
 
 from signals.data.candles import TIMEFRAMES
+from signals.live import fibs
 from signals.scoring.confirm import Frame, shared_levels
 
 TRIGGER_FRAMES = ("15m", "30m", "45m", "1h")
@@ -42,6 +45,7 @@ class Event:
     extreme: float
     atr_1h: float
     tags: dict[str, list[str]]     # timeframe -> confirmations
+    fib: fibs.Fib | None = None    # what the trade is managed with, drawn on the trigger frame
 
 
 class LiveFrame(Frame):
@@ -53,6 +57,33 @@ class LiveFrame(Frame):
         d = np.diff(c, prepend=c[0])
         self.up, self.down = self._rma(np.maximum(d, 0)), self._rma(np.maximum(-d, 0))
         self.period_levels = frozenset(shared["levels"])
+        self.aux_volume = self.aux_cvd = None          # volume from another market, see auxvol.py
+
+    def momentum(self, j: int, side: int) -> set[str]:
+        out = super().momentum(j, side)
+        a = max(0, j - 60)
+        if j - a > 6 and (self.aux_volume is not None or self.aux_cvd is not None):
+            hi = self.x.bars.high if side == -1 else -self.x.bars.low
+            u = a + int(hi[a:j - 2].argmax())
+            if hi[j] > hi[u] and j - u >= 3:
+                if self.aux_volume is not None and self.aux_volume[j] < self.aux_volume[u]:
+                    out.add("Uyumsuzluk|hacim|tepede anlık")
+                if self.aux_cvd is not None and (self.aux_cvd[j] - self.aux_cvd[u]) * side > 0:
+                    out.add("Uyumsuzluk|CVD|tepede anlık")
+        return out
+
+    def structure(self, j: int, conf: int, price: float, side: int, when: float, near: float | None = None, skip: frozenset = frozenset()) -> set[str]:
+        """With volume of another market an SFP can also be one "with RSI and volume against it"."""
+        out = super().structure(j, conf, price, side, when, near, skip)
+        if self.aux_volume is None or "SFP|RSI uyumsuz|" not in out:
+            return out
+        atr, v = self.x.bars.atr[j - 1], self.aux_volume
+        for sweep, done, pivot, extreme in self.sfp[side][bisect_left(self.sfp[side], (j - 1,)):]:
+            if sweep > j:
+                break
+            if done <= conf and abs(extreme - price) <= 0.05 * atr and (self.rsi[sweep] - self.rsi[pivot]) * side > 0 and v[sweep] < v[pivot]:
+                return (out - {"SFP|RSI uyumsuz|"}) | {"SFP|RSI ve hacim uyumsuz|"}
+        return out
 
     @staticmethod
     def _rma(v: np.ndarray, n: int = 14) -> np.ndarray:
@@ -98,10 +129,13 @@ class LiveFrame(Frame):
 class Scanner:
     """All frames of one asset. `cache`: {(asset, timeframe): candles}; the last candle of each list may be forming."""
 
-    def __init__(self, asset: str, cache: dict, extra=None):
+    def __init__(self, asset: str, cache: dict, extra=None, aux=None):
         self.asset, self.extra = asset, extra          # extra(time, side) -> {timeframe: tags} for data that is not a candle (funding)
         shared = shared_levels(asset, cache)
         self.frames = {f: LiveFrame(asset, f, cache, shared) for f in TIMEFRAMES if len(cache.get((asset, f), ())) >= MIN_BARS.get(f, 80)}
+        if aux is not None:
+            for fr in self.frames.values():
+                fr.aux_volume, fr.aux_cvd = aux.of(fr.t, fr.span)
         self.base = self.frames["15m"]
 
     def trigger(self, when: float, side: int) -> tuple[str, int, tuple[str, ...]] | None:
@@ -157,7 +191,8 @@ class Scanner:
         tags.setdefault(frame, set()).update(reasons)
         for f, got in (self.extra(when, side) if self.extra else {}).items():
             tags.setdefault(f, set()).update(got)
-        return Event(when, side, frame, reasons, close, price, self._atr("1h", opened), {f: sorted(tags[f]) for f in TIMEFRAMES if tags.get(f)})
+        return Event(when, side, frame, reasons, close, price, self._atr("1h", opened), {f: sorted(tags[f]) for f in TIMEFRAMES if tags.get(f)},
+                     fibs.draw(tb.high, tb.low, bar, side, float(tb.atr[bar - 1])))
 
     def _atr(self, f: str, opened: float) -> float:
         fr = self.frames[f]
