@@ -71,6 +71,22 @@ def sketches() -> str:
              [60, 84, 78, 100, 92, 110, 101, 109, 96], "Hedef fiyat yok; son tabanın altına inince çıkılır."),
         card("Önceki osilatör tepesi (BK-173)", None, svg([70, 100, 92, 104, 86, 72], ["başlangıç", "osilatör tepesi", "", "fiyat tepesi", "", "bitiş"], []),
              [70, 100, 92, 104, 86, 72], "Süre fiyat tepesinden değil, ondan önceki osilatör tepesinden sayılır (M-tepe)."),
+        card("Yuvarlak sayı ivmesi (BK-194)", None, svg([80, 90, 86, 98, 102, 118, 112, 132], ["", "", "", "", "giriş", "", "", ""], [(100, "100", AMBER)]),
+             [80, 90, 86, 98, 102, 118, 112, 132], "Yuvarlak sayı ilk kez aşılınca hareket hızlanır; hemen devam etmezse çıkılır."),
+        card("Yuvarlak sayıda başarısız ivme (BK-194)", None, svg([270, 290, 284, 303, 292, 298, 302.75, 296], ["", "", "", "giriş", "", "", "devam etmedi", "çık"], [(300, "300", AMBER)]),
+             [270, 290, 284, 303, 292, 298, 302.75, 296], "Seviye aşıldı ama hızla ilerlemedi ve geri dönüyor: plan bozuldu, hemen çıkılır."),
+        card("Aralıkta işlem yok (BK-191)", None, svg([1.1, 1.18, 1.11, 1.19, 1.12, 1.195, 1.22, 1.25], ["", "", "", "", "", "", "giriş", ""], [(1.2, "üst sınır", AMBER), (1.1, "alt sınır", AMBER)]),
+             [1.1, 1.18, 1.11, 1.19, 1.12, 1.195, 1.22, 1.25], "1,10–1,20 arasında yön tahmin edilmez; 1,20 aşılınca alınır."),
+        card("Boğa sonu: önder geri çıkamaz (BK-197)", None, svg([70, 90, 84, 104, 98, 112, 100, 106, 99, 104], ["", "", "", "", "", "son tepe", "ilk düşüş", "çıkamadı", "", ""], [(112, "eski tepe", RED)]),
+             [70, 90, 84, 104, 98, 112, 100, 106, 99, 104], "Önder, ilk kez birkaç puan düşüp eski tepesine dönemez; piyasanın kalanı henüz dönmemiş olabilir."),
+        card("Baz pozisyon ve düzeltme (BK-186)", None, svg([90, 102, 98, 110, 103, 120, 113, 130], ["", "baz", "", "", "ekle", "", "", ""], [(95, "stop", RED)]),
+             [90, 102, 98, 110, 103, 120, 113, 130], "Tamamı kapatılmaz: baz tutulur, düzeltmede eklenir; düzeltme gelmese de hareket kaçmaz."),
+        card("Dönüş günü (BK-189)", None, svg([90, 96, 94, 101, 99, 106, 92, 88], ["", "", "", "", "önceki kapanış", "yeni yüksek", "gün kapanışı", ""], [(99, "önceki kapanış", AMBER)]),
+             [90, 96, 94, 101, 99, 106, 92, 88], "Gün içinde yeni yüksek yapılır ama gün, önceki kapanışın altında biter."),
+        card("Stop ve hedef yerleşimi (BK-212)", None, svg([116, 119, 117, 119.1, 117.5, 118.6, 115, 117, 112], ["", "tepe", "", "tepe", "", "giriş", "", "", "hedef"], [(119.6, "stop: tepeler ve 119,5 üstü", RED), (111.5, "büyük destek", AMBER)]),
+             [116, 119, 117, 119.1, 117.5, 118.6, 115, 117, 112], "Stop tepelerin ve yuvarlak sayının ötesinde, hedef desteğe varmadan."),
+        card("Rejim testi: 20 günlük zirve (BK-206)", None, svg([90, 100, 93, 99, 94, 104, 100, 110], ["", "eski zirve", "", "", "", "yeni zirve", "", "trend"], [(100, "20 günlük zirve", AMBER)]),
+             [90, 100, 93, 99, 94, 104, 100, 110], "Son 10 günde yeni 20 günlük zirve varsa trend; yoksa aralık sayılır."),
     ]
     return section("1. Kural çizimleri (kendi sayılarımız)", cards)
 
