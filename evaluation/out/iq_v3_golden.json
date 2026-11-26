@@ -17,6 +17,7 @@
    "intermediates": {
     "liquid": "8000.000000",
     "expenses_eff": "25000.000000",
+    "expenses_reserve": "25000.000000",
     "outflow": "32000.000000",
     "reserve_months": "0.250000",
     "excess_liquid": "0.000000",
@@ -157,6 +158,7 @@
    "intermediates": {
     "liquid": "60000.000000",
     "expenses_eff": "30000.000000",
+    "expenses_reserve": "30000.000000",
     "outflow": "38000.000000",
     "reserve_months": "1.578947",
     "excess_liquid": "0.000000",
@@ -283,6 +285,7 @@
    "intermediates": {
     "liquid": "30000.000000",
     "expenses_eff": "8000.000000",
+    "expenses_reserve": "8000.000000",
     "outflow": "10000.000000",
     "reserve_months": "3.000000",
     "excess_liquid": "0.000000",
@@ -403,6 +406,7 @@
    "intermediates": {
     "liquid": "50000.000000",
     "expenses_eff": "16000.000000",
+    "expenses_reserve": "16000.000000",
     "outflow": "18000.000000",
     "reserve_months": "2.777778",
     "excess_liquid": "0.000000",
@@ -547,6 +551,7 @@
    "intermediates": {
     "liquid": "0.000000",
     "expenses_eff": "900000.000000",
+    "expenses_reserve": "900000.000000",
     "outflow": "900000.000000",
     "reserve_months": "0.000000",
     "excess_liquid": "0.000000",
@@ -675,6 +680,7 @@
    "intermediates": {
     "liquid": "6500000.000000",
     "expenses_eff": "29000.000000",
+    "expenses_reserve": "29000.000000",
     "outflow": "29000.000000",
     "reserve_months": "224.137931",
     "excess_liquid": "6326000.000000",
@@ -795,6 +801,7 @@
    "intermediates": {
     "liquid": "5096000.000000",
     "expenses_eff": "16000.000000",
+    "expenses_reserve": "16000.000000",
     "outflow": "20000.000000",
     "reserve_months": "254.800000",
     "excess_liquid": "4976000.000000",
@@ -939,6 +946,7 @@
    "intermediates": {
     "liquid": "20000.000000",
     "expenses_eff": "22000.000000",
+    "expenses_reserve": "22000.000000",
     "outflow": "27000.000000",
     "reserve_months": "0.740741",
     "excess_liquid": "0.000000",
@@ -1067,6 +1075,7 @@
    "intermediates": {
     "liquid": "52500.000000",
     "expenses_eff": "18000.000000",
+    "expenses_reserve": "18000.000000",
     "outflow": "22000.000000",
     "reserve_months": "2.386364",
     "excess_liquid": "0.000000",
@@ -1187,6 +1196,7 @@
    "intermediates": {
     "liquid": "100000.000000",
     "expenses_eff": "15000.000000",
+    "expenses_reserve": "15000.000000",
     "outflow": "18000.000000",
     "reserve_months": "5.555556",
     "excess_liquid": "0.000000",
@@ -1295,6 +1305,7 @@
    "intermediates": {
     "liquid": "4999999.500000",
     "expenses_eff": "6000000.000000",
+    "expenses_reserve": "6000000.000000",
     "outflow": "7000000.000000",
     "reserve_months": "0.714286",
     "excess_liquid": "0.000000",
@@ -1441,6 +1452,7 @@
    "intermediates": {
     "liquid": "0.000000",
     "expenses_eff": "2000000.000000",
+    "expenses_reserve": "2000000.000000",
     "outflow": "2500000.000000",
     "reserve_months": "0.000000",
     "excess_liquid": "0.000000",
@@ -1587,6 +1599,7 @@
    "intermediates": {
     "liquid": "96000.000000",
     "expenses_eff": "16000.000000",
+    "expenses_reserve": "16000.000000",
     "outflow": "20000.000000",
     "reserve_months": "4.800000",
     "excess_liquid": "0.000000",
@@ -1731,6 +1744,7 @@
    "intermediates": {
     "liquid": "2400000.000000",
     "expenses_eff": "400000.000000",
+    "expenses_reserve": "400000.000000",
     "outflow": "500000.000000",
     "reserve_months": "4.800000",
     "excess_liquid": "0.000000",
@@ -1875,6 +1889,7 @@
    "intermediates": {
     "liquid": "0.000000",
     "expenses_eff": "2000000.000000",
+    "expenses_reserve": "2000000.000000",
     "outflow": "2000000.000000",
     "reserve_months": "0.000000",
     "excess_liquid": "0.000000",
@@ -2003,6 +2018,7 @@
    "intermediates": {
     "liquid": "10000000.000000",
     "expenses_eff": "6000000.000000",
+    "expenses_reserve": "6000000.000000",
     "outflow": "6000000.000000",
     "reserve_months": "1.666667",
     "excess_liquid": "0.000000",
@@ -2131,6 +2147,7 @@
    "intermediates": {
     "liquid": "96000.000000",
     "expenses_eff": "16000.000000",
+    "expenses_reserve": "16000.000000",
     "outflow": "20000.000000",
     "reserve_months": "4.800000",
     "excess_liquid": "0.000000",
@@ -2275,6 +2292,7 @@
    "intermediates": {
     "liquid": "0.000000",
     "expenses_eff": "16000.000000",
+    "expenses_reserve": "16000.000000",
     "outflow": "20000.000000",
     "reserve_months": "0.000000",
     "excess_liquid": "0.000000",
@@ -2401,6 +2419,7 @@
    "intermediates": {
     "liquid": "60000.000000",
     "expenses_eff": "30000.000000",
+    "expenses_reserve": "30000.000000",
     "outflow": "38000.000000",
     "reserve_months": "1.578947",
     "excess_liquid": "0.000000",
@@ -2533,8 +2552,9 @@
    "intermediates": {
     "liquid": "0.010000",
     "expenses_eff": "5000.000000",
-    "outflow": "5000.000000",
-    "reserve_months": "0.000002",
+    "expenses_reserve": "2000.000000",
+    "outflow": "2000.000000",
+    "reserve_months": "0.000005",
     "excess_liquid": "0.000000",
     "net_debt": "0.000000",
     "net_debt_years": "0.000000",
@@ -2659,6 +2679,7 @@
    "intermediates": {
     "liquid": "24000.000000",
     "expenses_eff": "4000.000000",
+    "expenses_reserve": "4000.000000",
     "outflow": "8000.000000",
     "reserve_months": "3.000000",
     "excess_liquid": "0.000000",
@@ -2785,6 +2806,7 @@
    "intermediates": {
     "liquid": "60000.000000",
     "expenses_eff": "7000.000000",
+    "expenses_reserve": "7000.000000",
     "outflow": "8000.000000",
     "reserve_months": "7.500000",
     "excess_liquid": "12000.000000",
@@ -2907,6 +2929,7 @@
    "intermediates": {
     "liquid": "30000.000000",
     "expenses_eff": "5000.000000",
+    "expenses_reserve": "5000.000000",
     "outflow": "12000.000000",
     "reserve_months": "2.500000",
     "excess_liquid": "0.000000",
@@ -3039,6 +3062,7 @@
    "intermediates": {
     "liquid": "120000.000000",
     "expenses_eff": "12000.000000",
+    "expenses_reserve": "12000.000000",
     "outflow": "13000.000000",
     "reserve_months": "9.230769",
     "excess_liquid": "42000.000000",
@@ -3159,6 +3183,7 @@
    "intermediates": {
     "liquid": "60000.000000",
     "expenses_eff": "30000.000000",
+    "expenses_reserve": "30000.000000",
     "outflow": "38000.000000",
     "reserve_months": "1.578947",
     "excess_liquid": "0.000000",
@@ -3285,7 +3310,8 @@
    "intermediates": {
     "liquid": "0.000000",
     "expenses_eff": "5000.000000",
-    "outflow": "5000.000000",
+    "expenses_reserve": "2000.000000",
+    "outflow": "2000.000000",
     "reserve_months": "0.000000",
     "excess_liquid": "0.000000",
     "net_debt": "0.000000",
@@ -3411,8 +3437,9 @@
    "intermediates": {
     "liquid": "2.000000",
     "expenses_eff": "0.400000",
-    "outflow": "0.500000",
-    "reserve_months": "4.000000",
+    "expenses_reserve": "2000.000000",
+    "outflow": "2000.100000",
+    "reserve_months": "0.001000",
     "excess_liquid": "0.000000",
     "net_debt": "0.000000",
     "net_debt_years": "0.000000",
@@ -3421,96 +3448,102 @@
     "savings_rate": "0.500000",
     "expense_ratio": "0.400000",
     "liquid_net_worth": "2.000000",
-    "runway_years": "0.416667",
-    "runway_share": "0.016667",
+    "runway_years": "0.000083",
+    "runway_share": "0.000003",
     "solvency_cap": "1.000000"
    },
    "v3a": {
-    "score": 93,
+    "score": 75,
     "segment": "HIGH",
     "factors": {
-     "CashReserveMonths": 18,
+     "CashReserveMonths": 0,
      "DebtToIncomeRatio": 25,
      "SavingsRate": 25,
      "ExpenseRatio": 15,
      "Impatience": 10
     },
     "warnings": [
+     "Low cash reserve",
      "Installment without debt"
     ],
     "appliedRule": null
    },
    "v3b": {
-    "score": 93,
+    "score": 75,
     "segment": "HIGH",
     "factors": {
-     "CashReserveMonths": 18,
+     "CashReserveMonths": 0,
      "InstallmentToIncome": 20,
      "NetDebtToIncome": 20,
      "SavingsRate": 25,
      "Impatience": 10
     },
     "warnings": [
+     "Low cash reserve",
      "Installment without debt"
     ],
     "appliedRule": null
    },
    "v3a-i5": {
-    "score": 92,
-    "segment": "HIGH",
+    "score": 70,
+    "segment": "MEDIUM",
     "factors": {
-     "CashReserveMonths": 22,
+     "CashReserveMonths": 0,
      "DebtToIncomeRatio": 25,
      "SavingsRate": 25,
      "ExpenseRatio": 15,
      "Impatience": 5
     },
     "warnings": [
+     "Low cash reserve",
      "Installment without debt"
     ],
     "appliedRule": null
    },
    "v3b-i5": {
-    "score": 92,
-    "segment": "HIGH",
+    "score": 70,
+    "segment": "MEDIUM",
     "factors": {
-     "CashReserveMonths": 22,
+     "CashReserveMonths": 0,
      "InstallmentToIncome": 20,
      "NetDebtToIncome": 20,
      "SavingsRate": 25,
      "Impatience": 5
     },
     "warnings": [
+     "Low cash reserve",
      "Installment without debt"
     ],
     "appliedRule": null
    },
    "v3c": {
-    "score": 92,
-    "segment": "HIGH",
+    "score": 70,
+    "segment": "MEDIUM",
     "factors": {
-     "CashReserveMonths": 22,
+     "CashReserveMonths": 0,
      "InstallmentToIncome": 20,
      "NetDebtToIncome": 10,
      "SavingsRate": 30,
      "Impatience": 10
     },
     "warnings": [
+     "Low cash reserve",
      "Installment without debt"
     ],
     "appliedRule": null
    },
    "v3c-i5": {
-    "score": 92,
-    "segment": "HIGH",
+    "score": 70,
+    "segment": "MEDIUM",
     "factors": {
-     "CashReserveMonths": 22,
+     "CashReserveMonths": 0,
      "InstallmentToIncome": 25,
      "NetDebtToIncome": 10,
      "SavingsRate": 30,
      "Impatience": 5
     },
     "warnings": [
+     "Low cash reserve",
      "Installment without debt"
     ],
     "appliedRule": null
@@ -3531,6 +3564,7 @@
    "intermediates": {
     "liquid": "100000.000000",
     "expenses_eff": "20000.000000",
+    "expenses_reserve": "20000.000000",
     "outflow": "50000.000000",
     "reserve_months": "2.000000",
     "excess_liquid": "0.000000",
@@ -3671,6 +3705,7 @@
    "intermediates": {
     "liquid": "11880000.000000",
     "expenses_eff": "33000.000000",
+    "expenses_reserve": "33000.000000",
     "outflow": "33000.000000",
     "reserve_months": "360.000000",
     "excess_liquid": "11682000.000000",
@@ -3779,6 +3814,7 @@
    "intermediates": {
     "liquid": "5000000.000000",
     "expenses_eff": "6000000.000000",
+    "expenses_reserve": "6000000.000000",
     "outflow": "7000000.000000",
     "reserve_months": "0.714286",
     "excess_liquid": "0.000000",
@@ -3925,6 +3961,7 @@
    "intermediates": {
     "liquid": "96000.000000",
     "expenses_eff": "16000.000000",
+    "expenses_reserve": "16000.000000",
     "outflow": "20000.000000",
     "reserve_months": "4.800000",
     "excess_liquid": "0.000000",
@@ -4069,6 +4106,7 @@
    "intermediates": {
     "liquid": "96000.000000",
     "expenses_eff": "16000.000000",
+    "expenses_reserve": "16000.000000",
     "outflow": "20000.000000",
     "reserve_months": "4.800000",
     "excess_liquid": "0.000000",
@@ -4177,6 +4215,7 @@
    "intermediates": {
     "liquid": "24000.000000",
     "expenses_eff": "4001.000000",
+    "expenses_reserve": "4001.000000",
     "outflow": "8001.000000",
     "reserve_months": "2.999625",
     "excess_liquid": "0.000000",
@@ -4303,8 +4342,9 @@
    "intermediates": {
     "liquid": "1.000000",
     "expenses_eff": "5000.000000",
-    "outflow": "5000.000000",
-    "reserve_months": "0.000200",
+    "expenses_reserve": "2000.000000",
+    "outflow": "2000.000000",
+    "reserve_months": "0.000500",
     "excess_liquid": "0.000000",
     "net_debt": "0.000000",
     "net_debt_years": "0.000000",
@@ -4313,8 +4353,8 @@
     "savings_rate": "0.900000",
     "expense_ratio": "0.100000",
     "liquid_net_worth": "1.000000",
-    "runway_years": "0.000017",
-    "runway_share": "0.000001",
+    "runway_years": "0.000042",
+    "runway_share": "0.000002",
     "solvency_cap": "1.000000"
    },
    "v3a": {
@@ -4429,6 +4469,7 @@
    "intermediates": {
     "liquid": "54000.000000",
     "expenses_eff": "16000.000000",
+    "expenses_reserve": "16000.000000",
     "outflow": "18000.000000",
     "reserve_months": "3.000000",
     "excess_liquid": "0.000000",
@@ -4537,6 +4578,7 @@
    "intermediates": {
     "liquid": "53999.000000",
     "expenses_eff": "16000.000000",
+    "expenses_reserve": "16000.000000",
     "outflow": "18000.000000",
     "reserve_months": "2.999944",
     "excess_liquid": "0.000000",
@@ -4645,6 +4687,7 @@
    "intermediates": {
     "liquid": "64000.000000",
     "expenses_eff": "16000.000000",
+    "expenses_reserve": "16000.000000",
     "outflow": "30400.000000",
     "reserve_months": "2.105263",
     "excess_liquid": "0.000000",
@@ -4771,6 +4814,7 @@
    "intermediates": {
     "liquid": "64000.000000",
     "expenses_eff": "16000.000000",
+    "expenses_reserve": "16000.000000",
     "outflow": "30401.000000",
     "reserve_months": "2.105194",
     "excess_liquid": "0.000000",
@@ -4897,6 +4941,7 @@
    "intermediates": {
     "liquid": "0.000000",
     "expenses_eff": "16000.000000",
+    "expenses_reserve": "16000.000000",
     "outflow": "28000.000000",
     "reserve_months": "0.000000",
     "excess_liquid": "0.000000",
@@ -5041,6 +5086,7 @@
    "intermediates": {
     "liquid": "0.000000",
     "expenses_eff": "16000.000000",
+    "expenses_reserve": "16000.000000",
     "outflow": "28000.000000",
     "reserve_months": "0.000000",
     "excess_liquid": "0.000000",
@@ -5191,6 +5237,7 @@
    "intermediates": {
     "liquid": "0.000000",
     "expenses_eff": "16000.000000",
+    "expenses_reserve": "16000.000000",
     "outflow": "28000.000000",
     "reserve_months": "0.000000",
     "excess_liquid": "0.000000",
@@ -5341,6 +5388,7 @@
    "intermediates": {
     "liquid": "0.000000",
     "expenses_eff": "16000.000000",
+    "expenses_reserve": "16000.000000",
     "outflow": "28000.000000",
     "reserve_months": "0.000000",
     "excess_liquid": "0.000000",
@@ -5491,6 +5539,7 @@
    "intermediates": {
     "liquid": "64000.000000",
     "expenses_eff": "38000.000000",
+    "expenses_reserve": "38000.000000",
     "outflow": "40000.000000",
     "reserve_months": "1.600000",
     "excess_liquid": "0.000000",
@@ -5619,6 +5668,7 @@
    "intermediates": {
     "liquid": "64000.000000",
     "expenses_eff": "38001.000000",
+    "expenses_reserve": "38001.000000",
     "outflow": "40001.000000",
     "reserve_months": "1.599960",
     "excess_liquid": "0.000000",
@@ -5747,6 +5797,7 @@
    "intermediates": {
     "liquid": "64000.000000",
     "expenses_eff": "32000.000000",
+    "expenses_reserve": "32000.000000",
     "outflow": "34000.000000",
     "reserve_months": "1.882353",
     "excess_liquid": "0.000000",
@@ -5869,6 +5920,7 @@
    "intermediates": {
     "liquid": "64000.000000",
     "expenses_eff": "32001.000000",
+    "expenses_reserve": "32001.000000",
     "outflow": "34001.000000",
     "reserve_months": "1.882298",
     "excess_liquid": "0.000000",
@@ -5991,6 +6043,7 @@
    "intermediates": {
     "liquid": "64000.000000",
     "expenses_eff": "4000.000000",
+    "expenses_reserve": "4000.000000",
     "outflow": "6000.000000",
     "reserve_months": "10.666667",
     "excess_liquid": "28000.000000",
@@ -6099,9 +6152,10 @@
    "intermediates": {
     "liquid": "64000.000000",
     "expenses_eff": "4000.000000",
-    "outflow": "6000.000000",
-    "reserve_months": "10.666667",
-    "excess_liquid": "28000.000000",
+    "expenses_reserve": "3999.000000",
+    "outflow": "5999.000000",
+    "reserve_months": "10.668445",
+    "excess_liquid": "28006.000000",
     "net_debt": "0.000000",
     "net_debt_years": "0.000000",
     "payment_eff": "2000.000000",
@@ -6109,8 +6163,8 @@
     "savings_rate": "0.850000",
     "expense_ratio": "0.100000",
     "liquid_net_worth": "54000.000000",
-    "runway_years": "1.125000",
-    "runway_share": "0.045000",
+    "runway_years": "1.125281",
+    "runway_share": "0.045011",
     "solvency_cap": "1.000000"
    },
    "v3a": {
@@ -6219,6 +6273,7 @@
    "intermediates": {
     "liquid": "0.000000",
     "expenses_eff": "16000.000000",
+    "expenses_reserve": "16000.000000",
     "outflow": "19500.000000",
     "reserve_months": "0.000000",
     "excess_liquid": "0.000000",
@@ -6339,6 +6394,7 @@
    "intermediates": {
     "liquid": "0.000000",
     "expenses_eff": "16000.000000",
+    "expenses_reserve": "16000.000000",
     "outflow": "19499.000000",
     "reserve_months": "0.000000",
     "excess_liquid": "0.000000",
@@ -6465,6 +6521,7 @@
    "intermediates": {
     "liquid": "4810000.000000",
     "expenses_eff": "16000.000000",
+    "expenses_reserve": "16000.000000",
     "outflow": "18000.000000",
     "reserve_months": "267.222222",
     "excess_liquid": "4702000.000000",
@@ -6573,6 +6630,7 @@
    "intermediates": {
     "liquid": "4809999.000000",
     "expenses_eff": "16000.000000",
+    "expenses_reserve": "16000.000000",
     "outflow": "18000.000000",
     "reserve_months": "267.222167",
     "excess_liquid": "4701999.000000",

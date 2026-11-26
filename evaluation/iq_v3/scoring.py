@@ -26,7 +26,10 @@ VERSION = "v3"
 
 # --- constants -------------------------------------------------------------------------------------------------------
 INVESTMENT_LIQUID_SHARE = D("0.5")    # Basel LCR level-2B haircut: half of the investments counts as liquid
-EXPENSE_FLOOR_SHARE = D("0.10")       # expenses below 10 % of income are treated as 10 % (and flagged)
+EXPENSE_FLOOR_SHARE = D("0.10")       # expenses below 10 % of income are treated as 10 % in the savings rate (and flagged)
+# data-quality floor (TL) for the reserve / runway denominator only. 26 Nov: the 10 % income floor used to sit there
+# too, so a higher income raised the denominator and LOWERED the score when expenses < 10 % of income
+EXPENSE_FLOOR_TL = D(2000)
 RESERVE_TARGET_MONTHS = D(6)          # emergency target; liquid assets above it offset debt
 DEFAULT_MONTHLY_INTEREST = D("0.035") # same assumption as DebtPayoffRules in the IQ service
 WARNING_SHARE = D("0.6")              # a factor below 60 % of its maximum carries a warning
@@ -144,8 +147,9 @@ class Measures:
     investments: Decimal
     impatience: int
     liquid: Decimal            # L = cash + 0.5 * investments
-    expenses_eff: Decimal      # max(expenses, 0.10 * income)
-    outflow: Decimal           # expenses_eff + payment
+    expenses_eff: Decimal      # max(expenses, 0.10 * income), savings rate only
+    expenses_reserve: Decimal  # max(expenses, 2000 TL), reserve and runway
+    outflow: Decimal           # expenses_reserve + payment
     reserve_months: Decimal    # L / outflow
     excess_liquid: Decimal     # max(0, L - 6 * outflow)
     net_debt: Decimal          # max(0, debt - excess_liquid)
@@ -155,7 +159,7 @@ class Measures:
     savings_rate: Decimal      # (income - expenses_eff - payment_eff) / income
     expense_ratio: Decimal     # expenses_eff / income
     liquid_net_worth: Decimal  # L - debt
-    runway_years: Decimal      # liquid_net_worth / (12 * expenses_eff), 0 when liquid_net_worth <= 0
+    runway_years: Decimal      # liquid_net_worth / (12 * expenses_reserve), 0 when liquid_net_worth <= 0
     runway_share: Decimal      # lambda
     solvency_cap: Decimal      # kappa
 
@@ -170,7 +174,8 @@ def measures(p: dict) -> Measures:
 
     liquid = cash + investments * INVESTMENT_LIQUID_SHARE
     expenses_eff = max(expenses, income * EXPENSE_FLOOR_SHARE)
-    outflow = expenses_eff + payment
+    expenses_reserve = max(expenses, EXPENSE_FLOOR_TL)
+    outflow = expenses_reserve + payment
     reserve_months = liquid / outflow
     excess_liquid = max(ZERO, liquid - outflow * RESERVE_TARGET_MONTHS)
     net_debt = max(ZERO, debt - excess_liquid)
@@ -180,8 +185,8 @@ def measures(p: dict) -> Measures:
     savings_rate = (income - expenses_eff - payment_eff) / income
     expense_ratio = expenses_eff / income
     liquid_net_worth = liquid - debt
-    runway_years = liquid_net_worth / (expenses_eff * 12) if liquid_net_worth > 0 else ZERO
-    return Measures(income, expenses, payment, debt, cash, investments, impatience, liquid, expenses_eff, outflow,
+    runway_years = liquid_net_worth / (expenses_reserve * 12) if liquid_net_worth > 0 else ZERO
+    return Measures(income, expenses, payment, debt, cash, investments, impatience, liquid, expenses_eff, expenses_reserve, outflow,
                     reserve_months, excess_liquid, net_debt, net_debt_years, payment_eff, installment_ratio,
                     savings_rate, expense_ratio, liquid_net_worth, runway_years,
                     interpolate(runway_years, RUNWAY_YEARS), interpolate(net_debt_years, SOLVENCY_CAP))
@@ -283,7 +288,7 @@ def intermediates(p: dict) -> dict[str, str]:
     """The measures rounded to 6 decimals, for the golden table (helps debugging the port)."""
     m = measures(p)
     q = D("0.000001")
-    keys = ["liquid", "expenses_eff", "outflow", "reserve_months", "excess_liquid", "net_debt", "net_debt_years",
+    keys = ["liquid", "expenses_eff", "expenses_reserve", "outflow", "reserve_months", "excess_liquid", "net_debt", "net_debt_years",
             "payment_eff", "installment_ratio", "savings_rate", "expense_ratio", "liquid_net_worth", "runway_years",
             "runway_share", "solvency_cap"]
     return {k: str(getattr(m, k).quantize(q, rounding=ROUND_HALF_UP)) for k in keys}

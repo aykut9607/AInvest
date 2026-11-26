@@ -63,12 +63,6 @@ public class ScoringPropertyTests
                 var value = Scoring.Get(profile, field);
                 foreach (var (changed, favourable) in new[] { (Math.Round(value * 1.3m, 2), BetterWhenHigher.Contains(field)), (Math.Round(value * 0.7m, 2), !BetterWhenHigher.Contains(field)) })
                 {
-                    // the one exception: below the expense floor (10% of the income) the floor grows with the income,
-                    // so a higher income means a larger assumed outflow. Not checked where the floor binds
-                    if (field == nameof(CalculateRequest.MonthlyIncome) &&
-                        profile.MonthlyExpenses < Math.Max(value, changed) * ScoringRules.ExpenseFloorShare)
-                        continue;
-
                     AssertDirection(profile, Scoring.With(profile, field, changed), favourable, $"{field} {value} -> {changed}");
                     checks++;
                 }
@@ -85,6 +79,32 @@ public class ScoringPropertyTests
         Assert.True(checks > 4000, $"only {checks} checks ran");
     }
 
+    // 26 Nov fix: the reserve used to be measured in max(expenses, 10% of the income), so with tiny expenses a higher
+    // income meant fewer reserve months: income 100,000 -> 200,000 (expenses 5,000, cash 60,000) scored 100 -> 88
+    [Fact]
+    public void MoreIncome_NeverLowersTheScore_EvenWhenTheExpensesAreBelowTenPercentOfIt()
+    {
+        var before = Scoring.Profile(100_000m, 5_000m, cash: 60_000m, impatience: 1);
+        var after = Scoring.With(before, nameof(CalculateRequest.MonthlyIncome), 200_000m);
+
+        Assert.Equal(100, Scoring.Score(before).Score);
+        Assert.Equal(100, Scoring.Score(after).Score);
+
+        decimal[] incomes = [1_000m, 5_000m, 10_000m, 20_000m, 50_000m, 100_000m, 200_000m, 500_000m, 1_000_000m, 5_000_000m];
+        foreach (var expenses in new[] { 0m, 500m, 2_000m, 5_000m })
+        foreach (var (payment, debt) in new[] { (0m, 0m), (5_000m, 100_000m) })
+        foreach (var cash in new[] { 0m, 30_000m, 1_000_000m })
+        {
+            var previous = -1;
+            foreach (var income in incomes)
+            {
+                var score = Scoring.Score(Scoring.Profile(income, expenses, payment, debt, cash, impatience: 1)).Score;
+                Assert.True(score >= previous, $"expenses {expenses}, payment {payment}, cash {cash}: income {income} scored {score} < {previous}");
+                previous = score;
+            }
+        }
+    }
+
     private static void AssertDirection(CalculateRequest before, CalculateRequest after, bool favourable, string change)
     {
         var (b, a) = (Scoring.Score(before).Score, Scoring.Score(after).Score);
@@ -95,8 +115,9 @@ public class ScoringPropertyTests
     [Fact]
     public void TheSameFinancesAtHigherPrices_ScoreExactlyTheSame()
     {
-        // no TL threshold anywhere: every amount x 1.3 (inflation) gives the same breakdown, character for character
-        foreach (var p in SampleProfiles.All)
+        // no TL threshold anywhere: every amount x 1.3 (inflation) gives the same breakdown, character for character.
+        // The one TL number is the 2,000 TL data-quality floor of the reserve expenses, so expenses below it are skipped
+        foreach (var p in SampleProfiles.All.Where(p => p.MonthlyExpenses >= ScoringRules.ExpenseFloorTl))
         {
             var inflated = Scoring.Profile(p.MonthlyIncome * 1.3m, p.MonthlyExpenses * 1.3m, p.MonthlyDebtPayment * 1.3m,
                 p.TotalDebt * 1.3m, p.CashReserve * 1.3m, p.InvestmentAmount * 1.3m, p.ImpatienceLevel);

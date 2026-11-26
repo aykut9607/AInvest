@@ -94,9 +94,6 @@ class Invariants(unittest.TestCase):
                     changes = [(round(x * 1.3, 2), f in FAVOURABLE_UP), (round(x * 0.7, 2), f not in FAVOURABLE_UP)]
                 for value, favourable in changes:
                     q = dict(p, **{f: value})
-                    # the expense floor ties the reserve to the income: skip income changes inside the floor
-                    if f == "monthlyIncome" and max(p["monthlyExpenses"], q["monthlyExpenses"]) < 0.1 * value:
-                        continue
                     for name in v3.VARIANTS:
                         before, after = v3.score(p, name)["score"], v3.score(q, name)["score"]
                         if favourable:
@@ -105,8 +102,11 @@ class Invariants(unittest.TestCase):
                             self.assertLessEqual(after, before, (name, p["userId"], f, value))
 
     def test_scale_free(self):
-        # no TL thresholds: the same finances at 30 % higher prices score exactly the same (audit G12)
+        # no TL thresholds: the same finances at 30 % higher prices score exactly the same (audit G12). The only TL
+        # number is the 2,000 TL data-quality floor of the reserve denominator, so expenses must be above it
         for p in sample(100, seed=5):
+            if p["monthlyExpenses"] < v3.EXPENSE_FLOOR_TL:
+                continue
             q = dict(p, **{f: round(p[f] * 1.3, 4) for f in MONEY})
             for name in v3.VARIANTS:
                 self.assertEqual(v3.score(p, name)["factorBreakdown"], v3.score(q, name)["factorBreakdown"])
@@ -120,6 +120,27 @@ class Invariants(unittest.TestCase):
                 for name in v3.VARIANTS:
                     self.assertLessEqual(abs(v3.score(after, name)["score"] - v3.score(before, name)["score"]), 1,
                                          (uid, name))
+
+    def test_more_income_never_lowers_the_score_when_expenses_are_below_the_floor(self):
+        # 26 Nov fix: the 10 % income floor of the expenses used to sit in the reserve denominator, so doubling the
+        # income of someone with tiny expenses cut the reserve months (100 -> 88 here)
+        base = dict(monthlyIncome=100000, monthlyExpenses=5000, monthlyDebtPayment=0, totalDebt=0, cashReserve=60000,
+                    investmentAmount=0, impatienceLevel=1)
+        self.assertEqual(v3.score(base, "v3c-i5")["score"], 100)
+        self.assertEqual(v3.score(dict(base, monthlyIncome=200000), "v3c-i5")["score"], 100)
+        incomes = [1000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 5000000]
+        for e in (0, 500, 2000, 5000):
+            for pay, debt in ((0, 0), (5000, 100000)):
+                for cash in (0, 30000, 1000000):
+                    for name in v3.VARIANTS:
+                        prev = None
+                        for i in incomes:
+                            p = dict(base, monthlyIncome=i, monthlyExpenses=e, monthlyDebtPayment=pay, totalDebt=debt,
+                                     cashReserve=cash)
+                            got = v3.score(p, name)["score"]
+                            if prev is not None:
+                                self.assertGreaterEqual(got, prev, (name, e, pay, debt, cash, i))
+                            prev = got
 
     def test_income_must_be_positive(self):
         with self.assertRaises(ValueError):
