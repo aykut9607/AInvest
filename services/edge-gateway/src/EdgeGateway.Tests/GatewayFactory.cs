@@ -28,7 +28,8 @@ public class GatewayFactory : WebApplicationFactory<Program>
                 ["ReverseProxy:Clusters:finance:Destinations:d1:Address"] = "http://finance.test/",
                 ["ReverseProxy:Clusters:iq:Destinations:d1:Address"] = "http://iq.test/",
                 ["ReverseProxy:Clusters:ai:Destinations:d1:Address"] = "http://ai.test/",
-                ["ReverseProxy:Clusters:market:Destinations:d1:Address"] = "http://market.test/"
+                ["ReverseProxy:Clusters:market:Destinations:d1:Address"] = "http://market.test/",
+                ["ReverseProxy:Clusters:portfolio:Destinations:d1:Address"] = "http://portfolio.test/"
             });
         });
 

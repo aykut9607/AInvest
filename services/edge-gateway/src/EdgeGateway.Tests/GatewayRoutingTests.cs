@@ -21,6 +21,8 @@ public class GatewayRoutingTests : IClassFixture<GatewayFactory>
     [InlineData("/api/financial-iq/u1/history?take=5", "http://iq.test/api/financial-iq/u1/history?take=5")]
     [InlineData("/api/financial-iq/scoring-rules", "http://iq.test/api/financial-iq/scoring-rules")]
     [InlineData("/api/financial-iq/scoring-rules/current", "http://iq.test/api/financial-iq/scoring-rules/current")]
+    [InlineData("/api/portfolio/u1/proposal", "http://portfolio.test/api/portfolio/u1/proposal")]
+    [InlineData("/api/portfolio/market/ainvest-view", "http://portfolio.test/api/portfolio/market/ainvest-view")]
     [InlineData("/ai/explain-financial-iq", "http://ai.test/ai/explain-financial-iq")]
     [InlineData("/api/market/fx?base=USD&symbol=TRY", "http://market.test/api/market/fx?base=USD&symbol=TRY")]
     public async Task PublicRoute_IsForwardedToTheRightService(string path, string expectedDownstreamUrl)

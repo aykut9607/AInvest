@@ -1,0 +1,1080 @@
+{
+ "BTCUSDT": {
+  "real": {
+   "plans": 3150,
+   "leftOut": {
+    "score": 32294,
+    "half": 355,
+    "reward": 1
+   },
+   "split": 1707503850,
+   "first70": {
+    "all": {
+     "n": 628,
+     "won": 277,
+     "lost": 351,
+     "winRate": 0.441,
+     "averageR": -0.042,
+     "errorR": 0.057,
+     "averageWinR": 1.26,
+     "averageLossR": -1.07,
+     "profitFactor": 0.93,
+     "halfReached": 0.441,
+     "longestLosingStreak": 12,
+     "medianHours": 7.8,
+     "exits": {
+      "STOP": 351,
+      "ENTRY_STOP": 194,
+      "MARKET_SELL": 67,
+      "TREND_5.618": 16
+     }
+    },
+    "SCALP": {
+     "n": 434,
+     "won": 196,
+     "lost": 238,
+     "winRate": 0.452,
+     "averageR": -0.102,
+     "errorR": 0.058,
+     "averageWinR": 1.07,
+     "averageLossR": -1.07,
+     "profitFactor": 0.83,
+     "halfReached": 0.452,
+     "longestLosingStreak": 10,
+     "medianHours": 7.8,
+     "exits": {
+      "STOP": 238,
+      "ENTRY_STOP": 129,
+      "MARKET_SELL": 67
+     }
+    },
+    "SCALP_SWING": {
+     "n": 135,
+     "won": 61,
+     "lost": 74,
+     "winRate": 0.452,
+     "averageR": 0.071,
+     "errorR": 0.135,
+     "averageWinR": 1.47,
+     "averageLossR": -1.08,
+     "profitFactor": 1.12,
+     "halfReached": 0.452,
+     "longestLosingStreak": 8,
+     "medianHours": 7.8,
+     "exits": {
+      "STOP": 74,
+      "ENTRY_STOP": 49,
+      "TREND_5.618": 12
+     }
+    },
+    "SWING": {
+     "n": 59,
+     "won": 20,
+     "lost": 39,
+     "winRate": 0.339,
+     "averageR": 0.143,
+     "errorR": 0.29,
+     "averageWinR": 2.47,
+     "averageLossR": -1.05,
+     "profitFactor": 1.21,
+     "halfReached": 0.339,
+     "longestLosingStreak": 6,
+     "medianHours": 7.5,
+     "exits": {
+      "STOP": 39,
+      "ENTRY_STOP": 16,
+      "TREND_5.618": 4
+     }
+    },
+    "account": {
+     "start": 1000.0,
+     "end": 895.84,
+     "percent": -10.4,
+     "maxDrawdownPercent": 26.5
+    }
+   },
+   "last30": {
+    "all": {
+     "n": 366,
+     "won": 134,
+     "lost": 232,
+     "winRate": 0.366,
+     "averageR": -0.164,
+     "errorR": 0.074,
+     "averageWinR": 1.43,
+     "averageLossR": -1.09,
+     "profitFactor": 0.76,
+     "halfReached": 0.366,
+     "longestLosingStreak": 10,
+     "medianHours": 9.0,
+     "exits": {
+      "STOP": 232,
+      "ENTRY_STOP": 74,
+      "MARKET_SELL": 51,
+      "TREND_5.618": 9
+     }
+    },
+    "SCALP": {
+     "n": 253,
+     "won": 99,
+     "lost": 154,
+     "winRate": 0.391,
+     "averageR": -0.145,
+     "errorR": 0.084,
+     "averageWinR": 1.3,
+     "averageLossR": -1.08,
+     "profitFactor": 0.78,
+     "halfReached": 0.391,
+     "longestLosingStreak": 8,
+     "medianHours": 7.5,
+     "exits": {
+      "STOP": 154,
+      "MARKET_SELL": 51,
+      "ENTRY_STOP": 48
+     }
+    },
+    "SCALP_SWING": {
+     "n": 81,
+     "won": 30,
+     "lost": 51,
+     "winRate": 0.37,
+     "averageR": -0.025,
+     "errorR": 0.187,
+     "averageWinR": 1.82,
+     "averageLossR": -1.11,
+     "profitFactor": 0.96,
+     "halfReached": 0.37,
+     "longestLosingStreak": 7,
+     "medianHours": 14.2,
+     "exits": {
+      "STOP": 51,
+      "ENTRY_STOP": 22,
+      "TREND_5.618": 8
+     }
+    },
+    "SWING": {
+     "n": 32,
+     "won": 5,
+     "lost": 27,
+     "winRate": 0.156,
+     "averageR": -0.66,
+     "errorR": 0.215,
+     "averageWinR": 1.65,
+     "averageLossR": -1.09,
+     "profitFactor": 0.28,
+     "halfReached": 0.156,
+     "longestLosingStreak": 10,
+     "medianHours": 10.2,
+     "exits": {
+      "STOP": 27,
+      "ENTRY_STOP": 4,
+      "TREND_5.618": 1
+     }
+    },
+    "account": {
+     "start": 1000.0,
+     "end": 794.88,
+     "percent": -20.5,
+     "maxDrawdownPercent": 23.5
+    }
+   }
+  },
+  "shuffled": {
+   "plans": 4026,
+   "leftOut": {
+    "score": 40491,
+    "half": 308,
+    "reward": 3
+   },
+   "split": 1707519060,
+   "first70": {
+    "all": {
+     "n": 889,
+     "won": 363,
+     "lost": 526,
+     "winRate": 0.408,
+     "averageR": -0.14,
+     "errorR": 0.044,
+     "averageWinR": 1.2,
+     "averageLossR": -1.07,
+     "profitFactor": 0.78,
+     "halfReached": 0.408,
+     "longestLosingStreak": 9,
+     "medianHours": 7.0,
+     "exits": {
+      "STOP": 526,
+      "ENTRY_STOP": 248,
+      "MARKET_SELL": 102,
+      "TREND_5.618": 13
+     }
+    },
+    "SCALP": {
+     "n": 676,
+     "won": 288,
+     "lost": 388,
+     "winRate": 0.426,
+     "averageR": -0.128,
+     "errorR": 0.048,
+     "averageWinR": 1.14,
+     "averageLossR": -1.07,
+     "profitFactor": 0.79,
+     "halfReached": 0.426,
+     "longestLosingStreak": 7,
+     "medianHours": 6.4,
+     "exits": {
+      "STOP": 388,
+      "ENTRY_STOP": 186,
+      "MARKET_SELL": 102
+     }
+    },
+    "SCALP_SWING": {
+     "n": 140,
+     "won": 55,
+     "lost": 85,
+     "winRate": 0.393,
+     "averageR": -0.21,
+     "errorR": 0.111,
+     "averageWinR": 1.15,
+     "averageLossR": -1.09,
+     "profitFactor": 0.68,
+     "halfReached": 0.393,
+     "longestLosingStreak": 7,
+     "medianHours": 7.8,
+     "exits": {
+      "STOP": 85,
+      "ENTRY_STOP": 46,
+      "TREND_5.618": 9
+     }
+    },
+    "SWING": {
+     "n": 73,
+     "won": 20,
+     "lost": 53,
+     "winRate": 0.274,
+     "averageR": -0.115,
+     "errorR": 0.211,
+     "averageWinR": 2.3,
+     "averageLossR": -1.03,
+     "profitFactor": 0.85,
+     "halfReached": 0.274,
+     "longestLosingStreak": 13,
+     "medianHours": 12.2,
+     "exits": {
+      "STOP": 53,
+      "ENTRY_STOP": 16,
+      "TREND_5.618": 4
+     }
+    },
+    "account": {
+     "start": 1000.0,
+     "end": 464.18,
+     "percent": -53.6,
+     "maxDrawdownPercent": 54.2
+    }
+   },
+   "last30": {
+    "all": {
+     "n": 390,
+     "won": 148,
+     "lost": 242,
+     "winRate": 0.379,
+     "averageR": -0.1,
+     "errorR": 0.075,
+     "averageWinR": 1.52,
+     "averageLossR": -1.09,
+     "profitFactor": 0.85,
+     "halfReached": 0.379,
+     "longestLosingStreak": 13,
+     "medianHours": 10.5,
+     "exits": {
+      "STOP": 242,
+      "ENTRY_STOP": 89,
+      "MARKET_SELL": 50,
+      "TREND_5.618": 9
+     }
+    },
+    "SCALP": {
+     "n": 279,
+     "won": 112,
+     "lost": 167,
+     "winRate": 0.401,
+     "averageR": -0.133,
+     "errorR": 0.079,
+     "averageWinR": 1.29,
+     "averageLossR": -1.09,
+     "profitFactor": 0.8,
+     "halfReached": 0.401,
+     "longestLosingStreak": 8,
+     "medianHours": 10.2,
+     "exits": {
+      "STOP": 167,
+      "ENTRY_STOP": 62,
+      "MARKET_SELL": 50
+     }
+    },
+    "SCALP_SWING": {
+     "n": 78,
+     "won": 30,
+     "lost": 48,
+     "winRate": 0.385,
+     "averageR": 0.16,
+     "errorR": 0.216,
+     "averageWinR": 2.2,
+     "averageLossR": -1.11,
+     "profitFactor": 1.23,
+     "halfReached": 0.385,
+     "longestLosingStreak": 7,
+     "medianHours": 11.8,
+     "exits": {
+      "STOP": 48,
+      "ENTRY_STOP": 23,
+      "TREND_5.618": 7
+     }
+    },
+    "SWING": {
+     "n": 33,
+     "won": 6,
+     "lost": 27,
+     "winRate": 0.182,
+     "averageR": -0.437,
+     "errorR": 0.26,
+     "averageWinR": 2.47,
+     "averageLossR": -1.08,
+     "profitFactor": 0.51,
+     "halfReached": 0.182,
+     "longestLosingStreak": 8,
+     "medianHours": 10.5,
+     "exits": {
+      "STOP": 27,
+      "ENTRY_STOP": 4,
+      "TREND_5.618": 2
+     }
+    },
+    "account": {
+     "start": 1000.0,
+     "end": 778.51,
+     "percent": -22.1,
+     "maxDrawdownPercent": 22.1
+    }
+   }
+  }
+ },
+ "XAU": {
+  "real": {
+   "plans": 2202,
+   "leftOut": {
+    "score": 22597,
+    "half": 280
+   },
+   "split": 1626969420,
+   "first70": {
+    "all": {
+     "n": 541,
+     "won": 230,
+     "lost": 311,
+     "winRate": 0.425,
+     "averageR": -0.128,
+     "errorR": 0.067,
+     "averageWinR": 1.32,
+     "averageLossR": -1.2,
+     "profitFactor": 0.81,
+     "halfReached": 0.425,
+     "longestLosingStreak": 9,
+     "medianHours": 11.5,
+     "exits": {
+      "STOP": 311,
+      "ENTRY_STOP": 146,
+      "MARKET_SELL": 67,
+      "TREND_5.618": 17
+     }
+    },
+    "SCALP": {
+     "n": 373,
+     "won": 185,
+     "lost": 188,
+     "winRate": 0.496,
+     "averageR": -0.139,
+     "errorR": 0.067,
+     "averageWinR": 0.95,
+     "averageLossR": -1.21,
+     "profitFactor": 0.77,
+     "halfReached": 0.496,
+     "longestLosingStreak": 7,
+     "medianHours": 9.2,
+     "exits": {
+      "STOP": 188,
+      "ENTRY_STOP": 118,
+      "MARKET_SELL": 67
+     }
+    },
+    "SCALP_SWING": {
+     "n": 116,
+     "won": 32,
+     "lost": 84,
+     "winRate": 0.276,
+     "averageR": -0.133,
+     "errorR": 0.175,
+     "averageWinR": 2.65,
+     "averageLossR": -1.19,
+     "profitFactor": 0.85,
+     "halfReached": 0.276,
+     "longestLosingStreak": 11,
+     "medianHours": 21.1,
+     "exits": {
+      "STOP": 84,
+      "ENTRY_STOP": 22,
+      "TREND_5.618": 10
+     }
+    },
+    "SWING": {
+     "n": 52,
+     "won": 13,
+     "lost": 39,
+     "winRate": 0.25,
+     "averageR": -0.04,
+     "errorR": 0.309,
+     "averageWinR": 3.3,
+     "averageLossR": -1.15,
+     "profitFactor": 0.95,
+     "halfReached": 0.25,
+     "longestLosingStreak": 6,
+     "medianHours": 25.8,
+     "exits": {
+      "STOP": 39,
+      "TREND_5.618": 7,
+      "ENTRY_STOP": 6
+     }
+    },
+    "account": {
+     "start": 1000.0,
+     "end": 868.76,
+     "percent": -13.1,
+     "maxDrawdownPercent": 17.3
+    }
+   },
+   "last30": {
+    "all": {
+     "n": 284,
+     "won": 96,
+     "lost": 188,
+     "winRate": 0.338,
+     "averageR": -0.313,
+     "errorR": 0.095,
+     "averageWinR": 1.44,
+     "averageLossR": -1.21,
+     "profitFactor": 0.61,
+     "halfReached": 0.335,
+     "longestLosingStreak": 12,
+     "medianHours": 8.8,
+     "exits": {
+      "STOP": 189,
+      "ENTRY_STOP": 57,
+      "MARKET_SELL": 33,
+      "TREND_5.618": 5
+     }
+    },
+    "SCALP": {
+     "n": 198,
+     "won": 77,
+     "lost": 121,
+     "winRate": 0.389,
+     "averageR": -0.294,
+     "errorR": 0.097,
+     "averageWinR": 1.14,
+     "averageLossR": -1.2,
+     "profitFactor": 0.6,
+     "halfReached": 0.384,
+     "longestLosingStreak": 9,
+     "medianHours": 7.9,
+     "exits": {
+      "STOP": 122,
+      "ENTRY_STOP": 43,
+      "MARKET_SELL": 33
+     }
+    },
+    "SCALP_SWING": {
+     "n": 62,
+     "won": 14,
+     "lost": 48,
+     "winRate": 0.226,
+     "averageR": -0.244,
+     "errorR": 0.296,
+     "averageWinR": 3.17,
+     "averageLossR": -1.24,
+     "profitFactor": 0.75,
+     "halfReached": 0.226,
+     "longestLosingStreak": 12,
+     "medianHours": 14.4,
+     "exits": {
+      "STOP": 48,
+      "ENTRY_STOP": 10,
+      "TREND_5.618": 4
+     }
+    },
+    "SWING": {
+     "n": 24,
+     "won": 5,
+     "lost": 19,
+     "winRate": 0.208,
+     "averageR": -0.648,
+     "errorR": 0.224,
+     "averageWinR": 1.35,
+     "averageLossR": -1.17,
+     "profitFactor": 0.3,
+     "halfReached": 0.208,
+     "longestLosingStreak": 8,
+     "medianHours": 14.4,
+     "exits": {
+      "STOP": 19,
+      "ENTRY_STOP": 4,
+      "TREND_5.618": 1
+     }
+    },
+    "account": {
+     "start": 1000.0,
+     "end": 716.06,
+     "percent": -28.4,
+     "maxDrawdownPercent": 29.8
+    }
+   }
+  },
+  "shuffled": {
+   "plans": 2353,
+   "leftOut": {
+    "score": 23038,
+    "half": 357
+   },
+   "split": 1626967440,
+   "first70": {
+    "all": {
+     "n": 563,
+     "won": 211,
+     "lost": 352,
+     "winRate": 0.375,
+     "averageR": -0.224,
+     "errorR": 0.065,
+     "averageWinR": 1.35,
+     "averageLossR": -1.17,
+     "profitFactor": 0.69,
+     "halfReached": 0.377,
+     "longestLosingStreak": 9,
+     "medianHours": 12.0,
+     "exits": {
+      "STOP": 351,
+      "ENTRY_STOP": 125,
+      "MARKET_SELL": 75,
+      "TREND_5.618": 12
+     }
+    },
+    "SCALP": {
+     "n": 380,
+     "won": 169,
+     "lost": 211,
+     "winRate": 0.445,
+     "averageR": -0.197,
+     "errorR": 0.066,
+     "averageWinR": 1.04,
+     "averageLossR": -1.19,
+     "profitFactor": 0.7,
+     "halfReached": 0.445,
+     "longestLosingStreak": 9,
+     "medianHours": 9.8,
+     "exits": {
+      "STOP": 211,
+      "ENTRY_STOP": 94,
+      "MARKET_SELL": 75
+     }
+    },
+    "SCALP_SWING": {
+     "n": 112,
+     "won": 28,
+     "lost": 84,
+     "winRate": 0.25,
+     "averageR": -0.16,
+     "errorR": 0.18,
+     "averageWinR": 2.74,
+     "averageLossR": -1.13,
+     "profitFactor": 0.81,
+     "halfReached": 0.25,
+     "longestLosingStreak": 15,
+     "medianHours": 22.8,
+     "exits": {
+      "STOP": 84,
+      "ENTRY_STOP": 18,
+      "TREND_5.618": 10
+     }
+    },
+    "SWING": {
+     "n": 71,
+     "won": 14,
+     "lost": 57,
+     "winRate": 0.197,
+     "averageR": -0.469,
+     "errorR": 0.244,
+     "averageWinR": 2.39,
+     "averageLossR": -1.17,
+     "profitFactor": 0.5,
+     "halfReached": 0.211,
+     "longestLosingStreak": 11,
+     "medianHours": 18.5,
+     "exits": {
+      "STOP": 56,
+      "ENTRY_STOP": 13,
+      "TREND_5.618": 2
+     }
+    },
+    "account": {
+     "start": 1000.0,
+     "end": 692.01,
+     "percent": -30.8,
+     "maxDrawdownPercent": 35.8
+    }
+   },
+   "last30": {
+    "all": {
+     "n": 294,
+     "won": 118,
+     "lost": 176,
+     "winRate": 0.401,
+     "averageR": -0.163,
+     "errorR": 0.087,
+     "averageWinR": 1.34,
+     "averageLossR": -1.17,
+     "profitFactor": 0.77,
+     "halfReached": 0.401,
+     "longestLosingStreak": 8,
+     "medianHours": 14.0,
+     "exits": {
+      "STOP": 176,
+      "ENTRY_STOP": 77,
+      "MARKET_SELL": 31,
+      "TREND_5.618": 9,
+      "HALF_AT_MARKET_SELL": 1
+     }
+    },
+    "SCALP": {
+     "n": 217,
+     "won": 96,
+     "lost": 121,
+     "winRate": 0.442,
+     "averageR": -0.181,
+     "errorR": 0.088,
+     "averageWinR": 1.07,
+     "averageLossR": -1.17,
+     "profitFactor": 0.72,
+     "halfReached": 0.442,
+     "longestLosingStreak": 7,
+     "medianHours": 11.0,
+     "exits": {
+      "STOP": 121,
+      "ENTRY_STOP": 64,
+      "MARKET_SELL": 31,
+      "HALF_AT_MARKET_SELL": 1
+     }
+    },
+    "SCALP_SWING": {
+     "n": 46,
+     "won": 12,
+     "lost": 34,
+     "winRate": 0.261,
+     "averageR": -0.19,
+     "errorR": 0.261,
+     "averageWinR": 2.53,
+     "averageLossR": -1.15,
+     "profitFactor": 0.78,
+     "halfReached": 0.261,
+     "longestLosingStreak": 11,
+     "medianHours": 40.5,
+     "exits": {
+      "STOP": 34,
+      "TREND_5.618": 6,
+      "ENTRY_STOP": 6
+     }
+    },
+    "SWING": {
+     "n": 31,
+     "won": 10,
+     "lost": 21,
+     "winRate": 0.323,
+     "averageR": -0.001,
+     "errorR": 0.397,
+     "averageWinR": 2.5,
+     "averageLossR": -1.19,
+     "profitFactor": 1.0,
+     "halfReached": 0.323,
+     "longestLosingStreak": 5,
+     "medianHours": 10.8,
+     "exits": {
+      "STOP": 21,
+      "ENTRY_STOP": 7,
+      "TREND_5.618": 3
+     }
+    },
+    "account": {
+     "start": 1000.0,
+     "end": 917.88,
+     "percent": -8.2,
+     "maxDrawdownPercent": 13.6
+    }
+   }
+  }
+ },
+ "SPX": {
+  "real": {
+   "plans": 1707,
+   "leftOut": {
+    "score": 16742,
+    "half": 239
+   },
+   "split": 1642718610,
+   "first70": {
+    "all": {
+     "n": 396,
+     "won": 156,
+     "lost": 240,
+     "winRate": 0.394,
+     "averageR": -0.206,
+     "errorR": 0.074,
+     "averageWinR": 1.3,
+     "averageLossR": -1.18,
+     "profitFactor": 0.71,
+     "halfReached": 0.394,
+     "longestLosingStreak": 12,
+     "medianHours": 13.2,
+     "exits": {
+      "STOP": 240,
+      "ENTRY_STOP": 97,
+      "MARKET_SELL": 54,
+      "TREND_5.618": 5
+     }
+    },
+    "SCALP": {
+     "n": 276,
+     "won": 131,
+     "lost": 145,
+     "winRate": 0.475,
+     "averageR": -0.086,
+     "errorR": 0.086,
+     "averageWinR": 1.15,
+     "averageLossR": -1.2,
+     "profitFactor": 0.86,
+     "halfReached": 0.475,
+     "longestLosingStreak": 8,
+     "medianHours": 11.4,
+     "exits": {
+      "STOP": 145,
+      "ENTRY_STOP": 77,
+      "MARKET_SELL": 54
+     }
+    },
+    "SCALP_SWING": {
+     "n": 81,
+     "won": 15,
+     "lost": 66,
+     "winRate": 0.185,
+     "averageR": -0.478,
+     "errorR": 0.174,
+     "averageWinR": 2.45,
+     "averageLossR": -1.14,
+     "profitFactor": 0.49,
+     "halfReached": 0.185,
+     "longestLosingStreak": 11,
+     "medianHours": 22.2,
+     "exits": {
+      "STOP": 66,
+      "ENTRY_STOP": 12,
+      "TREND_5.618": 3
+     }
+    },
+    "SWING": {
+     "n": 39,
+     "won": 10,
+     "lost": 29,
+     "winRate": 0.256,
+     "averageR": -0.489,
+     "errorR": 0.228,
+     "averageWinR": 1.49,
+     "averageLossR": -1.17,
+     "profitFactor": 0.44,
+     "halfReached": 0.256,
+     "longestLosingStreak": 9,
+     "medianHours": 15.2,
+     "exits": {
+      "STOP": 29,
+      "ENTRY_STOP": 8,
+      "TREND_5.618": 2
+     }
+    },
+    "account": {
+     "start": 1000.0,
+     "end": 787.21,
+     "percent": -21.3,
+     "maxDrawdownPercent": 21.8
+    }
+   },
+   "last30": {
+    "all": {
+     "n": 208,
+     "won": 76,
+     "lost": 132,
+     "winRate": 0.365,
+     "averageR": -0.285,
+     "errorR": 0.103,
+     "averageWinR": 1.31,
+     "averageLossR": -1.21,
+     "profitFactor": 0.63,
+     "halfReached": 0.37,
+     "longestLosingStreak": 9,
+     "medianHours": 9.6,
+     "exits": {
+      "STOP": 131,
+      "ENTRY_STOP": 48,
+      "MARKET_SELL": 22,
+      "TREND_5.618": 7
+     }
+    },
+    "SCALP": {
+     "n": 140,
+     "won": 60,
+     "lost": 80,
+     "winRate": 0.429,
+     "averageR": -0.28,
+     "errorR": 0.108,
+     "averageWinR": 0.97,
+     "averageLossR": -1.22,
+     "profitFactor": 0.6,
+     "halfReached": 0.436,
+     "longestLosingStreak": 5,
+     "medianHours": 8.8,
+     "exits": {
+      "STOP": 79,
+      "ENTRY_STOP": 39,
+      "MARKET_SELL": 22
+     }
+    },
+    "SCALP_SWING": {
+     "n": 42,
+     "won": 10,
+     "lost": 32,
+     "winRate": 0.238,
+     "averageR": -0.243,
+     "errorR": 0.291,
+     "averageWinR": 2.91,
+     "averageLossR": -1.23,
+     "profitFactor": 0.74,
+     "halfReached": 0.238,
+     "longestLosingStreak": 6,
+     "medianHours": 17.4,
+     "exits": {
+      "STOP": 32,
+      "ENTRY_STOP": 5,
+      "TREND_5.618": 5
+     }
+    },
+    "SWING": {
+     "n": 26,
+     "won": 6,
+     "lost": 20,
+     "winRate": 0.231,
+     "averageR": -0.378,
+     "errorR": 0.336,
+     "averageWinR": 2.08,
+     "averageLossR": -1.11,
+     "profitFactor": 0.56,
+     "halfReached": 0.231,
+     "longestLosingStreak": 9,
+     "medianHours": 19.4,
+     "exits": {
+      "STOP": 20,
+      "ENTRY_STOP": 4,
+      "TREND_5.618": 2
+     }
+    },
+    "account": {
+     "start": 1000.0,
+     "end": 858.78,
+     "percent": -14.1,
+     "maxDrawdownPercent": 16.7
+    }
+   }
+  },
+  "shuffled": {
+   "plans": 1818,
+   "leftOut": {
+    "score": 17661,
+    "half": 339
+   },
+   "split": 1642769370,
+   "first70": {
+    "all": {
+     "n": 435,
+     "won": 156,
+     "lost": 279,
+     "winRate": 0.359,
+     "averageR": -0.252,
+     "errorR": 0.075,
+     "averageWinR": 1.42,
+     "averageLossR": -1.19,
+     "profitFactor": 0.67,
+     "halfReached": 0.359,
+     "longestLosingStreak": 10,
+     "medianHours": 12.8,
+     "exits": {
+      "STOP": 279,
+      "ENTRY_STOP": 88,
+      "MARKET_SELL": 55,
+      "TREND_5.618": 13
+     }
+    },
+    "SCALP": {
+     "n": 304,
+     "won": 127,
+     "lost": 177,
+     "winRate": 0.418,
+     "averageR": -0.249,
+     "errorR": 0.076,
+     "averageWinR": 1.09,
+     "averageLossR": -1.21,
+     "profitFactor": 0.65,
+     "halfReached": 0.421,
+     "longestLosingStreak": 8,
+     "medianHours": 11.6,
+     "exits": {
+      "STOP": 176,
+      "ENTRY_STOP": 73,
+      "MARKET_SELL": 55
+     }
+    },
+    "SCALP_SWING": {
+     "n": 73,
+     "won": 17,
+     "lost": 56,
+     "winRate": 0.233,
+     "averageR": -0.175,
+     "errorR": 0.243,
+     "averageWinR": 3.1,
+     "averageLossR": -1.17,
+     "profitFactor": 0.8,
+     "halfReached": 0.233,
+     "longestLosingStreak": 21,
+     "medianHours": 18.8,
+     "exits": {
+      "STOP": 56,
+      "TREND_5.618": 9,
+      "ENTRY_STOP": 8
+     }
+    },
+    "SWING": {
+     "n": 58,
+     "won": 12,
+     "lost": 46,
+     "winRate": 0.207,
+     "averageR": -0.367,
+     "errorR": 0.244,
+     "averageWinR": 2.58,
+     "averageLossR": -1.14,
+     "profitFactor": 0.59,
+     "halfReached": 0.19,
+     "longestLosingStreak": 8,
+     "medianHours": 21.5,
+     "exits": {
+      "STOP": 47,
+      "ENTRY_STOP": 7,
+      "TREND_5.618": 4
+     }
+    },
+    "account": {
+     "start": 1000.0,
+     "end": 785.42,
+     "percent": -21.5,
+     "maxDrawdownPercent": 25.7
+    }
+   },
+   "last30": {
+    "all": {
+     "n": 229,
+     "won": 99,
+     "lost": 130,
+     "winRate": 0.432,
+     "averageR": 0.031,
+     "errorR": 0.119,
+     "averageWinR": 1.62,
+     "averageLossR": -1.18,
+     "profitFactor": 1.05,
+     "halfReached": 0.428,
+     "longestLosingStreak": 7,
+     "medianHours": 16.8,
+     "exits": {
+      "STOP": 131,
+      "ENTRY_STOP": 56,
+      "MARKET_SELL": 28,
+      "TREND_5.618": 14
+     }
+    },
+    "SCALP": {
+     "n": 158,
+     "won": 76,
+     "lost": 82,
+     "winRate": 0.481,
+     "averageR": -0.154,
+     "errorR": 0.101,
+     "averageWinR": 0.98,
+     "averageLossR": -1.21,
+     "profitFactor": 0.75,
+     "halfReached": 0.475,
+     "longestLosingStreak": 7,
+     "medianHours": 10.0,
+     "exits": {
+      "STOP": 83,
+      "ENTRY_STOP": 47,
+      "MARKET_SELL": 28
+     }
+    },
+    "SCALP_SWING": {
+     "n": 47,
+     "won": 10,
+     "lost": 37,
+     "winRate": 0.213,
+     "averageR": -0.05,
+     "errorR": 0.339,
+     "averageWinR": 3.87,
+     "averageLossR": -1.11,
+     "profitFactor": 0.94,
+     "halfReached": 0.213,
+     "longestLosingStreak": 12,
+     "medianHours": 47.5,
+     "exits": {
+      "STOP": 37,
+      "TREND_5.618": 6,
+      "ENTRY_STOP": 4
+     }
+    },
+    "SWING": {
+     "n": 24,
+     "won": 13,
+     "lost": 11,
+     "winRate": 0.542,
+     "averageR": 1.409,
+     "errorR": 0.561,
+     "averageWinR": 3.6,
+     "averageLossR": -1.18,
+     "profitFactor": 3.6,
+     "halfReached": 0.542,
+     "longestLosingStreak": 4,
+     "medianHours": 52.1,
+     "exits": {
+      "STOP": 11,
+      "TREND_5.618": 8,
+      "ENTRY_STOP": 5
+     }
+    },
+    "account": {
+     "start": 1000.0,
+     "end": 1117.04,
+     "percent": 11.7,
+     "maxDrawdownPercent": 6.1
+    }
+   }
+  }
+ }
+}

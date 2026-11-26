@@ -19,6 +19,7 @@ the same numbers the IQ tests check (GoldenTableTests).
 import base64
 import json
 import sys
+import time
 import urllib.error
 import urllib.request
 
@@ -105,6 +106,10 @@ def sign_in(email):
     status, body = call("POST", "/auth/register", {"email": email, "password": PASSWORD})
     if status == 409:  # already registered on this machine
         status, body = call("POST", "/auth/login", {"email": email, "password": PASSWORD})
+        while status == 429:  # the gateway allows 5 logins a minute and there are more accounts than that
+            print(f"{email}: login limit reached, waiting 15 seconds")
+            time.sleep(15)
+            status, body = call("POST", "/auth/login", {"email": email, "password": PASSWORD})
     if status != 200 or not body or "accessToken" not in body:
         sys.exit(f"{email}: sign-in failed ({status}): {body}")
     return body["accessToken"]

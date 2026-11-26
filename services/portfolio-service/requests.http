@@ -1,0 +1,53 @@
+### Portfolio 4.1-4.3 through the gateway (login first: EdgeGateway.Api.http; UserId = the token's "sub")
+@Gateway = http://localhost:5000
+@UserId = 00000000-0000-0000-0000-000000000000
+@Token = paste-the-access-token
+
+### what may be chosen: risk ceiling, investable share, names for the screen
+GET {{Gateway}}/api/portfolio/{{UserId}}/options
+Authorization: Bearer {{Token}}
+
+### 4.1 published allocation (institutionStyle: YAPIKREDI | ISBANK | ZIRAAT)
+PUT {{Gateway}}/api/portfolio/{{UserId}}/preferences
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{ "option": "INSTITUTION", "riskLevel": "MEDIUM", "institutionStyle": "ISBANK" }
+
+### 4.2 own choice
+PUT {{Gateway}}/api/portfolio/{{UserId}}/preferences
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{ "option": "CUSTOM", "riskLevel": "MEDIUM", "focusAssets": ["GOLD", "NVDA"], "excludedAssets": ["BTC"] }
+
+### 4.3 standard basket without an asset
+PUT {{Gateway}}/api/portfolio/{{UserId}}/preferences
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{ "option": "STANDARD", "riskLevel": "LOW", "excludedAssets": ["BTC"] }
+
+### calculate the proposal from the saved choice
+POST {{Gateway}}/api/portfolio/{{UserId}}/proposal
+Authorization: Bearer {{Token}}
+
+### last proposal (stale=true when the IQ changed after it)
+GET {{Gateway}}/api/portfolio/{{UserId}}/latest
+Authorization: Bearer {{Token}}
+
+### 4.4 paper account
+GET {{Gateway}}/api/portfolio/market/account
+Authorization: Bearer {{Token}}
+
+### 4.4 ledger (status = OPEN or CLOSED; without it both)
+GET {{Gateway}}/api/portfolio/market/trades?asset=BTC&status=CLOSED
+Authorization: Bearer {{Token}}
+
+### 4.4 one trade: events, every confirmation, trader and standard story
+GET {{Gateway}}/api/portfolio/market/trades/00000000-0000-0000-0000-000000000000
+Authorization: Bearer {{Token}}
+
+### 4.4 statistics
+GET {{Gateway}}/api/portfolio/market/performance
+Authorization: Bearer {{Token}}

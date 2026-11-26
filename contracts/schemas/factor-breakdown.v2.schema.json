@@ -38,6 +38,16 @@
         ]
       }
     },
+    "adjustment": {
+      "description": "Optional, scoring v2.1 (26 Nov 2026). Set when a floor or cap changed the sum of the factors: WEALTH_FLOOR (net worth covers the yearly outgoings for 25 years -> 100, proportionally below), INCOME_FLOOR (100 x monthly income / 1,000,000 while net debt <= 1 year of income) or DEBT_CAP (net debt above 3 years of income: at most 40 - 2 per further year; with no income 0). The factors are left as they are, so with an adjustment they do not add up to the score. null otherwise.",
+      "type": ["object", "null"],
+      "properties": {
+        "rule": { "enum": ["WEALTH_FLOOR", "INCOME_FLOOR", "DEBT_CAP"] },
+        "fromFactors": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "score": { "type": "integer", "minimum": 0, "maximum": 100 }
+      },
+      "required": ["rule", "fromFactors", "score"]
+    },
     "appliedRule": {
       "description": "null = the 5 factors decided the score. VERY_HIGH_INCOME: monthly income >= 1,000,000 and net debt <= 1 year of income -> 100. VERY_HIGH_WEALTH: cash + investments - total debt >= 10,000,000 -> 100. EXTREME_DEBT: net debt >= 100,000,000 with income < 1,000,000 -> 0. The coach must explain a rule-decided score by the rule, not by the ratios.",
       "enum": [null, "VERY_HIGH_INCOME", "VERY_HIGH_WEALTH", "EXTREME_DEBT"]
