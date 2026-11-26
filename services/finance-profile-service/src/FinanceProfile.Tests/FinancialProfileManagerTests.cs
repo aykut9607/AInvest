@@ -159,6 +159,72 @@ public class FinancialProfileManagerTests
     }
 
     [Fact]
+    public async Task Upsert_WithPaymentDisciplineAnswers_SavesAndReturnsThem()
+    {
+        var request = ValidRequest();
+        request.BillsOnTime = "ALMOST_ALL";
+        request.MinimumPaymentMonths = "NO_CARD";
+        request.LatePayments = "TWICE_OR_MORE";
+
+        var saved = await Manager.UpsertAsync("u1", request);
+        var read = await Manager.GetByUserIdAsync("u1");
+
+        Assert.True(saved.Success);
+        Assert.Equal("ALMOST_ALL", read.Data.BillsOnTime);
+        Assert.Equal("NO_CARD", read.Data.MinimumPaymentMonths);
+        Assert.Equal("TWICE_OR_MORE", read.Data.LatePayments);
+    }
+
+    [Theory]
+    [InlineData("almost_all", null, null)]
+    [InlineData(null, "SEVEN", null)]
+    [InlineData(null, null, "")]
+    public async Task Upsert_WithUnknownPaymentDisciplineAnswer_IsRejected_AndNothingIsSaved(string? bills, string? minimum, string? late)
+    {
+        var request = ValidRequest();
+        request.BillsOnTime = bills;
+        request.MinimumPaymentMonths = minimum;
+        request.LatePayments = late;
+
+        var result = await Manager.UpsertAsync("u1", request);
+
+        Assert.False(result.Success);
+        Assert.Equal(Messages.InvalidPaymentDiscipline, result.Message);
+        Assert.Empty(_dal.Saved);
+    }
+
+    [Fact]
+    public async Task Upsert_WithoutPaymentDisciplineAnswers_LeavesThemNull()
+    {
+        var result = await Manager.UpsertAsync("u1", ValidRequest());
+        var read = await Manager.GetByUserIdAsync("u1");
+
+        Assert.True(result.Success);
+        Assert.Null(read.Data.BillsOnTime);
+        Assert.Null(read.Data.MinimumPaymentMonths);
+        Assert.Null(read.Data.LatePayments);
+    }
+
+    [Fact]
+    public async Task CalculateIq_DoesNotSendThePaymentDisciplineAnswers()
+    {
+        var request = ValidRequest();
+        request.BillsOnTime = "SOME";
+        request.MinimumPaymentMonths = "SIX_PLUS";
+        request.LatePayments = "ONCE";
+        await Manager.UpsertAsync("u1", request);
+
+        await Manager.CalculateIqAsync("u1");
+
+        // the IQ request type has no such fields, so they cannot reach the score (checked on the serialized body)
+        var json = System.Text.Json.JsonSerializer.Serialize(_iqClient.LastRequest);
+        Assert.DoesNotContain("BillsOnTime", json);
+        Assert.DoesNotContain("MinimumPaymentMonths", json);
+        Assert.DoesNotContain("LatePayments", json);
+        Assert.DoesNotContain("SIX_PLUS", json);
+    }
+
+    [Fact]
     public async Task CalculateIq_ForwardsTheScoringInputsToIq()
     {
         await Manager.UpsertAsync("u1", ValidRequest());
