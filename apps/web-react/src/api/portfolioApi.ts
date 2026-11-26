@@ -1,6 +1,7 @@
 import { PORTFOLIO_SOURCE, type PortfolioSource } from "../config";
 import { SAMPLE_PORTFOLIO_PROPOSAL } from "../mocks/portfolioProposal";
 import type { ApiResult, PortfolioProposal } from "../types/api";
+import type { PortfolioOptions } from "../types/portfolioService";
 import { authorizedRequest, currentUserId } from "./authorizedRequest";
 import { errorFrom, type CallOptions } from "./http";
 
@@ -33,6 +34,19 @@ export async function getPortfolioProposal(options: CallOptions = {}): Promise<P
   const proposal = body && "proposalId" in body ? body : (body as ApiResult<PortfolioProposal> | null)?.data;
   if (response.status !== 200 || !proposal) throw errorFrom(response, "Portföy önerisi yüklenemedi.");
   return { proposal, source: "service" };
+}
+
+// What the user may choose (risk ceiling, investable amounts and their basis, options, institution sources).
+// null in mock mode: the page then falls back to the IQ segment as the ceiling.
+export async function getPortfolioOptions(options: CallOptions = {}): Promise<PortfolioOptions | null> {
+  if (PORTFOLIO_SOURCE === "mock") return null;
+  const response = await authorizedRequest<ApiResult<PortfolioOptions>>(
+    `/api/portfolio/${encodeURIComponent(currentUserId())}/options`,
+    options
+  );
+  const data = response.body?.data;
+  if (response.status !== 200 || !data) throw errorFrom(response, "Portföy seçenekleri yüklenemedi.");
+  return data;
 }
 
 export interface PortfolioChoice {

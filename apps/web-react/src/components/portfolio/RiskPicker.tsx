@@ -15,11 +15,15 @@ export interface RiskPickerProps {
   value: RiskLevel | null;
   ceiling: RiskLevel;
   onChange: (level: RiskLevel) => void;
+  // replaces the default ceiling note (the service's ceiling is below the segment)
+  note?: string;
+  // sentences explaining a lowered ceiling (the service's CEILING_* reasons)
+  reasons?: string[];
 }
 
 // Radio group with a lock on the levels above the IQ ceiling (SegmentedControl has no per-option disabled state).
 // Locked levels are disabled inputs, so keyboards skip them and screen readers announce them as unavailable.
-export default function RiskPicker({ value, ceiling, onChange }: RiskPickerProps) {
+export default function RiskPicker({ value, ceiling, onChange, note, reasons = [] }: RiskPickerProps) {
   const name = useId();
   const noteId = `${name}-note`;
 
@@ -52,8 +56,15 @@ export default function RiskPicker({ value, ceiling, onChange }: RiskPickerProps
         })}
       </div>
       <p id={noteId} className="field-hint">
-        {ceilingNote(ceiling)}
+        {note ?? ceilingNote(ceiling)}
       </p>
+      {reasons.length > 0 ? (
+        <ul className="risk-reasons text-sm">
+          {reasons.map((reason) => (
+            <li key={reason}>{reason}</li>
+          ))}
+        </ul>
+      ) : null}
     </fieldset>
   );
 }

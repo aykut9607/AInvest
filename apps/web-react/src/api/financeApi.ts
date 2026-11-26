@@ -12,7 +12,14 @@ export async function getProfile(options: CallOptions = {}): Promise<FinancialPr
   const response = await authorizedRequest<ApiResult<FinancialProfile>>(profilePath(), options);
   if (response.status === 404) return null;
   if (response.status !== 200 || !response.body?.data) throw errorFrom(response, "Profil yüklenemedi.");
-  return response.body.data;
+  const data = response.body.data;
+  // a server without the payment habit fields leaves them out: unanswered
+  return {
+    ...data,
+    billsOnTime: data.billsOnTime ?? null,
+    minimumPaymentMonths: data.minimumPaymentMonths ?? null,
+    latePayments: data.latePayments ?? null,
+  };
 }
 
 // upsert; riskPreference is deliberately not sent (scoring v2 does not use it, the Portfolio Service will ask)
@@ -28,6 +35,10 @@ export async function saveProfile(input: ProfileInput, options: CallOptions = {}
       cashReserve: input.cashReserve,
       investmentAmount: input.investmentAmount,
       impatienceLevel: input.impatienceLevel,
+      // optional payment habits: only answered ones are sent (not part of the IQ score yet)
+      ...(input.billsOnTime ? { billsOnTime: input.billsOnTime } : {}),
+      ...(input.minimumPaymentMonths ? { minimumPaymentMonths: input.minimumPaymentMonths } : {}),
+      ...(input.latePayments ? { latePayments: input.latePayments } : {}),
     },
   });
   if (response.status !== 200 || !response.body?.success) throw errorFrom(response, "Profil kaydedilemedi.");

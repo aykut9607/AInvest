@@ -18,7 +18,8 @@ test("demo user signs in, the saved profile loads, save & calculate lands on the
 
   const income = page.getByLabel("Aylık gelir");
   await expect(income).not.toHaveValue("");
-  await expect(page.getByRole("radio", { checked: true })).toHaveCount(1);
+  // one answer in the impatience group (the payment habit groups have their own radios)
+  await expect(page.locator('input[name="impatienceLevel"]:checked')).toHaveCount(1);
 
   await page.getByRole("button", { name: "Kaydet ve hesapla" }).click();
   await expect(page).toHaveURL(/\/panel$/);

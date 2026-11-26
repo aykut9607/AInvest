@@ -3,9 +3,12 @@
 // (REASONS); portfolio assets, options, reasons: services/ai-rag-service/services/portfolio.py.
 import type {
   AppliedRule,
+  BillsOnTime,
   FactorBreakdown,
   FallbackReason,
   InstitutionStyle,
+  LatePayments,
+  MinimumPaymentMonths,
   PortfolioOption,
   RiskLevel,
   Segment,
@@ -200,6 +203,39 @@ export const IMPATIENCE_HINTS: Record<number, string> = {
   4: "Birkaç hafta",
   5: "Sonucu hemen görmek isterim",
 };
+
+// ---- Payment discipline (profile form + dashboard card; not part of the score yet) ---------------------------------
+
+export const BILLS_ON_TIME_QUESTION = "Faturalarını ve borç ödemelerini ne sıklıkla zamanında ödersin?";
+export const BILLS_ON_TIME_OPTIONS: { value: BillsOnTime; label: string }[] = [
+  { value: "ALL", label: "Hepsini" },
+  { value: "ALMOST_ALL", label: "Neredeyse hepsini" },
+  { value: "MOST", label: "Çoğunu" },
+  { value: "SOME", label: "Bir kısmını" },
+  { value: "VERY_FEW", label: "Çok azını" },
+];
+
+export const MINIMUM_PAYMENT_QUESTION = "Son 12 ayda kaç ay kredi kartında yalnızca asgari ödemeyi yaptın?";
+export const MINIMUM_PAYMENT_OPTIONS: { value: MinimumPaymentMonths; label: string }[] = [
+  { value: "NONE", label: "Hiç" },
+  { value: "ONE_TWO", label: "1–2 ay" },
+  { value: "THREE_FIVE", label: "3–5 ay" },
+  { value: "SIX_PLUS", label: "6 ay ve üstü" },
+  { value: "NO_CARD", label: "Kredi kartım yok" },
+];
+
+export const LATE_PAYMENTS_QUESTION = "Son 12 ayda 30 günden fazla geciken bir ödemen oldu mu?";
+export const LATE_PAYMENTS_OPTIONS: { value: LatePayments; label: string }[] = [
+  { value: "NONE", label: "Hayır" },
+  { value: "ONCE", label: "Bir kez" },
+  { value: "TWICE_OR_MORE", label: "İki ve daha fazla" },
+];
+
+// label of a stored answer; null for unanswered or unknown values (a newer server may add options)
+export function paymentAnswerLabel<T extends string>(options: { value: T; label: string }[], value: T | null | undefined): string | null {
+  if (!value) return null;
+  return options.find((option) => option.value === value)?.label ?? null;
+}
 
 // ---- Portfolio -----------------------------------------------------------------------------------------------------
 

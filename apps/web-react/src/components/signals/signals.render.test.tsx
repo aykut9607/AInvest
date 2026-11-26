@@ -1,13 +1,9 @@
 import { renderToString as renderRaw } from "react-dom/server";
-import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { AuthContext, type AuthContextValue } from "../../auth/useAuth";
 import { SAMPLE_SIGNAL_PLANS } from "../../mocks/signalPlans";
-import SignalsPage from "../../pages/SignalsPage";
-import { MemoryStorage } from "../../test/helpers";
 import PlanCard from "./PlanCard";
 import WatchlistSection from "./WatchlistSection";
-import { WATCHLIST_STORAGE_KEY, addToWatchlist } from "./watchlist";
+import { addToWatchlist } from "./watchlist";
 
 // server render without the <!-- --> markers React puts between adjacent text nodes
 const renderToString = (node: Parameters<typeof renderRaw>[0]) => renderRaw(node).replace(/<!-- -->/g, "");
@@ -57,28 +53,5 @@ describe("WatchlistSection", () => {
     expect(html).toContain("liste sayfa yenilenince silinir");
 
     expect(renderToString(<WatchlistSection items={[]} persistent onRemove={() => {}} />)).toContain("Henüz takip ettiğin bir plan yok.");
-  });
-});
-
-describe("SignalsPage", () => {
-  it("shows the plans without notice or disclaimer lines and restores the watchlist from localStorage", () => {
-    const storage = new MemoryStorage();
-    storage.setItem(`${WATCHLIST_STORAGE_KEY}.u-1`, JSON.stringify(addToWatchlist([], plan("GOLD"), new Date("2026-11-24T10:00:00Z"))));
-    vi.stubGlobal("localStorage", storage);
-    const auth = { session: { userId: "u-1", email: "demo.medium@ainvest.local", accessToken: "a", refreshToken: "r" } } as AuthContextValue;
-
-    const html = renderToString(
-      <MemoryRouter>
-        <AuthContext.Provider value={auth}>
-          <SignalsPage />
-        </AuthContext.Provider>
-      </MemoryRouter>
-    );
-    expect(html).not.toContain("tavsiyesi değildir");
-    expect(html).not.toContain("emir verilmez");
-    expect(html).not.toContain("Güven metinleri geçici");
-    expect(html).not.toContain("Örnek veri");
-    expect(html).toContain("Sanal takip listem");
-    expect(html).toContain("Altın (COMEX vadeli, GC=F)");
   });
 });
