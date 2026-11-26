@@ -1,0 +1,350 @@
+/*
+  AInvest design tokens. Every colour, space, radius and type size used by the app comes from here.
+
+  Chart palette: the dataviz skill's documented reference palette (palette.md), validated with validate_palette.js
+  on this app's chart surfaces (light #ffffff, dark #1a1a19):
+  - categorical 8 slots, light: all checks pass; worst adjacent CVD dE 9.1, normal-vision dE 19.6. Slots 3, 4, 5
+    (aqua, yellow, magenta) are below 3:1 on white, so a chart using them must show direct labels or a table view.
+  - categorical 8 slots, dark: all checks pass, all >= 3:1; worst adjacent CVD dE 8.4, normal-vision dE 19.3.
+  - scatter / bubble / small multiples (any two marks can touch): at most the first 3 slots (validated all-pairs
+    in both modes); fold the rest into "Diğer" or facet.
+  Rules: assign slots in order and never cycle; colour follows the entity, not its rank; text never wears a series
+  colour (use --chart-label / --color-text*); status colours are reserved for state and always come with a label.
+*/
+
+:root {
+  color-scheme: light;
+
+  /* ---- surfaces ---- */
+  --color-bg: #f4f4f1;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f9f9f7;
+  --color-surface-sunken: #efeee9;
+  --color-border: #e1e0d9;
+  --color-border-strong: #c3c2b7;
+  --color-overlay: rgba(11, 11, 11, 0.4);
+
+  /* ---- text (contrast on --color-surface: 19.6 / 7.9 / 5.4) ---- */
+  --color-text: #0b0b0b;
+  --color-text-secondary: #52514e;
+  --color-text-muted: #6b6a66;
+  --color-text-inverse: #ffffff;
+
+  /* ---- brand / interactive (white on primary 5.4:1, on hover 6.6:1) ---- */
+  --color-primary: #256abf;
+  --color-primary-hover: #1c5cab;
+  --color-primary-active: #184f95;
+  --color-primary-soft: #e7f0fb;
+  --color-primary-ink: #1c5cab;
+  --color-on-primary: #ffffff;
+  --color-focus-ring: #2a78d6;
+
+  /* ---- status: marks (fills, dots, bars) - reserved meaning, always with an icon or label ---- */
+  --color-good: #0ca30c;
+  --color-warning: #fab219;
+  --color-serious: #ec835a;
+  --color-critical: #d03b3b;
+
+  /* ---- status: text on its tinted background (all >= 5:1) ---- */
+  --color-good-ink: #006300;
+  --color-good-bg: #e6f4e6;
+  --color-warning-ink: #7a4d00;
+  --color-warning-bg: #fdf3dc;
+  --color-serious-ink: #a14a1f;
+  --color-serious-bg: #fcece4;
+  --color-critical-ink: #b42828;
+  --color-critical-bg: #fbeaea;
+  --color-info-ink: #1c4f8f;
+  --color-info-bg: #e7f0fb;
+
+  /* ---- Financial IQ segments (LOW 0-40, MEDIUM 41-70, HIGH 71-100): status scale, never series colours ---- */
+  --segment-low: var(--color-critical);
+  --segment-low-ink: var(--color-critical-ink);
+  --segment-low-bg: var(--color-critical-bg);
+  --segment-medium: var(--color-warning);
+  --segment-medium-ink: var(--color-warning-ink);
+  --segment-medium-bg: var(--color-warning-bg);
+  --segment-high: var(--color-good);
+  --segment-high-ink: var(--color-good-ink);
+  --segment-high-bg: var(--color-good-bg);
+
+  /* ---- charts ---- */
+  --chart-surface: var(--color-surface);
+  /* categorical, fixed order */
+  --chart-1: #2a78d6; /* blue */
+  --chart-2: #eb6834; /* orange */
+  --chart-3: #1baf7a; /* aqua */
+  --chart-4: #eda100; /* yellow */
+  --chart-5: #e87ba4; /* magenta */
+  --chart-6: #008300; /* green */
+  --chart-7: #6250d6; /* violet */
+  --chart-8: #e34948; /* red */
+  /* label inside a categorical fill: white, except dark ink on yellow (slot 4) */
+  --chart-on-fill: #ffffff;
+  --chart-on-fill-yellow: #0b0b0b;
+  /* per-slot label ink inside categorical fills: whichever of white / near-black has the higher contrast */
+  --chart-ink-1: #ffffff;
+  --chart-ink-2: #0b0b0b;
+  --chart-ink-3: #0b0b0b;
+  --chart-ink-4: #0b0b0b;
+  --chart-ink-5: #0b0b0b;
+  --chart-ink-6: #ffffff;
+  --chart-ink-7: #ffffff;
+  --chart-ink-8: #0b0b0b;
+  /* sequential (magnitude), one hue: --chart-seq-1 = least ... --chart-seq-7 = most */
+  --chart-seq-1: #cde2fb;
+  --chart-seq-2: #9ec5f4;
+  --chart-seq-3: #6da7ec;
+  --chart-seq-4: #3987e5;
+  --chart-seq-5: #256abf;
+  --chart-seq-6: #184f95;
+  --chart-seq-7: #0d366b;
+  /* ordinal (discrete ordered marks: tiers, stages): stays >= 2:1 on the surface */
+  --chart-ord-1: #86b6ef;
+  --chart-ord-2: #5598e7;
+  --chart-ord-3: #2a78d6;
+  --chart-ord-4: #1c5cab;
+  --chart-ord-5: #104281;
+  /* diverging (polarity): red <- neutral -> blue */
+  --chart-div-neg-strong: #b42828;
+  --chart-div-neg: #e34948;
+  --chart-div-mid: #f0efec;
+  --chart-div-pos: #3987e5;
+  --chart-div-pos-strong: #1c5cab;
+  /* chrome */
+  --chart-grid: #e1e0d9;
+  --chart-axis: #c3c2b7;
+  --chart-label: #6b6a66;
+  --chart-label-strong: #52514e;
+  --chart-delta-up: #006300;
+  --chart-delta-down: #b42828;
+  --chart-ring: #ffffff; /* 2px surface ring / gap between touching marks */
+
+  /* ---- spacing (4px grid) ---- */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ---- radius ---- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-full: 999px;
+
+  /* ---- typography (system sans everywhere, also for numbers) ---- */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, monospace;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-hero: 3.5rem;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.55;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* ---- elevation ---- */
+  --shadow-sm: 0 1px 2px rgba(11, 11, 11, 0.06);
+  --shadow-md: 0 2px 8px rgba(11, 11, 11, 0.08);
+  --shadow-lg: 0 8px 24px rgba(11, 11, 11, 0.12);
+
+  /* ---- layout ---- */
+  --content-max: 1120px;
+  --content-narrow: 720px;
+  --gutter: 16px;
+  --header-height: 60px;
+  --transition-fast: 120ms ease-out;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --gutter: 24px;
+  }
+}
+
+/* Dark mode: own steps from the same ramps, validated against the dark surface (#1a1a19).
+   Declared twice: the media query follows the OS, [data-theme="dark"] lets a future toggle force it. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --color-bg: #0d0d0d;
+    --color-surface: #1a1a19;
+    --color-surface-muted: #222221;
+    --color-surface-sunken: #141413;
+    --color-border: #2c2c2a;
+    --color-border-strong: #383835;
+    --color-overlay: rgba(0, 0, 0, 0.6);
+
+    --color-text: #f0efec;
+    --color-text-secondary: #c3c2b7;
+    --color-text-muted: #a3a29b;
+    --color-text-inverse: #0b0b0b;
+
+    --color-primary: #256abf;
+    --color-primary-hover: #1c5cab;
+    --color-primary-active: #184f95;
+    --color-primary-soft: #1a2433;
+    --color-primary-ink: #86b6ef;
+    --color-on-primary: #ffffff;
+    --color-focus-ring: #6da7ec;
+
+    --color-good-ink: #7fd67f;
+    --color-good-bg: #1f2a1f;
+    --color-warning-ink: #f5c45c;
+    --color-warning-bg: #2c2617;
+    --color-serious-ink: #f4a37f;
+    --color-serious-bg: #2e221c;
+    --color-critical-ink: #f08a8a;
+    --color-critical-bg: #2e1d1d;
+    --color-info-ink: #9ec5f4;
+    --color-info-bg: #1a2433;
+
+    --chart-1: #3987e5;
+    --chart-2: #d95926;
+    --chart-3: #199e70;
+    --chart-4: #c98500;
+    --chart-5: #d55181;
+    --chart-6: #0ca30c;
+    --chart-7: #9085e9;
+    --chart-8: #e66767;
+    --chart-on-fill: #ffffff;
+    --chart-on-fill-yellow: #ffffff;
+    --chart-ink-1: #0b0b0b;
+    --chart-ink-2: #0b0b0b;
+    --chart-ink-3: #0b0b0b;
+    --chart-ink-4: #0b0b0b;
+    --chart-ink-5: #0b0b0b;
+    --chart-ink-6: #0b0b0b;
+    --chart-ink-7: #0b0b0b;
+    --chart-ink-8: #0b0b0b;
+    /* sequential flips its anchor: the least value recedes into the dark surface */
+    --chart-seq-1: #0d366b;
+    --chart-seq-2: #184f95;
+    --chart-seq-3: #256abf;
+    --chart-seq-4: #3987e5;
+    --chart-seq-5: #6da7ec;
+    --chart-seq-6: #9ec5f4;
+    --chart-seq-7: #cde2fb;
+    --chart-ord-1: #184f95;
+    --chart-ord-2: #256abf;
+    --chart-ord-3: #3987e5;
+    --chart-ord-4: #6da7ec;
+    --chart-ord-5: #9ec5f4;
+    --chart-div-neg-strong: #f08a8a;
+    --chart-div-neg: #e66767;
+    --chart-div-mid: #383835;
+    --chart-div-pos: #3987e5;
+    --chart-div-pos-strong: #86b6ef;
+    --chart-grid: #2c2c2a;
+    --chart-axis: #383835;
+    --chart-label: #a3a29b;
+    --chart-label-strong: #c3c2b7;
+    --chart-delta-up: #0ca30c;
+    --chart-delta-down: #f08a8a;
+    --chart-ring: #1a1a19;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.6);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-bg: #0d0d0d;
+  --color-surface: #1a1a19;
+  --color-surface-muted: #222221;
+  --color-surface-sunken: #141413;
+  --color-border: #2c2c2a;
+  --color-border-strong: #383835;
+  --color-overlay: rgba(0, 0, 0, 0.6);
+
+  --color-text: #f0efec;
+  --color-text-secondary: #c3c2b7;
+  --color-text-muted: #a3a29b;
+  --color-text-inverse: #0b0b0b;
+
+  --color-primary: #256abf;
+  --color-primary-hover: #1c5cab;
+  --color-primary-active: #184f95;
+  --color-primary-soft: #1a2433;
+  --color-primary-ink: #86b6ef;
+  --color-on-primary: #ffffff;
+  --color-focus-ring: #6da7ec;
+
+  --color-good-ink: #7fd67f;
+  --color-good-bg: #1f2a1f;
+  --color-warning-ink: #f5c45c;
+  --color-warning-bg: #2c2617;
+  --color-serious-ink: #f4a37f;
+  --color-serious-bg: #2e221c;
+  --color-critical-ink: #f08a8a;
+  --color-critical-bg: #2e1d1d;
+  --color-info-ink: #9ec5f4;
+  --color-info-bg: #1a2433;
+
+  --chart-1: #3987e5;
+  --chart-2: #d95926;
+  --chart-3: #199e70;
+  --chart-4: #c98500;
+  --chart-5: #d55181;
+  --chart-6: #0ca30c;
+  --chart-7: #9085e9;
+  --chart-8: #e66767;
+  --chart-on-fill: #ffffff;
+  --chart-on-fill-yellow: #ffffff;
+  --chart-ink-1: #0b0b0b;
+  --chart-ink-2: #0b0b0b;
+  --chart-ink-3: #0b0b0b;
+  --chart-ink-4: #0b0b0b;
+  --chart-ink-5: #0b0b0b;
+  --chart-ink-6: #0b0b0b;
+  --chart-ink-7: #0b0b0b;
+  --chart-ink-8: #0b0b0b;
+  --chart-seq-1: #0d366b;
+  --chart-seq-2: #184f95;
+  --chart-seq-3: #256abf;
+  --chart-seq-4: #3987e5;
+  --chart-seq-5: #6da7ec;
+  --chart-seq-6: #9ec5f4;
+  --chart-seq-7: #cde2fb;
+  --chart-ord-1: #184f95;
+  --chart-ord-2: #256abf;
+  --chart-ord-3: #3987e5;
+  --chart-ord-4: #6da7ec;
+  --chart-ord-5: #9ec5f4;
+  --chart-div-neg-strong: #f08a8a;
+  --chart-div-neg: #e66767;
+  --chart-div-mid: #383835;
+  --chart-div-pos: #3987e5;
+  --chart-div-pos-strong: #86b6ef;
+  --chart-grid: #2c2c2a;
+  --chart-axis: #383835;
+  --chart-label: #a3a29b;
+  --chart-label-strong: #c3c2b7;
+  --chart-delta-up: #0ca30c;
+  --chart-delta-down: #f08a8a;
+  --chart-ring: #1a1a19;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.6);
+}

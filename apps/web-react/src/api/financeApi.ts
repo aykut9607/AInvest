@@ -1,72 +1,90 @@
-import axios from "axios";
-import type { FactorBreakdown, FinancialProfileFormData, FinancialScoreResult } from "../types/finance";
+import type { ApiResult, DebtPayoff, FactorBreakdown, FinancialProfile, IqCalculation, ProfileInput, Segment } from "../types/api";
+import { authorizedRequest, currentUserId } from "./authorizedRequest";
+import { translateServerMessage } from "../lib/messages";
+import { errorFrom, type CallOptions } from "./http";
 
-const BASE_URL = import.meta.env.VITE_FINANCE_API_BASE_URL as string;
+// Finance Profile through the gateway: /api/Profiles/{userId}/** is only reachable for the token's own user (403).
 
-interface ApiResult<T> {
-  data: T | null;
-  success: boolean;
-  message: string;
+const profilePath = () => `/api/Profiles/${encodeURIComponent(currentUserId())}`;
+
+// null when the user has no profile yet (404), so the form simply starts empty
+export async function getProfile(options: CallOptions = {}): Promise<FinancialProfile | null> {
+  const response = await authorizedRequest<ApiResult<FinancialProfile>>(profilePath(), options);
+  if (response.status === 404) return null;
+  if (response.status !== 200 || !response.body?.data) throw errorFrom(response, "Profil yüklenemedi.");
+  return response.body.data;
 }
 
-interface FinancialIqCalculateResponse {
+// upsert; riskPreference is deliberately not sent (scoring v2 does not use it, the Portfolio Service will ask)
+export async function saveProfile(input: ProfileInput, options: CallOptions = {}): Promise<void> {
+  const response = await authorizedRequest<ApiResult<null>>(profilePath(), {
+    ...options,
+    method: "PUT",
+    body: {
+      monthlyIncome: input.monthlyIncome,
+      monthlyExpenses: input.monthlyExpenses,
+      monthlyDebtPayment: input.monthlyDebtPayment,
+      totalDebt: input.totalDebt,
+      cashReserve: input.cashReserve,
+      investmentAmount: input.investmentAmount,
+      impatienceLevel: input.impatienceLevel,
+    },
+  });
+  if (response.status !== 200 || !response.body?.success) throw errorFrom(response, "Profil kaydedilemedi.");
+}
+
+interface CalculateIqBody {
   score: number;
-  segment: "LOW" | "MEDIUM" | "HIGH";
+  segment: Segment;
   // contract v2 sends an object; a v1 server sent the same JSON as a string
   factorBreakdown: FactorBreakdown | string | null;
 }
 
-export async function saveAndCalculateFinancialScore(
-  userId: string,
-  form: FinancialProfileFormData
-): Promise<FinancialScoreResult> {
-  const upsertBody = {
-    monthlyIncome: Number(form.monthlyIncome),
-    monthlyExpenses: Number(form.monthlyExpenses),
-    monthlyDebtPayment: Number(form.monthlyDebtPayment),
-    totalDebt: Number(form.totalDebt),
-    cashReserve: Number(form.cashReserve),
-    investmentAmount: Number(form.investmentAmount),
-    impatienceLevel: Number(form.impatienceLevel),
-  };
+// Finance Profile sends the saved profile to Financial IQ and returns its result (404 no profile, 502 IQ down)
+export async function calculateIq(options: CallOptions = {}): Promise<IqCalculation> {
+  const response = await authorizedRequest<ApiResult<CalculateIqBody>>(`${profilePath()}/calculate-iq`, {
+    ...options,
+    method: "POST",
+  });
+  const data = response.body?.data;
+  if (response.status !== 200 || !data) throw errorFrom(response, "Finansal IQ hesaplanamadı.");
+  return { score: data.score, segment: data.segment, factorBreakdown: parseFactorBreakdown(data.factorBreakdown) };
+}
 
-  try {
-    await axios.put(`${BASE_URL}/api/Profiles/${userId}`, upsertBody);
-  } catch (err) {
-    throw new Error(extractErrorMessage(err, "Failed to save financial profile."), { cause: err });
-  }
+export interface DebtPayoffResult {
+  payoff: DebtPayoff;
+  // the service's explanation, translated; says why when paidOff is false
+  message: string;
+}
 
-  try {
-    const response = await axios.post<ApiResult<FinancialIqCalculateResponse>>(
-      `${BASE_URL}/api/Profiles/${userId}/calculate-iq`
-    );
+export const DEFAULT_MONTHLY_INTEREST_RATE = 0.035;
 
-    if (!response.data.success || !response.data.data) {
-      throw new Error(response.data.message || "Failed to calculate financial IQ.");
+// amortisation of the saved totalDebt with the saved monthlyDebtPayment; null when there is no profile (404)
+export async function getDebtPayoff(
+  monthlyInterestRate: number = DEFAULT_MONTHLY_INTEREST_RATE,
+  options: CallOptions = {}
+): Promise<DebtPayoffResult | null> {
+  const query = `?monthlyInterestRate=${encodeURIComponent(String(monthlyInterestRate))}`;
+  const response = await authorizedRequest<ApiResult<DebtPayoff>>(`${profilePath()}/debt-payoff${query}`, options);
+  if (response.status === 404) return null;
+  if (response.status !== 200 || !response.body?.data) throw errorFrom(response, "Borç ödeme planı hesaplanamadı.");
+  return { payoff: response.body.data, message: translateServerMessage(response.body.message ?? "") };
+}
+
+// v2: already an object; a string (v1 server) is still parsed. {} or anything without factors = no breakdown.
+// The object itself is kept as received so it can go to /ai/explain-financial-iq unchanged.
+export function parseFactorBreakdown(raw: unknown): FactorBreakdown | null {
+  let value: unknown = raw;
+  if (typeof raw === "string") {
+    try {
+      value = JSON.parse(raw);
+    } catch {
+      return null;
     }
-
-    const data = response.data.data;
-    return { score: data.score, segment: data.segment, factorBreakdown: parseBreakdown(data.factorBreakdown) };
-  } catch (err) {
-    throw new Error(extractErrorMessage(err, "Failed to calculate financial IQ."), { cause: err });
   }
-}
-
-// v2: already an object; a string (v1 server) is still parsed so both work
-function parseBreakdown(raw: FactorBreakdown | string | null | undefined): FactorBreakdown | null {
-  if (!raw) return null;
-  if (typeof raw !== "string") return raw;
-  try {
-    return JSON.parse(raw) as FactorBreakdown;
-  } catch {
-    return null;
-  }
-}
-
-function extractErrorMessage(err: unknown, fallback: string): string {
-  if (axios.isAxiosError(err)) {
-    const data = err.response?.data as ApiResult<unknown> | undefined;
-    if (data?.message) return data.message;
-  }
-  return fallback;
+  if (!value || typeof value !== "object") return null;
+  const candidate = value as Partial<FactorBreakdown>;
+  if (!candidate.factors || typeof candidate.factors !== "object") return null;
+  // the AI service treats a missing warnings list as empty, so the copy means the same thing
+  return Array.isArray(candidate.warnings) ? (candidate as FactorBreakdown) : ({ ...candidate, warnings: [] } as FactorBreakdown);
 }
