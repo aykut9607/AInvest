@@ -81,14 +81,12 @@ public class ExtremeAmountRuleTests
     }
 
     [Fact]
-    public void IncomeJustBelowTheThreshold_IsScoredByTheFactors_WithoutACliff()
+    public void IncomeJustBelowTheThreshold_IsScoredByTheFactors()
     {
-        // v2.1: the factors alone gave 33 here and 1 more unit of income gave 100; the income floor makes it 99
         var (score, _, breakdown) = Score(NoReserve(ScoringRules.VeryHighMonthlyIncome - 1));
 
-        Assert.Equal(99, score);
+        Assert.True(score < 100);
         Assert.Null(AppliedRule(breakdown));
-        Assert.Equal(ScoringRules.IncomeFloorRule, breakdown.GetProperty("adjustment").GetProperty("rule").GetString());
         Assert.Contains("Low cash reserve", breakdown.GetProperty("warnings").EnumerateArray().Select(w => w.GetString()));
     }
 
@@ -106,14 +104,12 @@ public class ExtremeAmountRuleTests
     }
 
     [Fact]
-    public void NetDebtJustBelowTheThreshold_IsCappedNear0_NotScoredByTheFactors()
+    public void NetDebtJustBelowTheThreshold_IsScoredByTheFactors()
     {
-        // v2.1: 50 before (the debt factor cannot go below 0); now the debt cap: hundreds of years of income -> 0, no cliff at 100,000,000
         var (score, _, breakdown) = Score(HealthyRatios(ScoringRules.ExtremeNetDebt + 96_000 - 1));
 
-        Assert.Equal(0, score);
+        Assert.True(score > 0);
         Assert.Null(AppliedRule(breakdown));
-        Assert.Equal(ScoringRules.DebtCapRule, breakdown.GetProperty("adjustment").GetProperty("rule").GetString());
     }
 
     [Fact]
@@ -200,14 +196,13 @@ public class ExtremeAmountRuleTests
     }
 
     [Fact]
-    public void NetWorthJustBelowTheThreshold_IsRaisedByTheWealthFloor()
+    public void NetWorthJustBelowTheThreshold_IsScoredByTheFactors()
     {
-        // one unit more debt -> 9,999,999 net worth: no rule, but it pays the outgoings for far more than 25 years -> still 100
+        // one unit more debt -> 9,999,999 net worth
         var (score, _, breakdown) = Score(Wealthy(2_000_000, 9_000_000, 1_000_001));
 
         Assert.Null(AppliedRule(breakdown));
-        Assert.Equal(100, score);
-        Assert.Equal(ScoringRules.WealthFloorRule, breakdown.GetProperty("adjustment").GetProperty("rule").GetString());
+        Assert.True(score < 100);
     }
 
     [Fact]

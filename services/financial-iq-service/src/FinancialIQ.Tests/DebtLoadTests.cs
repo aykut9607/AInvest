@@ -95,9 +95,9 @@ public class DebtLoadTests
         var (score, segment, factorBreakdown) = FinancialIqCommandManager.CalculateScore(request);
         var breakdown = JsonDocument.Parse(factorBreakdown).RootElement;
 
-        // factors: reserve 0 + debt 0 + savings 25 + expenses 15 + patience 8 = 48; v2.1 caps it: 40 - 2 x (6.25 - 3) = 33
-        Assert.Equal(33, score);
-        Assert.Equal("LOW", segment);
+        // reserve 0 + debt 0 + savings 25 + expenses 15 + patience 8 (v1: 51 with the risk factor)
+        Assert.Equal(48, score);
+        Assert.Equal("MEDIUM", segment);
         Assert.Equal(0, breakdown.GetProperty("factors").GetProperty("DebtToIncomeRatio").GetInt32());
         Assert.Equal(JsonValueKind.Null, breakdown.GetProperty("appliedRule").ValueKind);
     }

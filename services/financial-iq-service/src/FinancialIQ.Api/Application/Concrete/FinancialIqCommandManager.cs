@@ -37,8 +37,10 @@ public class FinancialIqCommandManager : IFinancialIqCommandService
         if (string.IsNullOrWhiteSpace(request.UserId) || request.UserId.Length > FinancialIqResult.UserIdMaxLength)
             return new ErrorDataResult<FinancialIqResultResponse>(Messages.InvalidUserId);
 
-        // 0 is a valid amount everywhere (a student, someone out of work); only negative amounts are refused
-        if (request.MonthlyIncome < 0 || request.MonthlyExpenses < 0 || request.MonthlyDebtPayment < 0 || request.CashReserve < 0 || request.TotalDebt < 0 || request.InvestmentAmount < 0)
+        if (request.MonthlyIncome <= 0)
+            return new ErrorDataResult<FinancialIqResultResponse>(Messages.InvalidMonthlyIncome);
+
+        if (request.MonthlyExpenses < 0 || request.MonthlyDebtPayment < 0 || request.CashReserve < 0 || request.TotalDebt < 0 || request.InvestmentAmount < 0)
             return new ErrorDataResult<FinancialIqResultResponse>(Messages.NegativeAmountNotAllowed);
 
         if (request.ImpatienceLevel < 1 || request.ImpatienceLevel > 5)
@@ -80,8 +82,7 @@ public class FinancialIqCommandManager : IFinancialIqCommandService
         //example lets say total debt is 1,000,000, cash 2,000,000 and investments 9,000,000 -> net debt -10,000,000 (net worth 10,000,000)
 
         // how many years of gross income the net debt equals (0 when the assets cover the debt)
-        // with no income a net debt can never be repaid from it: as many years as can be
-        var netDebtYears = netDebt <= 0 ? 0m : r.MonthlyIncome > 0 ? netDebt / (r.MonthlyIncome * 12) : decimal.MaxValue;
+        var netDebtYears = netDebt > 0 ? netDebt / (r.MonthlyIncome * 12) : 0m;
         //example lets say net debt is 150,000,000 and monthly income is 2,000,000 -> 150,000,000 / 24,000,000 = 6.25 years
 
         var appliedRule = GetAppliedRule(r.MonthlyIncome, netDebt, netDebtYears);
@@ -106,8 +107,7 @@ public class FinancialIqCommandManager : IFinancialIqCommandService
         Score("CashReserveMonths", ScoringRules.CashReserveMonths, cashReserveMonths, factorScores, warnings);
 
         // 2) Debt-to-income ratio
-        // no income: an installment is the worst case, none the best (the same for the two ratios below)
-        var debtRatio = r.MonthlyIncome > 0 ? r.MonthlyDebtPayment / r.MonthlyIncome : r.MonthlyDebtPayment > 0 ? decimal.MaxValue : 0m;
+        var debtRatio = r.MonthlyDebtPayment / r.MonthlyIncome;
         //debtRatio is calculated by dividing the monthly debt payment by monthly income
         //example lets say monthly debt payment is 500 and monthly income is 5000, then debtRatio = 500 / 5000 = 0.1 .meaning the user has a debt-to-income ratio of 10%
 
@@ -125,8 +125,7 @@ public class FinancialIqCommandManager : IFinancialIqCommandService
         factorScores["DebtToIncomeRatio"] = Math.Min(paymentPoints, debtLoadPoints);
 
         // 3) Savings rate
-        // no income: nothing can be saved, the factor gives 0 (someone with no income, no debt and no assets is LOW, not MEDIUM)
-        var savingsRate = r.MonthlyIncome > 0 ? (r.MonthlyIncome - r.MonthlyExpenses - r.MonthlyDebtPayment) / r.MonthlyIncome : -1m;
+        var savingsRate = (r.MonthlyIncome - r.MonthlyExpenses - r.MonthlyDebtPayment) / r.MonthlyIncome;
         //savingsRate is calculated by subtracting monthly expenses and debt payment from monthly income, then dividing by monthly income
         //example lets say monthly income is 5000, monthly expenses is 2000, and monthly debt payment is 500,
         // then savingsRate = (5000 - 2000 - 500) / 5000 = 2500 / 5000 = 0.5 .meaning the user has a savings rate of 50%
@@ -135,7 +134,7 @@ public class FinancialIqCommandManager : IFinancialIqCommandService
         Score("SavingsRate", ScoringRules.SavingsRate, savingsRate, factorScores, warnings);
 
         // 4) Expense ratio
-        var expenseRatio = r.MonthlyIncome > 0 ? r.MonthlyExpenses / r.MonthlyIncome : r.MonthlyExpenses > 0 ? decimal.MaxValue : 1m;
+        var expenseRatio = r.MonthlyExpenses / r.MonthlyIncome;
         //expenseRatio is calculated by dividing monthly expenses by monthly income
         //example lets say monthly expenses is 2000 and monthly income is 5000, then expenseRatio = 2000 / 5000 = 0.4 .meaning the user has an expense ratio of 40%
 
@@ -162,18 +161,6 @@ public class FinancialIqCommandManager : IFinancialIqCommandService
 
         var totalScore = (int)factorScores.Values.Sum();
 
-        // v2.1: the way to the special rules is continuous (see ScoringRules); the factors stay as they are, the change is reported
-        object? adjustment = null;
-        if (appliedRule is null)
-        {
-            var (adjusted, rule) = Adjust(totalScore, r, netDebt, netDebtYears);
-            if (adjusted != totalScore)
-            {
-                adjustment = new { rule, fromFactors = totalScore, score = adjusted };
-                totalScore = adjusted;
-            }
-        }
-
         var segment = totalScore switch
         {
             >= ScoringRules.HighSegmentMinScore => "HIGH",
@@ -182,39 +169,9 @@ public class FinancialIqCommandManager : IFinancialIqCommandService
         };
         // bundle scores + warnings into one JSON document so the AI/RAG service can explain "why" this score, not just "what"
         // appliedRule is null when the 5 factors decided the score; version tells results of older rules apart
-        // adjustment (v2.1, optional): when a floor or cap changed the sum of the factors; null otherwise
-        var breakdown = new { version = ScoringRules.ScoringVersion, factors = factorScores, warnings, appliedRule, adjustment };
+        var breakdown = new { version = ScoringRules.ScoringVersion, factors = factorScores, warnings, appliedRule };
         var factorBreakdownJson = JsonSerializer.Serialize(breakdown);
         return (totalScore, segment, factorBreakdownJson);
-    }
-
-    // floors raise the score of the very wealthy or the very high earner who is just below a rule; the cap lowers the score of
-    // a net debt that income cannot carry. They exclude each other: a floor needs little or no net debt, the cap a large one.
-    // example lets say net worth is 9,900,000 and the outgoings are 19,000 a month -> 9,900,000 / (25 x 228,000) = 1.7 -> floor 100
-    // example lets say income is 999,999 with no debt -> floor 99
-    // example lets say income is 40,000 and net debt 99,000,000 -> 206 years -> cap 0; net debt 2,000,000 -> 4.2 years -> cap 37
-    internal static (int score, string? rule) Adjust(int factors, CalculateRequest r, decimal netDebt, decimal netDebtYears)
-    {
-        int score = factors;
-        string? rule = null;
-        var outgoings = 12 * (r.MonthlyExpenses + r.MonthlyDebtPayment);
-        if (netDebt < 0 && outgoings > 0)
-        {
-            var floor = (int)Math.Min(100m, 100m * -netDebt / (ScoringRules.WealthYearsForFullScore * outgoings));
-            if (floor > score) (score, rule) = (floor, ScoringRules.WealthFloorRule);
-        }
-        if (r.MonthlyIncome > 0 && netDebtYears <= ScoringRules.VeryHighIncomeMaxNetDebtYears)
-        {
-            var floor = (int)Math.Min(100m, 100m * r.MonthlyIncome / ScoringRules.VeryHighMonthlyIncome);
-            if (floor > score) (score, rule) = (floor, ScoringRules.IncomeFloorRule);
-        }
-        if (netDebtYears > ScoringRules.HighNetDebtYears)
-        {
-            var cap = netDebtYears == decimal.MaxValue ? 0
-                : (int)Math.Max(0m, ScoringRules.DebtCapAtLimit - ScoringRules.DebtCapPerYear * (netDebtYears - ScoringRules.HighNetDebtYears));
-            if (cap < score) (score, rule) = (cap, ScoringRules.DebtCapRule);
-        }
-        return (score, rule);
     }
 
     private static void Score(string factor, ScoreScale scale, decimal value, Dictionary<string, decimal> factorScores, HashSet<string> warnings)

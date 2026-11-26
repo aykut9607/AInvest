@@ -13,7 +13,7 @@ public static class Messages
     public const string FinancialProfileNotFound = "Financial profile not found.";
 
     // Validation / business rules
-    public const string InvalidMonthlyIncome = "Monthly income cannot be negative.";
+    public const string InvalidMonthlyIncome = "Monthly income must be greater than zero.";
     public const string NegativeAmountNotAllowed = "Monetary fields cannot be negative.";
     public const string AmountTooLarge = "Monetary fields must be at most 999,999,999,999,999.";
     public const string InvalidRiskPreference = "Risk preference must be one of the allowed values.";

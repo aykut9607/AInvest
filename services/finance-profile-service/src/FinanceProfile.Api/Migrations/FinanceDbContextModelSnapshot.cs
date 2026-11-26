@@ -108,7 +108,7 @@ namespace FinanceProfile.Api.Migrations
 
                             t.HasCheckConstraint("financial_profiles_monthly_expenses_check", "monthly_expenses >= 0");
 
-                            t.HasCheckConstraint("financial_profiles_monthly_income_check", "monthly_income >= 0");
+                            t.HasCheckConstraint("financial_profiles_monthly_income_check", "monthly_income > 0");
 
                             t.HasCheckConstraint("financial_profiles_risk_preference_check", "risk_preference IN ('LOW', 'MEDIUM', 'HIGH')");
 
