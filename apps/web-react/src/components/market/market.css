@@ -1,0 +1,77 @@
+/* 4.4 (market) screens; ported from src/portfolio/portfolio.css onto the tokens in tokens.css */
+
+.market-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: var(--space-3); }
+.market-stat { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); display: grid; gap: 2px; }
+.market-stat span, .market-stat small { color: var(--color-text-secondary); font-size: var(--text-sm); }
+.market-stat b { font-size: var(--text-xl); font-weight: var(--weight-semibold); font-variant-numeric: tabular-nums; }
+.market-text-good { color: var(--color-good-ink); }
+.market-text-bad { color: var(--color-critical-ink); }
+
+.market-tabs { display: flex; flex-wrap: wrap; gap: var(--space-1); border-bottom: 1px solid var(--color-border); }
+.market-tabs button { background: none; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; padding: var(--space-2) var(--space-3); color: var(--color-text-secondary); font-weight: var(--weight-semibold); cursor: pointer; display: flex; gap: var(--space-2); align-items: center; }
+.market-tabs button:hover { color: var(--color-text); }
+.market-tabs button.is-active { color: var(--color-primary-ink); border-color: var(--color-primary); }
+.market-tabs button:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
+.market-tab-count { background: var(--color-surface-muted); border-radius: var(--radius-full); padding: 0 var(--space-2); font-size: var(--text-xs); }
+
+.market-h3 { font-size: var(--text-lg); margin: var(--space-2) 0 0; }
+.market-h4 { font-size: var(--text-sm); color: var(--color-text-secondary); margin: var(--space-2) 0 0; }
+.market-details summary { cursor: pointer; color: var(--color-text-secondary); font-size: var(--text-sm); }
+.market-answer { white-space: pre-line; line-height: var(--leading-normal); }
+
+.market-bars { display: grid; gap: var(--space-2); margin: var(--space-2) 0; }
+.market-bars > div { display: grid; grid-template-columns: minmax(100px, 190px) minmax(40px, 1fr) 46px; gap: var(--space-3); align-items: center; font-size: var(--text-sm); }
+.market-bars small { display: block; color: var(--color-text-muted); font-size: var(--text-xs); }
+.market-bars i { height: 8px; background: var(--color-surface-sunken); border-radius: var(--radius-sm); overflow: hidden; }
+.market-bars i b { display: block; height: 100%; background: var(--chart-1); }
+.market-bars em { font-style: normal; text-align: right; font-variant-numeric: tabular-nums; font-weight: var(--weight-semibold); }
+.market-bars-total { border-top: 1px solid var(--color-border); padding-top: var(--space-2); }
+.market-bars-total i { background: none; }
+
+.market-limit-bar { position: relative; height: 10px; border-radius: var(--radius-sm); background: var(--color-surface-sunken); margin: var(--space-2) 0; }
+.market-limit-bar b { position: absolute; inset: 0 auto 0 0; background: var(--chart-1); border-radius: var(--radius-sm); }
+.market-limit-bar i { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--color-text-secondary); }
+.market-limits dl { margin: 0; display: grid; gap: 2px; font-size: var(--text-sm); }
+.market-limits dl div { display: flex; justify-content: space-between; gap: var(--space-3); }
+.market-limits dt { color: var(--color-text-secondary); }
+.market-limits dd { margin: 0; font-variant-numeric: tabular-nums; font-weight: var(--weight-semibold); }
+
+.market-tall { max-height: 520px; overflow: auto; }
+.market-clickable tbody tr { cursor: pointer; }
+.market-clickable tbody tr:hover, .market-clickable tbody tr:focus-visible { background: var(--color-surface-muted); outline: none; }
+
+.market-overlay { position: fixed; inset: 0; background: var(--color-overlay); z-index: 50; display: flex; justify-content: flex-end; }
+.market-drawer { width: min(880px, 100%); height: 100%; overflow: auto; background: var(--color-surface); border-left: 1px solid var(--color-border-strong); padding: var(--space-5) var(--space-6) var(--space-12); box-shadow: var(--shadow-lg); }
+.market-drawer-title { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-xl); margin: 0; }
+.market-close { background: none; border: 0; font-size: 28px; line-height: 1; cursor: pointer; padding: var(--space-1) var(--space-3); border-radius: var(--radius-sm); color: var(--color-text-secondary); }
+.market-close:hover { background: var(--color-surface-muted); }
+.market-confirm { display: grid; gap: var(--space-2); }
+.market-confirm > div { display: grid; grid-template-columns: 44px 1fr; gap: var(--space-3); }
+.market-confirm b { color: var(--color-text-secondary); font-size: var(--text-sm); }
+.market-confirm span { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+
+.market-figure { margin: var(--space-3) 0 0; }
+.market-figure svg, .market-plan { display: block; width: 100%; height: auto; }
+.market-figure text { fill: var(--chart-label); font-size: 13px; }
+.market-figure figcaption { color: var(--color-text-secondary); font-size: var(--text-sm); margin-top: var(--space-1); }
+.market-grid { stroke: var(--chart-grid); }
+.market-axis { stroke: var(--chart-axis); }
+.market-line { fill: none; stroke: var(--chart-1); stroke-width: 2; stroke-linejoin: round; }
+.market-mark { fill: var(--chart-1); stroke: var(--color-surface); stroke-width: 2; }
+.market-plan text { font-size: 13px; fill: var(--color-text-secondary); }
+.market-plan-name { font-weight: var(--weight-semibold); }
+.market-plan-risk { stroke: var(--color-critical); stroke-width: 4; opacity: 0.45; }
+.market-plan-reward { stroke: var(--color-good); stroke-width: 4; opacity: 0.35; }
+.market-plan-best { stroke: var(--color-good); stroke-width: 6; }
+.market-plan-stem { stroke: var(--color-border-strong); }
+.market-plan-top { fill: var(--color-good-ink) !important; font-weight: var(--weight-semibold); }
+.market-plan-good .market-full { fill: var(--color-good); }
+.market-plan-good .market-hollow { fill: var(--color-surface); stroke: var(--color-good); stroke-width: 2; }
+.market-plan-bad .market-full { fill: var(--color-critical); }
+.market-plan-bad .market-hollow { fill: var(--color-surface); stroke: var(--color-critical); stroke-width: 2; }
+.market-plan-entry .market-full { fill: var(--chart-1); }
+
+@media (max-width: 640px) {
+  .market-drawer { padding: var(--space-4); }
+  .market-bars > div { grid-template-columns: minmax(90px, 1fr) minmax(40px, 1fr) 40px; }
+}

@@ -8,7 +8,8 @@ namespace FinancialIQ.Api.Migrations
     /// <inheritdoc />
     public partial class AddScoringRulesV3 : Migration
     {
-        // the v3 row of scoring_rule_versions; rules_json is the frozen snapshot, never the live document
+        // the v3 row of scoring_rule_versions; rules_json is the frozen first v3 text (V3Initial), never the live document.
+        // CorrectScoringRulesV3 replaces it with the 26 Nov correction (ScoringRuleSnapshots.V3)
         private const string Description =
             "5 linear factors 30/25/10/30/5 (variant v3c-i5), no TL rules: solvency cap (net debt 5 to 15 years of income) " +
             "and wealth runway (25 years of expenses); appliedRule SOLVENCY_CAP / WEALTH_RUNWAY is a label only";
@@ -28,7 +29,7 @@ UPDATE dbo.scoring_rule_versions SET is_active = 0 WHERE is_active = 1;
 
 IF NOT EXISTS (SELECT 1 FROM dbo.scoring_rule_versions WHERE version = N'v3')
     INSERT INTO dbo.scoring_rule_versions (version, description, rules_json, effective_from, is_active)
-    VALUES (N'v3', N'{Literal(Description)}', N'{Literal(ScoringRuleSnapshots.V3)}', '2026-11-24T00:00:00', 1);
+    VALUES (N'v3', N'{Literal(Description)}', N'{Literal(ScoringRuleSnapshots.V3Initial)}', '2026-11-24T00:00:00', 1);
 ELSE
     UPDATE dbo.scoring_rule_versions SET is_active = 1 WHERE version = N'v3';");
         }

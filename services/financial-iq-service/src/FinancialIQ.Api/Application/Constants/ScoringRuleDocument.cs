@@ -39,7 +39,8 @@ public static class ScoringRuleDocument
             [
                 new("liquidAssets", Invariant($"cash + {ScoringRules.InvestmentLiquidShare} x investments")),
                 new("effectiveExpenses", Invariant($"max(monthly expenses, {ScoringRules.ExpenseFloorShare} x monthly income)")),
-                new("monthlyOutflow", "effectiveExpenses + monthly debt payment"),
+                new("reserveExpenses", Invariant($"max(monthly expenses, {ScoringRules.ExpenseFloorTl} TL)")),
+                new("monthlyOutflow", "reserveExpenses + monthly debt payment"),
                 new("reserveMonths", "liquidAssets / monthlyOutflow"),
                 new("excessLiquidAssets", Invariant($"max(0, liquidAssets - {ScoringRules.ReserveTargetMonths} x monthlyOutflow)")),
                 new("netDebt", "max(0, total debt - excessLiquidAssets)"),
@@ -48,7 +49,7 @@ public static class ScoringRuleDocument
                 new("installmentRatio", "effectiveDebtPayment / monthly income"),
                 new("savingsRate", "(monthly income - effectiveExpenses - effectiveDebtPayment) / monthly income"),
                 new("liquidNetWorth", "liquidAssets - total debt"),
-                new("runwayYears", "liquidNetWorth / (12 x effectiveExpenses), 0 when liquidNetWorth <= 0"),
+                new("runwayYears", "liquidNetWorth / (12 x reserveExpenses), 0 when liquidNetWorth <= 0"),
                 new("impatienceLevel", "self-reported, 1 (patient) to 5 (impatient)")
             ],
             Interpolation: "share = s0 + (x - x0) x (s1 - s0) / (x1 - x0) between the two anchors around x (anchors ascending by value); " +

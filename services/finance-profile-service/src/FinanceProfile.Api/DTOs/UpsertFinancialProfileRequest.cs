@@ -20,4 +20,12 @@ namespace FinanceProfile.Api.DTOs;
         public string? RiskPreference { get; set; }
 
         public int ImpatienceLevel { get; set; } = 3;
+
+        // payment discipline (optional; not sent to IQ). When sent, each must be one of the allowed values
+        // (FinancialProfile.BillsOnTimeValues / MinimumPaymentMonthsValues / LatePaymentsValues)
+        public string? BillsOnTime { get; set; }
+
+        public string? MinimumPaymentMonths { get; set; }
+
+        public string? LatePayments { get; set; }
     }

@@ -23,6 +23,13 @@ public class FinancialProfileResponse: IDto
 
     public int ImpatienceLevel { get; set; }
 
+    // payment discipline answers, null = not answered
+    public string? BillsOnTime { get; set; }
+
+    public string? MinimumPaymentMonths { get; set; }
+
+    public string? LatePayments { get; set; }
+
     public DateTime CreatedAt { get; set; }
 
     public DateTime UpdatedAt { get; set; }

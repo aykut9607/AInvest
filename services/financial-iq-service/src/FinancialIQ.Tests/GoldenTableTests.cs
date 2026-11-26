@@ -36,6 +36,7 @@ public class GoldenTableTests
         {
             ["liquid"] = m.LiquidAssets,
             ["expenses_eff"] = m.EffectiveExpenses,
+            ["expenses_reserve"] = m.ReserveExpenses,
             ["outflow"] = m.MonthlyOutflow,
             ["reserve_months"] = m.ReserveMonths,
             ["excess_liquid"] = m.ExcessLiquidAssets,

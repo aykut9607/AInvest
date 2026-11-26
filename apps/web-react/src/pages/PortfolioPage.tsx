@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { getLatestIq } from "../api/iqApi";
-import { computePortfolioProposal, getPortfolioProposal, portfolioSource } from "../api/portfolioApi";
+import { computePortfolioProposal, getPortfolioOptions, getPortfolioProposal, portfolioSource } from "../api/portfolioApi";
 import { useAuth } from "../auth/useAuth";
 import Card from "../components/Card";
 import EmptyState from "../components/EmptyState";
@@ -11,11 +11,13 @@ import PageHeader from "../components/PageHeader";
 import SegmentBadge from "../components/SegmentBadge";
 import Spinner from "../components/Spinner";
 import ExplainPortfolio from "../components/portfolio/ExplainPortfolio";
+import InvestableSteps from "../components/portfolio/InvestableSteps";
 import OptionPicker from "../components/portfolio/OptionPicker";
 import ProposalView from "../components/portfolio/ProposalView";
 import RiskPicker from "../components/portfolio/RiskPicker";
 import { missingChoices } from "../components/portfolio/preferences";
-import { clampRisk, maxRiskForSegment } from "../components/portfolio/risk";
+import { clampRisk, maxRiskForSegment, riskRank } from "../components/portfolio/risk";
+import { ceilingReasons, riskCeiling, serviceCeilingNote } from "../components/portfolio/serviceText";
 import { usePreferences } from "../components/portfolio/usePreferences";
 import { formatDateTime } from "../lib/format";
 import { INSTITUTION_STYLE_LABELS, LEVEL_LABELS, PORTFOLIO_OPTION_LABELS } from "../lib/labels";
@@ -50,9 +52,16 @@ function ProposalSection({ latestIq }: { latestIq: IqResult }) {
 }
 
 function PortfolioContent({ latestIq, userId }: { latestIq: IqResult; userId: string | undefined }) {
-  const ceiling = maxRiskForSegment(latestIq.segment);
-  const { preferences, update } = usePreferences(userId);
+  const serviceOptions = useAsync(useCallback((signal: AbortSignal) => getPortfolioOptions({ signal }), []));
+  const options = serviceOptions.data ?? null;
+  const ceiling = riskCeiling(latestIq.segment, options);
+  const unavailable = options?.unavailableOptions ?? [];
+  const { preferences: stored, update } = usePreferences(userId);
+  // a stored option the service does not offer yet counts as not chosen
+  const preferences = stored.option && unavailable.includes(stored.option) ? { ...stored, option: null } : stored;
   const riskLevel = clampRisk(preferences.riskLevel, ceiling);
+  const segmentCeiling = maxRiskForSegment(latestIq.segment);
+  const lowered = options !== null && riskRank(ceiling) < riskRank(segmentCeiling);
   const missing = missingChoices({ ...preferences, riskLevel });
   const sample = portfolioSource() === "mock";
   const [version, setVersion] = useState(0);
@@ -97,12 +106,33 @@ function PortfolioContent({ latestIq, userId }: { latestIq: IqResult; userId: st
       </Card>
 
       <Card title="1. Portföy türünü seç" subtitle="Dört seçenekten birini seç; dağılımı Portföy servisi hesaplar.">
-        <OptionPicker preferences={preferences} onChange={update} />
+        <OptionPicker
+          preferences={preferences}
+          onChange={update}
+          unavailable={unavailable}
+          styleInfo={options?.institutionStyleInfo ?? []}
+        />
       </Card>
 
-      <Card title="2. Risk seviyeni seç" subtitle="Finansal IQ segmentin, seçebileceğin en yüksek seviyeyi belirler.">
-        <RiskPicker value={riskLevel} ceiling={ceiling} onChange={(level) => update({ riskLevel: level })} />
+      {serviceOptions.error ? (
+        <ErrorBox title="Portföy seçenekleri yüklenemedi" error={serviceOptions.error} onRetry={serviceOptions.reload} />
+      ) : null}
+
+      <Card title="2. Risk seviyeni seç" subtitle="Finansal IQ'n ve finansal durumun, seçebileceğin en yüksek seviyeyi belirler.">
+        <RiskPicker
+          value={riskLevel}
+          ceiling={ceiling}
+          onChange={(level) => update({ riskLevel: level })}
+          note={lowered ? serviceCeilingNote(latestIq.segment, ceiling) : undefined}
+          reasons={ceilingReasons(options)}
+        />
       </Card>
+
+      {options ? (
+        <Card title="3. Yatırılabilir tutarın" subtitle="Öneriyi hesaplamadan önce, Portföy servisinin bu tutarları nasıl bulduğu adım adım.">
+          <InvestableSteps iqScore={options.iqScore} investable={options.investable} />
+        </Card>
+      ) : null}
 
       <Notice title={missing.length === 0 ? "Seçimin hazır" : "Seçimin eksik"}>
         <p>

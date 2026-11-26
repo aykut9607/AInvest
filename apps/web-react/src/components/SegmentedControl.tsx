@@ -16,6 +16,8 @@ export interface SegmentedControlProps<T extends string | number> {
   hint?: ReactNode;
   disabled?: boolean;
   name?: string;
+  // extra class on the fieldset, e.g. "segmented-wrap" for long labels that should wrap into rows
+  className?: string;
 }
 
 // a radio group that looks like a segmented control: arrow keys work, getByRole("radio") finds the options
@@ -27,6 +29,7 @@ export default function SegmentedControl<T extends string | number>({
   hint,
   disabled = false,
   name,
+  className,
 }: SegmentedControlProps<T>) {
   const autoName = useId();
   const groupName = name ?? autoName;
@@ -35,7 +38,7 @@ export default function SegmentedControl<T extends string | number>({
   const hintText = hint ?? selected?.description;
 
   return (
-    <fieldset className="segmented" disabled={disabled} aria-describedby={hintText ? hintId : undefined}>
+    <fieldset className={className ? `segmented ${className}` : "segmented"} disabled={disabled} aria-describedby={hintText ? hintId : undefined}>
       <legend className="field-label">{legend}</legend>
       <div className="segmented-options">
         {options.map((option) => (

@@ -14,6 +14,7 @@ import {
 import type { IqResult, PortfolioProposal } from "../../types/api";
 import AllocationChart from "./AllocationChart";
 import { isProposalStale, reasonText } from "./proposal";
+import { formatPeriod, safeUrl } from "./serviceText";
 
 function preferenceSummary(preferences: PortfolioProposal["preferences"]): string {
   const parts = [PORTFOLIO_OPTION_LABELS[preferences.option] ?? preferences.option];
@@ -128,6 +129,20 @@ export default function ProposalView({ result, latestIq }: ProposalViewProps) {
             })}
           </ul>
         </section>
+      ) : null}
+
+      {proposal.source?.name ? (
+        <p className="text-sm proposal-source">
+          Kaynak:{" "}
+          {safeUrl(proposal.source.url) ? (
+            <a href={safeUrl(proposal.source.url) ?? undefined} target="_blank" rel="noreferrer">
+              {proposal.source.name}
+            </a>
+          ) : (
+            proposal.source.name
+          )}
+          {proposal.source.period ? `, ${formatPeriod(proposal.source.period)}` : null}
+        </p>
       ) : null}
 
       <div className="cluster">

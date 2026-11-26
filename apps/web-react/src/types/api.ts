@@ -24,6 +24,18 @@ export interface ApiResult<T> {
 
 // ---- Finance Profile -----------------------------------------------------------------------------------------------
 
+// Payment discipline answers (optional; null = not answered). Collected and shown, NOT part of the IQ score yet:
+// a later scoring version may use them after validation.
+export type BillsOnTime = "ALL" | "ALMOST_ALL" | "MOST" | "SOME" | "VERY_FEW";
+export type MinimumPaymentMonths = "NONE" | "ONE_TWO" | "THREE_FIVE" | "SIX_PLUS" | "NO_CARD";
+export type LatePayments = "NONE" | "ONCE" | "TWICE_OR_MORE";
+
+export interface PaymentHabits {
+  billsOnTime?: BillsOnTime | null;
+  minimumPaymentMonths?: MinimumPaymentMonths | null;
+  latePayments?: LatePayments | null;
+}
+
 export interface FinancialProfile {
   id: string;
   userId: string;
@@ -37,12 +49,17 @@ export interface FinancialProfile {
   riskPreference: RiskLevel | null;
   // 1 = can wait years for a return, 5 = wants results right away
   impatienceLevel: number;
+  // optional payment discipline answers; absent on servers that do not have them yet
+  billsOnTime?: BillsOnTime | null;
+  minimumPaymentMonths?: MinimumPaymentMonths | null;
+  latePayments?: LatePayments | null;
   createdAt: string;
   updatedAt: string;
 }
 
-// body of PUT /api/Profiles/{userId}; amounts >= 0 and <= 999,999,999,999,999, monthlyIncome > 0
-export interface ProfileInput {
+// body of PUT /api/Profiles/{userId}; amounts >= 0 and <= 999,999,999,999,999, monthlyIncome > 0.
+// The payment habits are sent only when answered (null/undefined = left out of the body).
+export interface ProfileInput extends PaymentHabits {
   monthlyIncome: number;
   monthlyExpenses: number;
   monthlyDebtPayment: number;

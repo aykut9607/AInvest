@@ -93,7 +93,7 @@ public class FinancialIqCommandManager : IFinancialIqCommandService
 
     // the measures of one profile, in the order they are calculated (internal: the tests compare them with the golden table)
     internal sealed record Measures(
-        decimal LiquidAssets, decimal EffectiveExpenses, decimal MonthlyOutflow, decimal ReserveMonths,
+        decimal LiquidAssets, decimal EffectiveExpenses, decimal ReserveExpenses, decimal MonthlyOutflow, decimal ReserveMonths,
         decimal ExcessLiquidAssets, decimal NetDebt, decimal NetDebtYears, decimal EffectiveDebtPayment,
         decimal InstallmentRatio, decimal SavingsRate, decimal LiquidNetWorth, decimal RunwayYears,
         decimal RunwayShare, decimal SolvencyCap);
@@ -106,15 +106,20 @@ public class FinancialIqCommandManager : IFinancialIqCommandService
         var liquidAssets = r.CashReserve + r.InvestmentAmount * ScoringRules.InvestmentLiquidShare;
         //example lets say cash is 3000 and investments are 10000, then liquidAssets = 3000 + 10000 * 0.5 = 8000
 
-        // expenses below 10% of the income count as 10% (0 expenses would make any reserve infinite)
+        // expenses below 10% of the income count as 10%, only in the savings rate (they are flagged as too low)
         var effectiveExpenses = Math.Max(r.MonthlyExpenses, r.MonthlyIncome * ScoringRules.ExpenseFloorShare);
         //example lets say expenses are 25000 and income is 30000, then effectiveExpenses = max(25000, 3000) = 25000
 
+        // the reserve and the runway are measured in expenses of at least 2,000 TL; NOT the 10% income floor: that one
+        // grows with the income, so more income would mean fewer reserve months and a lower score
+        var reserveExpenses = Math.Max(r.MonthlyExpenses, ScoringRules.ExpenseFloorTl);
+        //example max(25000, 2000) = 25000
+
         // what leaves the account every month: the installment has to be paid from the reserve too
-        var monthlyOutflow = effectiveExpenses + r.MonthlyDebtPayment;
+        var monthlyOutflow = reserveExpenses + r.MonthlyDebtPayment;
         //example 25000 + 7000 = 32000
 
-        // months the liquid assets cover the outflow; never a division by zero, the outflow is at least 10% of the income
+        // months the liquid assets cover the outflow; never a division by zero, the outflow is at least 2,000 TL
         var reserveMonths = liquidAssets / monthlyOutflow;
         //example 8000 / 32000 = 0.25 months
 
@@ -141,11 +146,11 @@ public class FinancialIqCommandManager : IFinancialIqCommandService
 
         // wealth runway: years of expenses the liquid net worth would pay for (0 when the debt is larger)
         var liquidNetWorth = liquidAssets - r.TotalDebt;
-        var runwayYears = liquidNetWorth > 0 ? liquidNetWorth / (effectiveExpenses * 12) : 0m;
+        var runwayYears = liquidNetWorth > 0 ? liquidNetWorth / (reserveExpenses * 12) : 0m;
         //example 8000 - 90000 = -82000 -> no runway (0 years)
         //example lets say liquid assets are 6,500,000, debt 1,000,000 and expenses 29,000 -> 5,500,000 / 348,000 = 15.8 years
 
-        return new Measures(liquidAssets, effectiveExpenses, monthlyOutflow, reserveMonths, excessLiquidAssets, netDebt,
+        return new Measures(liquidAssets, effectiveExpenses, reserveExpenses, monthlyOutflow, reserveMonths, excessLiquidAssets, netDebt,
             netDebtYears, effectiveDebtPayment, installmentRatio, savingsRate, liquidNetWorth, runwayYears,
             // runway share: 15.8 / 25 = 0.63 (25 years = the 4% rule); solvency cap: 1 up to 5 years of net debt, 0 from 15
             RunwayShare: ScoringRules.WealthRunway.Share(runwayYears),

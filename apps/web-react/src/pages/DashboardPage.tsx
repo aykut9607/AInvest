@@ -7,6 +7,7 @@ import CoachCard from "../components/dashboard/CoachCard";
 import { currentResult, freshCalculation, type DashboardResult } from "../components/dashboard/dashboardData";
 import DebtPayoffCard from "../components/dashboard/DebtPayoffCard";
 import FactorBreakdownCard from "../components/dashboard/FactorBreakdownCard";
+import PaymentHabitsCard from "../components/dashboard/PaymentHabitsCard";
 import ScoreCard from "../components/dashboard/ScoreCard";
 import TrendCard from "../components/dashboard/TrendCard";
 import WarningsCard from "../components/dashboard/WarningsCard";
@@ -44,6 +45,7 @@ function DashboardContent({ result, justCalculated, latestError }: DashboardCont
         <div className="stack">
           <ScoreCard result={result} />
           {rule ? <AppliedRuleCard rule={rule} /> : null}
+          <PaymentHabitsCard />
         </div>
         <FactorBreakdownCard breakdown={result.factorBreakdown} score={result.score} />
         <WarningsCard breakdown={result.factorBreakdown} />

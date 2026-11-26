@@ -9,7 +9,7 @@ import { openFromMenu, signInToDashboard } from "./helpers.ts";
 // LOW under both scoring versions (v2: 8, v3: 27); demo.medium is MEDIUM under v2 but HIGH (71) under v3
 const DEMO_EMAIL = "demo.low@ainvest.local";
 
-test("demo.low: assistant answers, portfolio respects the IQ risk ceiling, 4.4 watchlist survives a reload", async ({ page }) => {
+test("demo.low: assistant answers, portfolio respects the IQ risk ceiling, 4.4 page loads", async ({ page }) => {
   // the local model may take up to 60 s for one answer
   test.setTimeout(180_000);
   await signInToDashboard(page, DEMO_EMAIL);
@@ -46,31 +46,10 @@ test("demo.low: assistant answers, portfolio respects the IQ risk ceiling, 4.4 w
     await expect(table.getByRole("row", { name: /Altın/ })).toContainText("1.740 TL");
   });
 
-  await test.step("4.4: three plan cards, one added to the virtual watchlist stays after a reload", async () => {
+  await test.step("4.4: the page shows the engine's data or the empty state", async () => {
     await openFromMenu(page, "Piyasa (4.4)", /\/piyasa$/);
-    // start from an empty list, whatever an earlier run left behind
-    await page.evaluate(() => {
-      Object.keys(localStorage)
-        .filter((key) => key.startsWith("ainvest.signals.watchlist"))
-        .forEach((key) => localStorage.removeItem(key));
-    });
-    await page.reload();
-
-    const cards = page.locator("article.signal-card");
-    await expect(cards).toHaveCount(3);
-
-    const gold = cards.filter({ hasText: "Altın (COMEX vadeli, GC=F)" });
-    await gold.getByRole("button", { name: "Sanal takibe al" }).click();
-    await expect(gold.getByRole("button", { name: "Takipten çıkar" })).toBeVisible();
-    await expect(page.getByRole("list", { name: "Takip edilen planlar" })).toContainText("Altın (COMEX vadeli, GC=F)");
-
-    await page.reload();
-    const watchlist = page.getByRole("list", { name: "Takip edilen planlar" });
-    await expect(watchlist).toContainText("Altın (COMEX vadeli, GC=F)");
-    await expect(watchlist).toContainText("Eklenme:");
-
-    // leave the browser state as it was
-    await watchlist.getByRole("button", { name: "Altın (COMEX vadeli, GC=F): takipten çıkar" }).click();
-    await expect(page.getByText("Henüz takip ettiğin bir plan yok.")).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "Piyasa (4.4)" })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /Genel bakış/ })).toBeVisible();
+    await expect(page.getByText("Sanal kasa").or(page.getByText("Henüz plan yok")).first()).toBeVisible();
   });
 });

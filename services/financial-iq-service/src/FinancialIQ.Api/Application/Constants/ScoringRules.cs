@@ -25,9 +25,16 @@ public static class ScoringRules
     //example lets say cash is 10,000 and investments are 20,000 -> liquid assets = 10,000 + 20,000 * 0.5 = 20,000
     public const decimal InvestmentLiquidShare = 0.5m;
 
-    // expenses below 10% of the income are treated as 10% (and flagged): 0 expenses would make the reserve infinite
+    // expenses below 10% of the income are treated as 10% in the savings rate (and flagged)
     //example lets say income is 50,000 and expenses 0 -> effective expenses 5,000
     public const decimal ExpenseFloorShare = 0.10m;
+
+    // the expenses the reserve months, the 6-month target and the wealth runway are measured in are at least 2,000 TL:
+    // a data-quality floor (0 expenses would make any reserve infinite), not a score threshold. Until 26 Nov the 10%
+    // income floor sat there too, so more income raised the denominator and LOWERED the score when the expenses were
+    // below 10% of the income (income 100,000 -> 200,000 with expenses 5,000 and cash 60,000: 100 -> 88)
+    //example lets say expenses are 500 -> the reserve is measured in months of 2,000
+    public const decimal ExpenseFloorTl = 2000m;
 
     // the emergency target in months of outflow; only the liquid assets above it are taken off the debt
     //example lets say the outflow is 20,000 a month and the liquid assets 150,000 -> 30,000 above the target lower the debt
@@ -84,7 +91,7 @@ public static class ScoringRules
     //example lets say the net debt is 10 years of income -> every factor keeps half of its points
     public static readonly LinearScale SolvencyCap = new("netDebtYears", [new(5m, 1m), new(15m, 0m)]);
 
-    // wealth runway: liquid net worth in years of (effective) expenses; 25 years = the 4% rule (Bengen 1994).
+    // wealth runway: liquid net worth in years of reserve expenses (max(expenses, ExpenseFloorTl)); 25 years = the 4% rule (Bengen 1994).
     // Its share is a floor for the cash-flow factors (InstallmentToIncome, SavingsRate)
     //example lets say the runway is 10 years -> share 0.4 -> the savings factor gets at least 0.4 * 30 = 12 points
     public static readonly LinearScale WealthRunway = new("runwayYears", [new(0m, 0m), new(25m, 1m)]);

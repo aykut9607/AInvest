@@ -10,16 +10,33 @@ import PageHeader from "../components/PageHeader";
 import SegmentedControl from "../components/SegmentedControl";
 import Spinner from "../components/Spinner";
 import { wholeAmountDigits } from "../lib/format";
-import { IMPATIENCE_HINTS, IMPATIENCE_LEVELS } from "../lib/labels";
+import {
+  BILLS_ON_TIME_OPTIONS,
+  BILLS_ON_TIME_QUESTION,
+  IMPATIENCE_HINTS,
+  IMPATIENCE_LEVELS,
+  LATE_PAYMENTS_OPTIONS,
+  LATE_PAYMENTS_QUESTION,
+  MINIMUM_PAYMENT_OPTIONS,
+  MINIMUM_PAYMENT_QUESTION,
+} from "../lib/labels";
 import { ROUTES, type DashboardLocationState } from "../lib/routes";
 import { useAsync } from "../lib/useAsync";
-import type { FinancialProfile, ProfileInput } from "../types/api";
+import type { BillsOnTime, FinancialProfile, LatePayments, MinimumPaymentMonths, ProfileInput } from "../types/api";
 
-type AmountKey = Exclude<keyof ProfileInput, "impatienceLevel">;
+type HabitKey = "billsOnTime" | "minimumPaymentMonths" | "latePayments";
+type AmountKey = Exclude<keyof ProfileInput, "impatienceLevel" | HabitKey>;
+
+// "" = not answered (sent as nothing, stored as null)
+const UNANSWERED = "";
+const UNANSWERED_LABEL = "Boş bırak";
 
 // amounts as digit strings while typing, converted on submit; empty fields count as 0
 interface FormValues extends Record<AmountKey, string> {
   impatienceLevel: number;
+  billsOnTime: BillsOnTime | typeof UNANSWERED;
+  minimumPaymentMonths: MinimumPaymentMonths | typeof UNANSWERED;
+  latePayments: LatePayments | typeof UNANSWERED;
 }
 
 const EMPTY_FORM: FormValues = {
@@ -30,7 +47,15 @@ const EMPTY_FORM: FormValues = {
   cashReserve: "",
   investmentAmount: "",
   impatienceLevel: 3,
+  billsOnTime: UNANSWERED,
+  minimumPaymentMonths: UNANSWERED,
+  latePayments: UNANSWERED,
 };
+
+// a stored answer the form knows, otherwise unanswered
+function knownAnswer<T extends string>(options: { value: T }[], value: T | null | undefined): T | typeof UNANSWERED {
+  return options.some((option) => option.value === value) ? (value as T) : UNANSWERED;
+}
 
 function formFromProfile(profile: FinancialProfile | null): FormValues {
   if (!profile) return EMPTY_FORM;
@@ -42,6 +67,9 @@ function formFromProfile(profile: FinancialProfile | null): FormValues {
     cashReserve: wholeAmountDigits(profile.cashReserve),
     investmentAmount: wholeAmountDigits(profile.investmentAmount),
     impatienceLevel: profile.impatienceLevel >= 1 && profile.impatienceLevel <= 5 ? profile.impatienceLevel : 3,
+    billsOnTime: knownAnswer(BILLS_ON_TIME_OPTIONS, profile.billsOnTime),
+    minimumPaymentMonths: knownAnswer(MINIMUM_PAYMENT_OPTIONS, profile.minimumPaymentMonths),
+    latePayments: knownAnswer(LATE_PAYMENTS_OPTIONS, profile.latePayments),
   };
 }
 
@@ -59,7 +87,7 @@ const BALANCE_FIELDS: { key: AmountKey; label: string; hint: string }[] = [
   { key: "investmentAmount", label: "Yatırımlar", hint: "Altın, döviz, fon, hisse gibi yatırımların bugünkü değeri." },
 ];
 
-function ProfileForm({ profile }: { profile: FinancialProfile | null }) {
+export function ProfileForm({ profile }: { profile: FinancialProfile | null }) {
   const navigate = useNavigate();
   const [values, setValues] = useState<FormValues>(() => formFromProfile(profile));
   const [incomeError, setIncomeError] = useState<string | null>(null);
@@ -87,6 +115,9 @@ function ProfileForm({ profile }: { profile: FinancialProfile | null }) {
       cashReserve: toAmount(values.cashReserve),
       investmentAmount: toAmount(values.investmentAmount),
       impatienceLevel: values.impatienceLevel,
+      billsOnTime: values.billsOnTime || null,
+      minimumPaymentMonths: values.minimumPaymentMonths || null,
+      latePayments: values.latePayments || null,
     };
 
     setSubmitting(true);
@@ -152,6 +183,35 @@ function ProfileForm({ profile }: { profile: FinancialProfile | null }) {
             description: IMPATIENCE_HINTS[level],
           }))}
         />
+      </Card>
+
+      <Card title="Ödeme alışkanlıkları (isteğe bağlı)" subtitle="Bu cevaplar şimdilik skoru değiştirmez; ileride skora eklenecek.">
+        <div className="stack">
+          <SegmentedControl<BillsOnTime | typeof UNANSWERED>
+            name="billsOnTime"
+            className="segmented-wrap"
+            legend={BILLS_ON_TIME_QUESTION}
+            value={values.billsOnTime}
+            onChange={(billsOnTime) => setValues((previous) => ({ ...previous, billsOnTime }))}
+            options={[...BILLS_ON_TIME_OPTIONS, { value: UNANSWERED, label: UNANSWERED_LABEL }]}
+          />
+          <SegmentedControl<MinimumPaymentMonths | typeof UNANSWERED>
+            name="minimumPaymentMonths"
+            className="segmented-wrap"
+            legend={MINIMUM_PAYMENT_QUESTION}
+            value={values.minimumPaymentMonths}
+            onChange={(minimumPaymentMonths) => setValues((previous) => ({ ...previous, minimumPaymentMonths }))}
+            options={[...MINIMUM_PAYMENT_OPTIONS, { value: UNANSWERED, label: UNANSWERED_LABEL }]}
+          />
+          <SegmentedControl<LatePayments | typeof UNANSWERED>
+            name="latePayments"
+            className="segmented-wrap"
+            legend={LATE_PAYMENTS_QUESTION}
+            value={values.latePayments}
+            onChange={(latePayments) => setValues((previous) => ({ ...previous, latePayments }))}
+            options={[...LATE_PAYMENTS_OPTIONS, { value: UNANSWERED, label: UNANSWERED_LABEL }]}
+          />
+        </div>
       </Card>
 
       <ErrorBox error={error} title={errorTitle} onRateLimitDone={() => setError(null)} />

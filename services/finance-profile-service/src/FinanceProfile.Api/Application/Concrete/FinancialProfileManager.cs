@@ -65,6 +65,13 @@ public class FinancialProfileManager : IFinancialProfileService
         if (request.ImpatienceLevel < 1 || request.ImpatienceLevel > 5)
          return new ErrorResult(Messages.InvalidImpatienceLevel);
 
+        // payment discipline: optional like the risk preference (null = not answered, PUT replaces the whole
+        // profile so an omitted answer is cleared); a sent value must match exactly (upper case)
+        if (!IsAllowedOrNull(request.BillsOnTime, FinancialProfile.BillsOnTimeValues)
+            || !IsAllowedOrNull(request.MinimumPaymentMonths, FinancialProfile.MinimumPaymentMonthsValues)
+            || !IsAllowedOrNull(request.LatePayments, FinancialProfile.LatePaymentsValues))
+         return new ErrorResult(Messages.InvalidPaymentDiscipline);
+
             var entity= MapToEntity(id, request);
             await _financialProfileDal.UpsertAsync(entity);
             return new SuccessResult(Messages.FinancialProfileSaved);
@@ -94,6 +101,9 @@ public class FinancialProfileManager : IFinancialProfileService
         InvestmentAmount = entity.InvestmentAmount,
         RiskPreference = entity.RiskPreference,
         ImpatienceLevel = entity.ImpatienceLevel,
+        BillsOnTime = entity.BillsOnTime,
+        MinimumPaymentMonths = entity.MinimumPaymentMonths,
+        LatePayments = entity.LatePayments,
         CreatedAt = entity.CreatedAt,
         UpdatedAt = entity.UpdatedAt
     };
@@ -109,8 +119,14 @@ public class FinancialProfileManager : IFinancialProfileService
         InvestmentAmount = request.InvestmentAmount,
         RiskPreference = request.RiskPreference,
         ImpatienceLevel = request.ImpatienceLevel,
+        BillsOnTime = request.BillsOnTime,
+        MinimumPaymentMonths = request.MinimumPaymentMonths,
+        LatePayments = request.LatePayments,
         UpdatedAt = DateTime.UtcNow
     };
+
+    private static bool IsAllowedOrNull(string? value, string[] allowed)
+        => value == null || allowed.Contains(value);
 
     public async Task<IDataResult<FinancialIqCalculateResponse>> CalculateIqAsync(string userId)
     {
@@ -129,7 +145,8 @@ public class FinancialProfileManager : IFinancialProfileService
             // and half of the investments as emergency reserve
             TotalDebt = profile.TotalDebt,
             InvestmentAmount = profile.InvestmentAmount,
-            // the risk preference is not sent: scoring v2 does not use a self-reported risk
+            // the risk preference is not sent: scoring v2 does not use a self-reported risk.
+            // the payment discipline answers are not sent either: collected and shown only, not scored yet
             ImpatienceLevel = profile.ImpatienceLevel
         };
         return await _financialIqClient.CalculateAsync(iqRequest);

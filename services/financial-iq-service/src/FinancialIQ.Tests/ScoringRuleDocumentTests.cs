@@ -26,7 +26,7 @@ public class ScoringRuleDocumentTests
     public void TheCurrentVersion_IsV3()
     {
         Assert.Equal("v3", ScoringRules.ScoringVersion);
-        // the migration AddScoringRulesV3 inserts exactly this text
+        // the migration CorrectScoringRulesV3 writes exactly this text into the v3 row
         Assert.Equal(ScoringRuleSnapshots.V3, ScoringRuleDocument.CurrentJson());
     }
 
@@ -35,12 +35,23 @@ public class ScoringRuleDocumentTests
     [Theory]
     [InlineData("v1", "5C696A7EA382A442D651326DCAC0383DE5D8BE33AF6B2766D64FE55AD0666E55")]
     [InlineData("v2", "08DFC12F0911F5542EB30BC08BCE94A7753A31AA363B7CC85426D46BE58934D2")]
-    [InlineData("v3", "B819EA86A391126559D0D9836573179079DAB7D0968A94B850FF67F4F7130B35")]
+    // v3 was corrected once under the same name on 26 Nov (CorrectScoringRulesV3, the 2,000 TL reserve floor)
+    [InlineData("v3", "BDA9D4EF54574C5A1BB7C2D0C65C0E471B5CA84D61144116364A506052D95B62")]
     public void PublishedSnapshots_AreNeverEdited(string version, string sha256)
     {
         var json = ScoringRuleSnapshots.ForVersion(version)!;
 
         Assert.Equal(sha256, Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(json))));
+    }
+
+    [Fact]
+    public void TheFirstV3Text_StaysWhatAddScoringRulesV3Inserted()
+    {
+        // CorrectScoringRulesV3.Down restores it, so it must be byte for byte the 25 Nov text
+        Assert.Equal("B819EA86A391126559D0D9836573179079DAB7D0968A94B850FF67F4F7130B35",
+            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(ScoringRuleSnapshots.V3Initial))));
+        Assert.DoesNotContain("reserveExpenses", ScoringRuleSnapshots.V3Initial);
+        Assert.Contains("\"reserveExpenses\",\"formula\":\"max(monthly expenses, 2000 TL)\"", ScoringRuleSnapshots.V3);
     }
 
     [Fact]

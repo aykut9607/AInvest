@@ -30,6 +30,11 @@ namespace FinanceProfile.Api.Migrations
                         .HasColumnName("id")
                         .HasDefaultValueSql("gen_random_uuid()");
 
+                    b.Property<string>("BillsOnTime")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("bills_on_time");
+
                     b.Property<decimal>("CashReserve")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)")
@@ -51,6 +56,16 @@ namespace FinanceProfile.Api.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)")
                         .HasColumnName("investment_amount");
+
+                    b.Property<string>("LatePayments")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("late_payments");
+
+                    b.Property<string>("MinimumPaymentMonths")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("minimum_payment_months");
 
                     b.Property<decimal>("MonthlyDebtPayment")
                         .HasPrecision(18, 2)
@@ -98,11 +113,17 @@ namespace FinanceProfile.Api.Migrations
 
                     b.ToTable("financial_profiles", null, t =>
                         {
+                            t.HasCheckConstraint("financial_profiles_bills_on_time_check", "bills_on_time IN ('ALL', 'ALMOST_ALL', 'MOST', 'SOME', 'VERY_FEW')");
+
                             t.HasCheckConstraint("financial_profiles_cash_reserve_check", "cash_reserve >= 0");
 
                             t.HasCheckConstraint("financial_profiles_impatience_level_check", "impatience_level BETWEEN 1 AND 5");
 
                             t.HasCheckConstraint("financial_profiles_investment_amount_check", "investment_amount >= 0");
+
+                            t.HasCheckConstraint("financial_profiles_late_payments_check", "late_payments IN ('NONE', 'ONCE', 'TWICE_OR_MORE')");
+
+                            t.HasCheckConstraint("financial_profiles_minimum_payment_months_check", "minimum_payment_months IN ('NONE', 'ONE_TWO', 'THREE_FIVE', 'SIX_PLUS', 'NO_CARD')");
 
                             t.HasCheckConstraint("financial_profiles_monthly_debt_payment_check", "monthly_debt_payment >= 0");
 
