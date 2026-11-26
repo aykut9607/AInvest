@@ -46,7 +46,17 @@ public static class ScoringRuleDocument
                 $"cash + investments - total debt >= {ScoringRules.VeryHighNetWorth}"),
             new(ScoringRules.ExtremeDebtRule, 0,
                 $"total debt - cash - investments >= {ScoringRules.ExtremeNetDebt} and monthly income < {ScoringRules.VeryHighMonthlyIncome}")
-        ]);
+        ],
+        Adjustments:
+        [
+            new(ScoringRules.WealthFloorRule, "floor",
+                $"100 x (cash + investments - total debt) / ({ScoringRules.WealthYearsForFullScore} x 12 x (monthly expenses + debt payment)), at most 100; only when the outgoings are above 0"),
+            new(ScoringRules.IncomeFloorRule, "floor",
+                $"100 x monthly income / {ScoringRules.VeryHighMonthlyIncome}, while net debt <= {ScoringRules.VeryHighIncomeMaxNetDebtYears} years of income"),
+            new(ScoringRules.DebtCapRule, "cap",
+                $"net debt > {ScoringRules.HighNetDebtYears} years of income: at most {ScoringRules.DebtCapAtLimit} - {ScoringRules.DebtCapPerYear} x (years - {ScoringRules.HighNetDebtYears}), never below 0; net debt without any income: 0")
+        ],
+        AdjustmentOrder: "after the factors and only when no rule applied: the higher floor raises the score, then the cap lowers it");
 
     private static FactorRules Factor(string name, string? combine, params ScoreScale[] parts) =>
         new(name, parts.Min(p => p.MaxPoints), combine, parts.Select(p => new ScaleRules(
@@ -56,7 +66,8 @@ public static class ScoringRuleDocument
             p.Warning is null ? null : new WarningRules(p.Warning.Text, p.Warning.When, p.Warning.Threshold))).ToList());
 
     public sealed record RuleSet(string Version, int MaxScore, IReadOnlyList<SegmentRules> Segments, IReadOnlyList<FactorRules> Factors,
-        decimal InvestmentReserveShare, string RuleOrder, IReadOnlyList<SpecialRule> Rules);
+        decimal InvestmentReserveShare, string RuleOrder, IReadOnlyList<SpecialRule> Rules, IReadOnlyList<Adjustment> Adjustments, string AdjustmentOrder);
+    public sealed record Adjustment(string Name, string Kind, string Formula);
     public sealed record SegmentRules(string Name, int MinScore);
     public sealed record FactorRules(string Name, int MaxPoints, string? Combine, IReadOnlyList<ScaleRules> Parts);
     public sealed record ScaleRules(string Measure, string Direction, IReadOnlyList<TierRules> Tiers, int OtherwisePoints, WarningRules? Warning);

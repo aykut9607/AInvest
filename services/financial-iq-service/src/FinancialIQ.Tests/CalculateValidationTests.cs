@@ -53,7 +53,7 @@ public class CalculateValidationTests
         Assert.Equal(95, result.Data!.Score);
         // contract v2: the breakdown is a JSON object in the response, not a string
         Assert.Equal(System.Text.Json.JsonValueKind.Object, result.Data.FactorBreakdown.ValueKind);
-        Assert.Equal("v2", result.Data.FactorBreakdown.GetProperty("version").GetString());
+        Assert.Equal("v2.1", result.Data.FactorBreakdown.GetProperty("version").GetString());
     }
 
     [Fact]

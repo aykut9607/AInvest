@@ -46,10 +46,8 @@ public class FinancialProfileManager : IFinancialProfileService
         if (string.IsNullOrWhiteSpace(id) || id.Length > FinancialProfile.UserIdMaxLength)
          return new ErrorResult(Messages.InvalidUserId);
 
-        if(request.MonthlyIncome <= 0)
-         return new ErrorResult(Messages.InvalidMonthlyIncome);
-
-        if (request.MonthlyExpenses < 0 || request.MonthlyDebtPayment < 0 || request.TotalDebt < 0 || request.CashReserve < 0 || request.InvestmentAmount < 0)
+        // 0 is valid everywhere (a student, someone out of work); only negative amounts are refused
+        if (request.MonthlyIncome < 0 || request.MonthlyExpenses < 0 || request.MonthlyDebtPayment < 0 || request.TotalDebt < 0 || request.CashReserve < 0 || request.InvestmentAmount < 0)
          return new ErrorResult(Messages.NegativeAmountNotAllowed);
 
         // technical limit of the database columns, not a scoring rule (see FinancialProfile.MaxAmount)

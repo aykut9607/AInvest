@@ -24,7 +24,7 @@ async function orNull<T>(request: Promise<T>): Promise<T | null> {
   }
 }
 
-export default function PortfolioPage({ api, onOpenMarket, onOpenProfile }: { api: PortfolioApi; onOpenMarket: () => void; onOpenProfile: () => void }) {
+export default function PortfolioPage({ api, marketOpen, onChosen, onOpenMarket, onOpenProfile }: { api: PortfolioApi; marketOpen: boolean; onChosen: () => void; onOpenMarket: () => void; onOpenProfile: () => void }) {
   const base = `/api/portfolio/${encodeURIComponent(api.userId)}`;
   const load = useCallback(async (): Promise<Loaded> => {
     const [options, saved, latest] = await Promise.all([api.get<PortfolioOptions>(`${base}/options`), orNull(api.get<Preferences>(`${base}/preferences`)), orNull(api.get<Proposal>(`${base}/latest`))]);
@@ -39,7 +39,7 @@ export default function PortfolioPage({ api, onOpenMarket, onOpenProfile }: { ap
         <p>Finansal IQ'nu gördükten sonra portföy türünü ve risk seviyeni seç; dağılımı Portföy servisi hesaplar, koç açıklar.</p>
       </header>
       {data ? (
-        <Chooser key={data.options.iqScore} api={api} base={base} loaded={data} onOpenMarket={onOpenMarket} />
+        <Chooser key={data.options.iqScore} api={api} base={base} loaded={data} marketOpen={marketOpen} onChosen={onChosen} onOpenMarket={onOpenMarket} />
       ) : loading ? (
         <Loading />
       ) : error instanceof ApiError && error.status === 404 ? (
@@ -63,7 +63,7 @@ export default function PortfolioPage({ api, onOpenMarket, onOpenProfile }: { ap
   );
 }
 
-function Chooser({ api, base, loaded, onOpenMarket }: { api: PortfolioApi; base: string; loaded: Loaded; onOpenMarket: () => void }) {
+function Chooser({ api, base, loaded, marketOpen, onChosen, onOpenMarket }: { api: PortfolioApi; base: string; loaded: Loaded; marketOpen: boolean; onChosen: () => void; onOpenMarket: () => void }) {
   const { options, saved } = loaded;
   const rank = LEVELS.indexOf(options.maxRisk);
   const usable = saved && saved.option !== "AINVEST" ? saved : null;
@@ -95,6 +95,7 @@ function Chooser({ api, base, loaded, onOpenMarket }: { api: PortfolioApi; base:
     setFailed(null);
     try {
       await api.send("PUT", `${base}/preferences`, body);
+      onChosen();          // the market (4.4) opens once a choice is saved, also when 4.4 itself is not ready yet
       setProposal(await api.send<Proposal>("POST", `${base}/proposal`));
       requestAnimationFrame(() => document.getElementById("pf-proposal")?.scrollIntoView({ behavior: "smooth", block: "start" }));
     } catch (error) {
@@ -140,7 +141,15 @@ function Chooser({ api, base, loaded, onOpenMarket }: { api: PortfolioApi; base:
         </div>
         {options.unavailableOptions.includes("AINVEST") && (
           <p className="pf-note">
-            4.4 henüz öneri vermiyor; motorun sanal işlemlerini <button type="button" className="pf-link" onClick={onOpenMarket}>Piyasa (4.4)</button> sayfasında görebilirsin.
+            4.4 henüz öneri vermiyor; motorun sanal işlemlerini{" "}
+            {marketOpen ? (
+              <button type="button" className="pf-link" onClick={onOpenMarket}>
+                Piyasa (4.4)
+              </button>
+            ) : (
+              "Piyasa (4.4)"
+            )}{" "}
+            sayfasında görebilirsin{marketOpen ? "" : "; sayfa portföy seçimini kaydedince açılır"}.
           </p>
         )}
       </Card>
@@ -153,7 +162,13 @@ function Chooser({ api, base, loaded, onOpenMarket }: { api: PortfolioApi; base:
             </Choice>
           ))}
         </div>
-        {rank < 2 && <p className="pf-note">IQ segmentin şu an en fazla {LEVEL[options.maxRisk].toLowerCase()} seviyesine izin veriyor; skorun yükseldikçe açılır.</p>}
+        {rank < 2 && (
+          <p className="pf-note">
+            {options.maxRisk === options.segment
+              ? `IQ segmentin şu an en fazla ${LEVEL[options.maxRisk].toLowerCase()} seviyesine izin veriyor; skorun yükseldikçe açılır.`
+              : `IQ segmentin ${LEVEL[options.segment].toLowerCase()}, ama tavanın ${LEVEL[options.maxRisk].toLowerCase()}: en zayıf halkan belirliyor (yukarıdaki uyarılar).`}
+          </p>
+        )}
       </Card>
 
       {option === "INSTITUTION" && (

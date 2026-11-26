@@ -1,7 +1,7 @@
 """Capability 3 of the report: the coach explains why the Financial IQ is what it is (POST /ai/explain-financial-iq)."""
 
 from adapters.llm import ChatModel
-from core.domain import DISCLAIMER, FACTORS, RULES, SEGMENT_TR, WARNINGS
+from core.domain import ADJUSTMENTS, DISCLAIMER, FACTORS, RULES, SEGMENT_TR, WARNINGS
 from core.fmt import num
 from core.number_check import allowed_values
 from schemas.explain import ExplainRequest, ExplainResponse
@@ -37,6 +37,8 @@ def template_explanation(req: ExplainRequest) -> str:
         if weak:
             parts = [f"{FACTORS[k][0]} ({FACTORS[k][1]} üzerinden {num(p, 1)})" for k, p in weak]
             sentences.append("En çok puan kaybettiğin alanlar: " + " ve ".join(parts) + ".")
+        if b.adjustment:
+            sentences.append(f"Faktörlerin toplamı {b.adjustment.from_factors}; {ADJUSTMENTS[b.adjustment.rule]}.")
 
     if b.warnings:
         sentences.append("Öne çıkan uyarılar: " + "; ".join(WARNINGS[w].lower() for w in b.warnings) + ".")

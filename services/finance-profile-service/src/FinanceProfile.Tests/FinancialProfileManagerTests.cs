@@ -63,14 +63,15 @@ public class FinancialProfileManagerTests
     }
 
     [Fact]
-    public async Task Upsert_WithZeroIncome_IsRejected()
+    public async Task Upsert_WithZeroIncome_IsAccepted()
     {
+        // a student or someone out of work has a profile too (26 Nov 2026: only negative amounts are refused)
         var request = ValidRequest();
         request.MonthlyIncome = 0;
 
         var result = await Manager.UpsertAsync("u1", request);
 
-        Assert.Equal(Messages.InvalidMonthlyIncome, result.Message);
+        Assert.True(result.Success);
     }
 
     [Fact]

@@ -28,6 +28,7 @@ class IqResult:
     scoring_version: str
     calculated_at: str
     result_version: int | None          # changes whenever the result is recalculated: a proposal built on another value is stale
+    adjustment: str | None = None       # v2.1: WEALTH_FLOOR / INCOME_FLOOR / DEBT_CAP when it changed the sum of the factors
 
 
 class Upstream:
@@ -38,7 +39,8 @@ class Upstream:
     def profile(self, user_id: str) -> Profile:
         d = self._get(f"{self._settings.finance_base_url}/api/Profiles/{user_id}", "Finance Profile", "No financial profile yet.")
         try:
-            return Profile(float(d["monthlyIncome"]), float(d["monthlyExpenses"]), float(d["monthlyDebtPayment"]), float(d["totalDebt"]), float(d["cashReserve"]), float(d["investmentAmount"]))
+            return Profile(float(d["monthlyIncome"]), float(d["monthlyExpenses"]), float(d["monthlyDebtPayment"]), float(d["totalDebt"]), float(d["cashReserve"]), float(d["investmentAmount"]),
+                           int(d.get("impatienceLevel") or 3))
         except (KeyError, TypeError, ValueError) as error:
             raise UpstreamError("Finance Profile returned an unexpected answer.") from error
 
@@ -46,7 +48,8 @@ class Upstream:
         d = self._get(f"{self._settings.iq_base_url}/api/financial-iq/{user_id}/latest", "Financial IQ", "No Financial IQ result yet.")
         try:
             breakdown = d["factorBreakdown"] or {}
-            return IqResult(int(d["score"]), str(d["segment"]), breakdown.get("appliedRule"), str(breakdown.get("version", "v1")), str(d.get("updatedAt") or d["createdAt"]), d.get("resultVersion"))
+            return IqResult(int(d["score"]), str(d["segment"]), breakdown.get("appliedRule"), str(breakdown.get("version", "v1")), str(d.get("updatedAt") or d["createdAt"]), d.get("resultVersion"),
+                            (breakdown.get("adjustment") or {}).get("rule"))
         except (KeyError, TypeError, ValueError, AttributeError) as error:
             raise UpstreamError("Financial IQ returned an unexpected answer.") from error
 

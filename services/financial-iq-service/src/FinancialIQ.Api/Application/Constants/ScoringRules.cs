@@ -44,7 +44,9 @@ public static class ScoringRules
     // rule changes so stored results can be told apart (v1 = 6 factors incl. RiskAlignment, v2 = 5 factors, no
     // self-reported risk). Each version's full rule set is stored in scoring_rule_versions (ScoringRuleSnapshots);
     // ScoringRuleDocumentTests fails when a number below changes without a new version
-    public const string ScoringVersion = "v2";
+    // v2.1 (26 Nov 2026): the same 5 factors, the cliffs between the special rules and the factors removed (adjustments below);
+    // income 0 is accepted
+    public const string ScoringVersion = "v2.1";
 
     // --- the 5 factors (v2). Maximums: 25 / 25 / 25 / 15 / 10 = 100 ---
 
@@ -89,6 +91,24 @@ public static class ScoringRules
         ScoreScale.AtMost,
         [new(1m, 10), new(2m, 8), new(3m, 5), new(4m, 2)], 0,
         new WarningRule("High impatience", WarningRule.Above, 3m));
+
+    // --- adjustments (v2.1): the special rules above were cliffs. 9,900,000 of net worth scored 58 and 10,000,000 scored 100;
+    // 999,999 a month scored 33 and 1,000,000 scored 100; 99,000,000 of net debt next to a salary of 40,000 scored 50 and
+    // 100,000,000 scored 0. These make the way to those rules continuous. ---
+
+    // net worth that pays every yearly outgoing (expenses + installments) for this many years -> floor 100, proportionally below.
+    // 25 years = the 4 % withdrawal rule (Bengen 1994; Cooley, Hubbard, Walz 1998): such a portfolio lasts a lifetime
+    public const decimal WealthYearsForFullScore = 25m;
+    public const string WealthFloorRule = "WEALTH_FLOOR";
+
+    // floor = 100 x monthly income / VeryHighMonthlyIncome, with the same net-debt condition as VERY_HIGH_INCOME
+    public const string IncomeFloorRule = "INCOME_FLOOR";
+
+    // net debt above HighNetDebtYears of income: the score is at most DebtCapAtLimit (inside LOW), minus DebtCapPerYear for every
+    // further year; with no income at all a net debt caps the score at 0
+    public const int DebtCapAtLimit = 40;
+    public const int DebtCapPerYear = 2;
+    public const string DebtCapRule = "DEBT_CAP";
 
     // segment from the total score
     public const int HighSegmentMinScore = 71;

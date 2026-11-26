@@ -17,7 +17,7 @@ public class FinanceDbContext : DbContext
         {
             entity.ToTable("financial_profiles", t =>
             {
-                t.HasCheckConstraint("financial_profiles_monthly_income_check", "monthly_income > 0");
+                t.HasCheckConstraint("financial_profiles_monthly_income_check", "monthly_income >= 0");          // 0 allowed since 26 Nov 2026 (no income is a profile too)
                 t.HasCheckConstraint("financial_profiles_monthly_expenses_check", "monthly_expenses >= 0");
                 t.HasCheckConstraint("financial_profiles_monthly_debt_payment_check", "monthly_debt_payment >= 0");
                 t.HasCheckConstraint("financial_profiles_total_debt_check", "total_debt >= 0");

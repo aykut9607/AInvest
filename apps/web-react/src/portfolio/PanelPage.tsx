@@ -31,10 +31,16 @@ const RULE: Record<string, string> = {
   EXTREME_DEBT: "Net borcun 100.000.000 TL ve üzeri: skor 0.",
 };
 
+const ADJUSTMENT: Record<string, string> = {
+  WEALTH_FLOOR: "net servetin yıllık gider ve taksitlerini uzun yıllar karşıladığı için",
+  INCOME_FLOOR: "gelirin çok yüksek ve borcun az olduğu için",
+  DEBT_CAP: "net borcun yıllık gelirinin 3 katını aştığı için",
+};
+
 export default function PanelPage({ api, iq, onNext, onEdit }: { api: PortfolioApi; iq: IqResult; onNext: () => void; onEdit: () => void }) {
   const b = iq.factorBreakdown;
   const turn = 2 * Math.PI * 52;
-  const version2 = !b?.version || b.version === "v2";
+  const version2 = !b?.version || b.version.startsWith("v2");
   return (
     <>
       <header className="pf-head">
@@ -84,6 +90,11 @@ export default function PanelPage({ api, iq, onNext, onEdit }: { api: PortfolioA
             })}
           </div>
           {b?.appliedRule && <p className="pf-note">{RULE[b.appliedRule] ?? `Uygulanan kural: ${b.appliedRule}`}</p>}
+          {b?.adjustment && (
+            <p className="pf-note">
+              Faktörlerin toplamı {b.adjustment.fromFactors}; {ADJUSTMENT[b.adjustment.rule] ?? b.adjustment.rule} skor {b.adjustment.score}.
+            </p>
+          )}
         </Card>
       </div>
       {b && b.warnings.length > 0 && (

@@ -1,15 +1,14 @@
 import { useCallback, useState } from "react";
-import { ApiError, type PortfolioApi } from "./api";
-import { BalanceChart } from "./charts";
+import type { PortfolioApi } from "./api";
 import { ScoreBars, TradeDrawer } from "./TradeDetail";
-import { ASSET, KIND, date, day, percent, plain, price, problem, rule, signed, signedUsd, usd, zone } from "./text";
-import type { Account, Group, Kind, Missed, Performance, Rehearsal, Trade, ViewItem } from "./types";
+import { ASSET, KIND, date, percent, plain, price, problem, rule, signed, signedUsd, usd, zone } from "./text";
+import type { Account, Group, Kind, Missed, Performance, Trade, ViewItem } from "./types";
 import { Banner, Button, Card, Empty, Loading, Pill, Tabs, Tile } from "./ui";
 import { useLoad } from "./useLoad";
 
 const MARKET = "/api/portfolio/market";
 const KINDS: Kind[] = ["SCALP", "SCALP_SWING", "SWING"];
-type Tab = "overview" | "trades" | "missed" | "stats" | "year";
+type Tab = "overview" | "trades" | "missed" | "stats";
 
 interface Live {
   account: Account;
@@ -68,7 +67,6 @@ export default function MarketPage({ api }: { api: PortfolioApi }) {
               { id: "trades", label: "İşlemler", count: data.trades.length },
               { id: "missed", label: "Kaçırılanlar", count: data.missed.length },
               { id: "stats", label: "İstatistik" },
-              { id: "year", label: "Geçmiş test (1 yıl)" },
             ]}
             value={tab}
             onChange={setTab}
@@ -81,7 +79,6 @@ export default function MarketPage({ api }: { api: PortfolioApi }) {
           )}
           {tab === "missed" && <MissedList items={data.missed} />}
           {tab === "stats" && <StatsView p={data.performance} />}
-          {tab === "year" && <Year api={api} onOpen={(id) => setOpen(`${MARKET}/backtest/${id}`)} />}
         </>
       )}
       {open && <TradeDrawer api={api} path={open} onClose={() => setOpen(null)} />}
@@ -264,7 +261,7 @@ function StatsView({ p }: { p: Performance }) {
   if (!p.n)
     return (
       <Card title="İstatistik">
-        <Empty title="Henüz kapanan işlem yok">İlk işlem kapanınca başarı oranı, çıkış türleri ve hangi onayın nasıl gittiği burada görünür. Geçmiş test sekmesinde son bir yılın provası var.</Empty>
+        <Empty title="Henüz kapanan işlem yok">İlk işlem kapanınca başarı oranı, çıkış türleri ve hangi onayın nasıl gittiği burada görünür.</Empty>
       </Card>
     );
   return (
@@ -310,78 +307,5 @@ function Groups({ title, groups, name }: { title: string; groups: Record<string,
         </tbody>
       </table>
     </Card>
-  );
-}
-
-const ORDER = ["BTC", "GOLD", "SPX", "ALL"];
-
-function Year({ api, onOpen }: { api: PortfolioApi; onOpen: (id: string) => void }) {
-  const load = useCallback(() => api.get<Rehearsal>(`${MARKET}/backtest`), [api]);
-  const { data: d, error, loading } = useLoad(load);
-  const [asset, setAsset] = useState("");
-  if (!d) return loading ? <Loading /> : <Empty title="Geçmiş test yok">{error instanceof ApiError && error.status !== 404 ? problem(error) : "Henüz kaydedilmiş bir test yok."}</Empty>;
-  const all = d.real.ALL;
-  return (
-    <>
-      <div className="pf-tiles">
-        <Tile label="Kasa, üçü tek kasada" value={usd(all.account.end)} tone={all.account.percent < 0 ? "bad" : "good"} hint={`${signed(all.account.percent, 1)} % · ${usd(all.account.start, 0)} ile başladı`} />
-        <Tile label="Başarılı / başarısız" value={`${all.all.won ?? 0} / ${all.all.lost ?? 0}`} hint={`başarı ${percent(100 * (all.all.winRate ?? 0), 1)}`} />
-        <Tile label="İşlem başı ortalama" value={`${signed(all.all.averageR ?? 0)} R`} hint={`± ${plain(all.all.errorR ?? 0, 2)}`} />
-        <Tile label="En derin düşüş" value={`−${percent(all.account.maxDrawdownPercent, 1)}`} />
-      </div>
-      <Card title="Kasa" note={`Gerçek fiyatlarla, aynı kurallar, IQ 50 kullanıcı, komisyon dahil. ${day(d.from)} – ${day(Math.max(...Object.values(d.to)))}`}>
-        <BalanceChart points={d.curve} start={all.account.start} />
-      </Card>
-      <Card title="Varlığa göre" note="Her satır kendi 1.000 $'lık kasasıyla; son satır üçünü tek kasadan açar.">
-        <div className="pf-scroll">
-          <table className="pf-table">
-            <thead>
-              <tr>
-                <th>Varlık</th>
-                <th>İşlem</th>
-                <th>Başarılı</th>
-                <th>Başarısız</th>
-                <th>Başarı</th>
-                <th>Ortalama</th>
-                <th>Kâr faktörü</th>
-                <th>1.000 $ →</th>
-                <th>En derin düşüş</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ORDER.filter((k) => d.real[k]).map((k) => {
-                const r = d.real[k];
-                return (
-                  <tr key={k} className={k === "ALL" ? "pf-row-strong" : ""}>
-                    <td>{ASSET[k]}</td>
-                    <td>{r.all.n}</td>
-                    <td>{r.all.won ?? 0}</td>
-                    <td>{r.all.lost ?? 0}</td>
-                    <td>{percent(100 * (r.all.winRate ?? 0), 1)}</td>
-                    <td className={(r.all.averageR ?? 0) > 0 ? "pf-text-good" : "pf-text-bad"}>{signed(r.all.averageR ?? 0)} R</td>
-                    <td>{r.all.profitFactor == null ? "–" : plain(r.all.profitFactor, 2)}</td>
-                    <td className={r.account.end >= r.account.start ? "pf-text-good" : "pf-text-bad"}>{usd(r.account.end, 0)}</td>
-                    <td>−{percent(r.account.maxDrawdownPercent, 1)}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        <p className="pf-note">
-          Kontrol: aynı motor, mumları karıştırılmış fiyatta 1.000 $ → {usd(d.control.ALL?.account.end ?? 0, 0)}. Gerçek sonuç bundan belirgin iyi değilse kazancı kurallar değil şans getiriyordur.
-        </p>
-      </Card>
-      <Card title="Bütün işlemler" note="Satıra tıkla: plan, kâr bölgeleri, onaylar ve yorum.">
-        <div className="pf-row-start">
-          {["", "BTC", "GOLD", "SPX"].map((a) => (
-            <button key={a} type="button" className={`pf-chip${asset === a ? " pf-on" : ""}`} aria-pressed={asset === a} onClick={() => setAsset(a)}>
-              {a ? ASSET[a] : "Hepsi"}
-            </button>
-          ))}
-        </div>
-        <TradeTable trades={d.trades.filter((t) => !asset || t.asset === asset)} onOpen={onOpen} empty="Bu süzgeçte işlem yok." />
-      </Card>
-    </>
   );
 }

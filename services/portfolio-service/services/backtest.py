@@ -10,9 +10,14 @@ from services.market import tsi
 FILE = Path(__file__).resolve().parents[1] / "signals" / "live" / "year.json"
 
 
-@lru_cache
 def load() -> dict | None:
-    return json.loads(FILE.read_text(encoding="utf-8")) if FILE.exists() else None
+    """None until the file exists; read again only when it changes (a new rehearsal needs no restart)."""
+    return _read(FILE.stat().st_mtime) if FILE.exists() else None
+
+
+@lru_cache(maxsize=1)
+def _read(changed: float) -> dict:
+    return json.loads(FILE.read_text(encoding="utf-8"))
 
 
 def _at(seconds: int) -> str | None:

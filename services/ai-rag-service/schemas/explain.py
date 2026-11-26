@@ -6,6 +6,14 @@ from core.domain import FACTORS, RULES, WARNINGS
 from schemas.common import Camel, CheckedText, Level
 
 
+class Adjustment(Camel):
+    """Scoring v2.1: a floor or cap moved the score away from the sum of the factors (the factors are left as they are)."""
+
+    rule: Literal["WEALTH_FLOOR", "INCOME_FLOOR", "DEBT_CAP"]
+    from_factors: int = Field(ge=0, le=100)
+    score: int = Field(ge=0, le=100)
+
+
 class FactorBreakdown(Camel):
     """The factorBreakdown object of the Financial IQ service, contract v2. Unknown extra fields are ignored."""
 
@@ -14,6 +22,8 @@ class FactorBreakdown(Camel):
     warnings: list[str] = Field(default_factory=list)
     # set by the IQ service when a rule decided the score instead of the 5 factors
     applied_rule: Literal["VERY_HIGH_INCOME", "VERY_HIGH_WEALTH", "EXTREME_DEBT"] | None = None
+    # v2.1, optional: set when a floor or cap changed the sum of the factors; never together with applied_rule
+    adjustment: Adjustment | None = None
 
     @field_validator("factors")
     @classmethod
@@ -60,6 +70,15 @@ class ExplainRequest(Camel):
         if b is None:
             return self
         total = sum(b.factors.values())
+        if b.adjustment:
+            # v2.1: the factors add up to fromFactors, the adjustment sets the score
+            if b.applied_rule:
+                raise ValueError("a breakdown has either an applied rule or an adjustment, not both")
+            if int(total) != b.adjustment.from_factors:
+                raise ValueError(f"factor points add up to {total:g}, not to fromFactors {b.adjustment.from_factors}")
+            if b.adjustment.score != self.score:
+                raise ValueError(f"{b.adjustment.rule} sets the score to {b.adjustment.score}, not {self.score}")
+            return self
         if int(total) != self.score:
             raise ValueError(f"factor points add up to {total:g}, not to the score {self.score}")
         if b.applied_rule and RULES[b.applied_rule][0] != self.score:

@@ -49,6 +49,17 @@ RULES: dict[str, tuple[int, str]] = {
     "EXTREME_DEBT": (0, "net borç aşırı yüksek; bu borç düzeyinde diğer göstergeler skoru kurtaramaz"),
 }
 
+# scoring v2.1 (26 Nov 2026): factorBreakdown.adjustment -> meaning. Unlike a rule, an adjustment leaves the factors as
+# they are (they still describe the user), only the score differs from their sum. No digits in the wording.
+ADJUSTMENTS: dict[str, str] = {
+    "WEALTH_FLOOR": "net servet yıllık giderleri ve taksitleri uzun yıllar karşılıyor, bu yüzden skor faktörlerin "
+                    "toplamından yüksek",
+    "INCOME_FLOOR": "aylık gelir çok yüksek ve net borç bir yıllık geliri aşmıyor, bu yüzden skor faktörlerin "
+                    "toplamından yüksek",
+    "DEBT_CAP": "net borç yıllık gelire göre çok yüksek (ya da gelir yokken borç var), bu yüzden skor faktörlerin "
+                "toplamından düşük",
+}
+
 # thresholds the IQ rules use (ScoringRules.cs / FinancialIqCommandManager.cs); the warnings reuse them so the
 # assistant never contradicts the score
 RESERVE_MIN_MONTHS = 3            # below: "Low cash reserve"

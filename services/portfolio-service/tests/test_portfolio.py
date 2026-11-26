@@ -19,7 +19,7 @@ HIGH_USER = dict(monthlyIncome=20000, monthlyExpenses=8000, monthlyDebtPayment=2
 
 def profile(**changes):
     d = HIGH_USER | changes
-    return al.Profile(d["monthlyIncome"], d["monthlyExpenses"], d["monthlyDebtPayment"], d["totalDebt"], d["cashReserve"], d["investmentAmount"])
+    return al.Profile(d["monthlyIncome"], d["monthlyExpenses"], d["monthlyDebtPayment"], d["totalDebt"], d["cashReserve"], d["investmentAmount"], d.get("impatienceLevel", 2))
 
 
 def risky(weights):
@@ -65,6 +65,34 @@ def test_risk_above_the_ceiling_is_refused():
     al.check_risk("MEDIUM", "MEDIUM")
     with pytest.raises(al.AllocationError):
         al.check_risk("HIGH", "MEDIUM")
+
+
+@pytest.mark.parametrize(("changes", "ceiling", "why"), [
+    ({}, "HIGH", ()),                                                                             # healthy: the segment decides
+    ({"cashReserve": 20000, "investmentAmount": 0}, "LOW", ("CEILING_RESERVE",)),                # 2.5 months of reserve
+    ({"cashReserve": 0, "investmentAmount": 60000}, "HIGH", ()),                                  # half of the investments counts, as in the IQ
+    ({"monthlyExpenses": 13000, "monthlyDebtPayment": 7000, "cashReserve": 60000}, "LOW", ("CEILING_NO_SURPLUS",)),          # nothing left at the end of the month
+    ({"monthlyDebtPayment": 7300}, "MEDIUM", ("CEILING_DEBT",)),                                 # installment 36.5 % of income
+    ({"totalDebt": 800000}, "MEDIUM", ("CEILING_DEBT",)),                                        # net debt more than 3 years of income
+    ({"impatienceLevel": 5}, "MEDIUM", ("CEILING_IMPATIENCE",)),
+    ({"impatienceLevel": 4, "monthlyDebtPayment": 7300}, "LOW", ("CEILING_DEBT", "CEILING_IMPATIENCE")),
+])
+def test_the_weakest_link_lowers_the_ceiling(changes, ceiling, why):
+    assert al.risk_ceiling("HIGH", None, profile(**changes)) == (ceiling, why)
+
+
+def test_the_ceiling_never_rises_above_the_segment_and_the_rich_keep_theirs():
+    assert al.risk_ceiling("LOW", None, profile()) == ("LOW", ())
+    assert al.risk_ceiling("LOW", None, profile(impatienceLevel=5)) == ("LOW", ())          # there is no lower level
+    poor_cash = profile(monthlyIncome=1000000, monthlyExpenses=900000, cashReserve=0, investmentAmount=0)
+    assert al.risk_ceiling("HIGH", "VERY_HIGH_INCOME", poor_cash) == ("HIGH", ())
+    assert al.risk_ceiling("HIGH", None, poor_cash)[0] == "LOW"
+    assert al.risk_ceiling("MEDIUM", None, profile(monthlyIncome=0, monthlyExpenses=0, monthlyDebtPayment=0))[0] == "LOW"
+    retiree = profile(monthlyIncome=0, monthlyExpenses=15000, monthlyDebtPayment=0, totalDebt=0, cashReserve=1000000, investmentAmount=5000000)
+    assert al.risk_ceiling("HIGH", None, retiree, "WEALTH_FLOOR") == ("HIGH", ())          # IQ v2.1 raised the score by the wealth itself
+    assert al.risk_ceiling("HIGH", None, retiree)[0] == "LOW"
+    earner = profile(monthlyIncome=999999, monthlyExpenses=990000, cashReserve=0, investmentAmount=0)
+    assert al.investable(99, None, earner, "INCOME_FLOOR").share_percent == 69 and al.investable(99, None, earner).share_percent == 0
 
 
 # ---------- in what

@@ -63,11 +63,12 @@ def options(user_id: Owner, upstream: Data):
         iq, profile = upstream.iq(user_id), upstream.profile(user_id)
     except (MissingData, UpstreamError) as error:
         return failure(error)
-    i = allocation.investable(iq.score, iq.applied_rule, profile)
-    return Envelope[Options].ok(Options(iq_score=iq.score, segment=iq.segment, max_risk=iq.segment, investable=money(i), options=OPTIONS, unavailable_options=NOT_READY,
+    i = allocation.investable(iq.score, iq.applied_rule, profile, iq.adjustment)
+    ceiling, why = allocation.risk_ceiling(iq.segment, iq.applied_rule, profile, iq.adjustment)
+    return Envelope[Options].ok(Options(iq_score=iq.score, segment=iq.segment, max_risk=ceiling, investable=money(i), options=OPTIONS, unavailable_options=NOT_READY,
                                         institution_styles=list(INSTITUTIONS),
                                         institution_style_info=[StyleInfo(code=c, label=INSTITUTION_LABELS[c][0], description=INSTITUTION_LABELS[c][1], source=Source(**INSTITUTION_SOURCES[c])) for c in INSTITUTIONS],
-                                        assets=list(ASSETS), asset_info=[NamedCode(code=a, label=ASSET_LABELS[a]) for a in ASSETS], reasons=list(i.reasons)), "Options loaded.")
+                                        assets=list(ASSETS), asset_info=[NamedCode(code=a, label=ASSET_LABELS[a]) for a in ASSETS], reasons=[*i.reasons, *why]), "Options loaded.")
 
 
 @router.get("/preferences", response_model=Envelope[Preferences])
@@ -81,7 +82,8 @@ def read_preferences(user_id: Owner, db: Db):
 @router.put("/preferences", response_model=Envelope[Preferences])
 def save_preferences(user_id: Owner, body: Preferences, upstream: Data, db: Db):
     try:
-        allocation.check_risk(body.risk_level, upstream.iq(user_id).segment)
+        iq = upstream.iq(user_id)
+        allocation.check_risk(body.risk_level, allocation.risk_ceiling(iq.segment, iq.applied_rule, upstream.profile(user_id), iq.adjustment)[0])
         if body.option not in NOT_READY:
             basket_for(body)          # refuse an impossible choice before storing it
     except (MissingData, UpstreamError, allocation.AllocationError) as error:
@@ -101,18 +103,19 @@ def create_proposal(user_id: Owner, upstream: Data, db: Db):
         return JSONResponse(Envelope[None].error("The AInvest view is being prepared.").model_dump(), status_code=409)
     try:
         iq, profile = upstream.iq(user_id), upstream.profile(user_id)
-        allocation.check_risk(choice.risk_level, iq.segment)          # the score may have fallen since the choice was saved
+        ceiling, why = allocation.risk_ceiling(iq.segment, iq.applied_rule, profile, iq.adjustment)
+        allocation.check_risk(choice.risk_level, ceiling)          # the score or the data may have changed since the choice was saved
         basket = basket_for(choice)
     except (MissingData, UpstreamError, allocation.AllocationError) as error:
         return failure(error)
-    i = allocation.investable(iq.score, iq.applied_rule, profile)
+    i = allocation.investable(iq.score, iq.applied_rule, profile, iq.adjustment)
     percents = allocation.percentages(basket.weights)
     monthly, once = allocation.amounts(basket.weights, i.monthly_amount), allocation.amounts(basket.weights, i.one_time_amount)
     now = datetime.now(timezone.utc)
     proposal = Proposal(proposal_id=str(uuid.uuid4()), user_id=user_id, created_at=now.isoformat(), based_on=based_on(iq), preferences=choice,
-                        risk=RiskOut(chosen=choice.risk_level, max_allowed=iq.segment), investable=money(i),
+                        risk=RiskOut(chosen=choice.risk_level, max_allowed=ceiling), investable=money(i),
                         allocations=[AllocationOut(asset=a, label=ASSET_LABELS[a], percent=p, amount=monthly[a], one_time_amount=once[a]) for a, p in percents.items()],
-                        reasons=[*i.reasons, *basket.reasons], source=Source(**basket.source) if basket.source else None, disclaimer=DISCLAIMER)
+                        reasons=[*i.reasons, *why, *basket.reasons], source=Source(**basket.source) if basket.source else None, disclaimer=DISCLAIMER)
     db.add(PortfolioProposal(id=proposal.proposal_id, user_id=user_id, created_at=now, payload=proposal.model_dump(by_alias=True)))
     db.commit()
     return Envelope[Proposal].ok(proposal, "Proposal calculated.")

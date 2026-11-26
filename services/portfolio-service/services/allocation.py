@@ -15,6 +15,7 @@ from services.baskets import (
 )
 
 FULL_SCORE_RULES = ("VERY_HIGH_INCOME", "VERY_HIGH_WEALTH")
+FLOORS = ("WEALTH_FLOOR", "INCOME_FLOOR")          # IQ v2.1: the score was raised by the wealth or the income itself
 RESERVE_MONTHS = 3
 INVESTMENT_IN_RESERVE = 0.5
 
@@ -31,6 +32,7 @@ class Profile:
     total_debt: float
     cash_reserve: float
     investment_amount: float
+    impatience_level: int = 3          # 1 patient ... 5 very impatient (the user's own answer)
 
 
 @dataclass(frozen=True)
@@ -48,13 +50,13 @@ class Basket:
     source: dict | None = None
 
 
-def investable(iq_score: int, applied_rule: str | None, p: Profile) -> Investable:
+def investable(iq_score: int, applied_rule: str | None, p: Profile, adjustment: str | None = None) -> Investable:
     """share = clamp(IQ - 30, 0, 70) %, on the monthly surplus and on the cash above a 3-month fund; 0 while that fund is missing."""
     share = float(min(70, max(0, iq_score - 30)))
     reasons = []
     emergency_fund = RESERVE_MONTHS * p.monthly_expenses
     reserve = p.cash_reserve + p.investment_amount * INVESTMENT_IN_RESERVE          # the score counts the reserve the same way
-    if reserve < emergency_fund and applied_rule not in FULL_SCORE_RULES:
+    if reserve < emergency_fund and applied_rule not in FULL_SCORE_RULES and adjustment not in FLOORS:
         share = 0.0
         reasons.append("RESERVE_FIRST")
     surplus = max(0.0, p.monthly_income - p.monthly_expenses - p.monthly_debt_payment)
@@ -63,6 +65,42 @@ def investable(iq_score: int, applied_rule: str | None, p: Profile) -> Investabl
     if p.total_debt > p.cash_reserve + p.investment_amount:          # a warning, never a lock (22 Nov: no silly limits)
         reasons.append("DEBT_FIRST")
     return Investable(share, round(surplus * share / 100, 2), round(max(0.0, p.cash_reserve - emergency_fund) * share / 100, 2), tuple(reasons))
+
+
+# Gates of the risk ceiling (advisor, 22 Oct: the risk level is not asked, it is read from the data, crossing them). The IQ is a sum: a strong
+# saving rate can hide a missing emergency fund. So the ceiling is the IQ segment, lowered by the weakest link. Every limit is one the IQ
+# itself already uses (ScoringRules): 3 months of reserve, installment 36 % of income, net debt 3 years of income.
+INSTALLMENT_LIMIT = 0.36
+NET_DEBT_YEARS = 3
+IMPATIENT = 4
+
+
+def risk_ceiling(segment: str, applied_rule: str | None, p: Profile, adjustment: str | None = None) -> tuple[str, tuple[str, ...]]:
+    """(the highest risk level the user may choose, why it is lower than the segment)."""
+    level, reasons = RISK_LEVELS.index(segment), []
+
+    def lower_to(top: str, reason: str) -> None:
+        nonlocal level
+        if level > RISK_LEVELS.index(top):
+            level = RISK_LEVELS.index(top)
+            reasons.append(reason)
+
+    # 1,000,000 a month, 10,000,000 net worth, or (v2.1) a score raised by the wealth or income itself: the IQ already says the reserve
+    # and the monthly surplus are not the problem (a retiree living from 6,000,000 has no salary, but no risk from it either)
+    full = applied_rule in FULL_SCORE_RULES or adjustment in FLOORS
+    reserve = p.cash_reserve + p.investment_amount * INVESTMENT_IN_RESERVE
+    if not full and reserve < RESERVE_MONTHS * p.monthly_expenses:
+        lower_to("LOW", "CEILING_RESERVE")
+    if not full and p.monthly_income - p.monthly_expenses - p.monthly_debt_payment <= 0:
+        lower_to("LOW", "CEILING_NO_SURPLUS")
+    yearly = 12 * p.monthly_income
+    net_debt = p.total_debt - p.cash_reserve - p.investment_amount
+    if (p.monthly_income > 0 and p.monthly_debt_payment / p.monthly_income > INSTALLMENT_LIMIT) or (net_debt > 0 and net_debt > NET_DEBT_YEARS * yearly):
+        lower_to("MEDIUM", "CEILING_DEBT")
+    if p.impatience_level >= IMPATIENT and level > 0:
+        level -= 1
+        reasons.append("CEILING_IMPATIENCE")
+    return RISK_LEVELS[level], tuple(reasons)
 
 
 def check_risk(chosen: str, ceiling: str) -> None:

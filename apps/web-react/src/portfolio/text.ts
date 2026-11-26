@@ -44,6 +44,14 @@ export function reason(code: string, label: (asset: string) => string): string |
       return "Aylık artan paran yok.";
     case "DEBT_FIRST":
       return "Borcun nakit ve yatırımından fazla; önce borcu düşünmek daha mantıklı olabilir.";
+    case "CEILING_RESERVE":
+      return "Risk tavanın düşük: acil durum fonun 3 aylık giderini karşılamıyor.";
+    case "CEILING_NO_SURPLUS":
+      return "Risk tavanın düşük: aylık artan paran yok.";
+    case "CEILING_DEBT":
+      return "Risk tavanın en çok orta: taksitlerin gelirinin %36'sını ya da net borcun 3 yıllık gelirini aşıyor.";
+    case "CEILING_IMPATIENCE":
+      return "Risk tavanın bir kademe düşürüldü: yatırım sabrın düşük (4–5).";
     case "RISK_CEILING_REACHED":
       return "Riskli varlıkların toplamı, seçtiğin risk seviyesinin sınırında.";
     case "FOCUS":
