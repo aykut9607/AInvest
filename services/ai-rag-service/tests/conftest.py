@@ -132,6 +132,56 @@ RISING_HISTORY = [
 ]
 
 
+# --- IQ results, scoring v3 (variant v3c-i5: 30/25/10/30/5) -----------------------------------------------------------
+# From evaluation/out/iq_v3_golden.json (column "v3c-i5"), produced by the reference evaluation/iq_v3/scoring.py.
+# Copied here so the service tests do not depend on the evaluation folder; test_scoring_v3.py also runs every golden
+# case when that file is present.
+V3_MAXIMA = {"CashReserveMonths": 30, "InstallmentToIncome": 25, "NetDebtToIncome": 10, "SavingsRate": 30,
+             "Impatience": 5}
+
+
+def v3_result(score: int, segment: str, factors: list[int], warnings: list[str], rule: str | None = None,
+              maxima: bool = True) -> dict:
+    """{score, segment, factorBreakdown} as the v3 IQ service returns it; factors in V3_MAXIMA order."""
+    breakdown = {"version": "v3", "factors": dict(zip(V3_MAXIMA, factors)), "warnings": warnings, "appliedRule": rule}
+    if maxima:
+        breakdown["factorMaximums"] = dict(V3_MAXIMA)
+    return {"score": score, "segment": segment, "factorBreakdown": breakdown}
+
+
+def latest(result: dict, user: str = "u-v3") -> dict:
+    """GET /api/financial-iq/{userId}/latest data for an IQ result."""
+    return {"id": "y", "userId": user, **result, "createdAt": "2026-11-25T10:00:00", "updatedAt": "2026-11-25T10:00:00"}
+
+
+# golden "demo-low": the same profile as DEFICIT_PROFILE below (v2: 8)
+V3_LOW = v3_result(27, "LOW", [2, 13, 10, 2, 0],
+                   ["Low cash reserve", "Elevated debt burden", "Negative savings rate", "High impatience"])
+# golden "demo-richwealth" (v2: 100, VERY_HIGH_WEALTH): the runway lifts the savings factor
+RICHWEALTH_PROFILE = {"userId": "u-v3", "monthlyIncome": 30000, "monthlyExpenses": 29000, "monthlyDebtPayment": 0,
+                      "totalDebt": 1000000, "cashReserve": 2000000, "investmentAmount": 9000000, "impatienceLevel": 5}
+V3_WEALTH = v3_result(84, "HIGH", [30, 25, 10, 19, 0], ["High impatience"], "WEALTH_RUNWAY")
+# golden "demo-extremedebt" (v2: 0, EXTREME_DEBT): net debt about 240 years of income, the cap takes every point
+EXTREMEDEBT_PROFILE = {"userId": "u-v3", "monthlyIncome": 40000, "monthlyExpenses": 16000, "monthlyDebtPayment": 4000,
+                       "totalDebt": 120000000, "cashReserve": 96000, "investmentAmount": 10000000, "impatienceLevel": 1}
+V3_CAP = v3_result(0, "LOW", [0, 0, 0, 0, 0], ["High debt burden", "High total debt", "Negative savings rate",
+                                               "Extreme total debt", "Installment below interest"], "SOLVENCY_CAP")
+# golden "demo-highdebt" (v2: 63): 2,000,000 debt against a 2,000 installment, far below the 70,000 interest
+HIGHDEBT_PROFILE = {"userId": "u-v3", "monthlyIncome": 40000, "monthlyExpenses": 16000, "monthlyDebtPayment": 2000,
+                    "totalDebt": 2000000, "cashReserve": 50000, "investmentAmount": 0, "impatienceLevel": 2}
+V3_HIGHDEBT = v3_result(22, "LOW", [17, 0, 1, 0, 4], ["Low cash reserve", "High debt burden", "High total debt",
+                                                      "Negative savings rate", "Installment below interest"])
+# golden "G10a": no expenses and no cash; v3 counts expenses as 10 % of income, so the reserve is 0 months
+NO_EXPENSES_PROFILE = {"userId": "u-v3", "monthlyIncome": 50000, "monthlyExpenses": 0, "monthlyDebtPayment": 0,
+                       "totalDebt": 0, "cashReserve": 0, "investmentAmount": 0, "impatienceLevel": 3}
+V3_NO_EXPENSES = v3_result(68, "MEDIUM", [0, 25, 10, 30, 3], ["Low cash reserve", "Expenses look too low"])
+# not in the golden table, scored with the reference: spends 5,000 more than it earns, but 20,000,000 in cash covers
+# 47 years of expenses (lambda = 1), so the savings factor is lifted to its maximum
+RUNWAY_DEFICIT_PROFILE = {"userId": "u-v3", "monthlyIncome": 30000, "monthlyExpenses": 35000, "monthlyDebtPayment": 0,
+                          "totalDebt": 0, "cashReserve": 20000000, "investmentAmount": 0, "impatienceLevel": 2}
+V3_RUNWAY_DEFICIT = v3_result(99, "HIGH", [30, 25, 10, 30, 4], [], "WEALTH_RUNWAY")
+
+
 @pytest.fixture
 def medium_request() -> ExplainRequest:
     return ExplainRequest.model_validate(MEDIUM)

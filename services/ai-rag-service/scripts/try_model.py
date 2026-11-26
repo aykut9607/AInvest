@@ -13,7 +13,11 @@ from core.config import get_settings
 from schemas.explain import ExplainRequest
 from services.explainer import explain
 
-# scoring v2 (5 factors, 25/25/25/15/10); the first one is the weak example profile of CLAUDE.md section 6.7 (score 8)
+V3_MAXIMA = {"CashReserveMonths": 30, "InstallmentToIncome": 25, "NetDebtToIncome": 10, "SavingsRate": 30,
+             "Impatience": 5}
+
+# scoring v2 (5 factors, 25/25/25/15/10); the first one is the weak example profile of CLAUDE.md section 6.7 (score 8).
+# The "v3:" samples are scoring v3 (v3c-i5, 30/25/10/30/5) results of demo profiles, from evaluation/out/iq_v3_golden.json
 SAMPLES = {
     "LOW, overspending": {
         "segment": "LOW",
@@ -64,6 +68,52 @@ SAMPLES = {
                         "ExpenseRatio": 0, "Impatience": 0},
             "warnings": ["Extreme total debt"],
             "appliedRule": "EXTREME_DEBT",
+        },
+    },
+    "v3: LOW, overspending (demo low)": {
+        "segment": "LOW",
+        "factorBreakdown": {
+            "version": "v3",
+            "factors": {"CashReserveMonths": 2, "InstallmentToIncome": 13, "NetDebtToIncome": 10, "SavingsRate": 2,
+                        "Impatience": 0},
+            "factorMaximums": V3_MAXIMA,
+            "warnings": ["Low cash reserve", "Elevated debt burden", "Negative savings rate", "High impatience"],
+            "appliedRule": None,
+        },
+    },
+    "v3: hidden debt, installment below interest (demo highdebt)": {
+        "segment": "LOW",
+        "factorBreakdown": {
+            "version": "v3",
+            "factors": {"CashReserveMonths": 17, "InstallmentToIncome": 0, "NetDebtToIncome": 1, "SavingsRate": 0,
+                        "Impatience": 4},
+            "factorMaximums": V3_MAXIMA,
+            "warnings": ["Low cash reserve", "High debt burden", "High total debt", "Negative savings rate",
+                         "Installment below interest"],
+            "appliedRule": None,
+        },
+    },
+    "v3: label wealth runway (demo richwealth)": {
+        "segment": "HIGH",
+        "factorBreakdown": {
+            "version": "v3",
+            "factors": {"CashReserveMonths": 30, "InstallmentToIncome": 25, "NetDebtToIncome": 10, "SavingsRate": 19,
+                        "Impatience": 0},
+            "factorMaximums": V3_MAXIMA,
+            "warnings": ["High impatience"],
+            "appliedRule": "WEALTH_RUNWAY",
+        },
+    },
+    "v3: label solvency cap (demo extremedebt)": {
+        "segment": "LOW",
+        "factorBreakdown": {
+            "version": "v3",
+            "factors": {"CashReserveMonths": 0, "InstallmentToIncome": 0, "NetDebtToIncome": 0, "SavingsRate": 0,
+                        "Impatience": 0},
+            "factorMaximums": V3_MAXIMA,
+            "warnings": ["High debt burden", "High total debt", "Negative savings rate", "Extreme total debt",
+                         "Installment below interest"],
+            "appliedRule": "SOLVENCY_CAP",
         },
     },
 }
