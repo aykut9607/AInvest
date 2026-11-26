@@ -4,7 +4,8 @@
 //
 // input:  JSON array of CalculateRequest objects (camelCase); unknown fields are ignored
 // output: JSON array of { userId, score, segment, factorBreakdown } where factorBreakdown is the same object
-//         the service returns (contracts/schemas/factor-breakdown.v2.schema.json)
+//         the service returns (contracts/schemas/factor-breakdown.v3.schema.json; a build from before 24 Nov 2026
+//         scores v2, e.g. the frozen copy in evaluation/out/scorer-v2)
 using System.Text.Json;
 using FinancialIQ.Api.Application.Concrete;
 using FinancialIQ.Api.Domain.Dtos;

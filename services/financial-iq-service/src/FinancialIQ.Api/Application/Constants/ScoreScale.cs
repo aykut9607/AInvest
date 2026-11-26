@@ -1,5 +1,9 @@
 namespace FinancialIQ.Api.Application.Constants;
 
+// Tier and ScoreScale are the step scales of scoring v2 and are no longer used: v3 scores with LinearScale
+// (LinearScale.cs), and the v2 rules live on as the frozen document ScoringRuleSnapshots.V2.
+// WarningRule is still used (the severe line of a v3 factor warning, FactorWarning.Severe).
+
 // one step of a factor's scale: reaching the threshold earns the points
 public sealed record Tier(decimal Threshold, int Points);
 

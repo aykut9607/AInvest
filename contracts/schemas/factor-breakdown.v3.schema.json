@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ainvest/financial-iq/factor-breakdown.v3",
+  "title": "Financial IQ factorBreakdown (v3)",
+  "description": "PENDING APPROVAL: needs the approval of both developers before the IQ service publishes v3 (and the AI service must accept v3 first, see evaluation/IQ_V3_PROPOSAL.md 7.1). Returned as a JSON object in `factorBreakdown` by Financial IQ (`GET /api/financial-iq/{userId}/latest`) and by Finance Profile (`POST /api/Profiles/{userId}/calculate-iq`). v3 (variant v3c-i5): five piecewise-linear factors, no TL thresholds; DebtToIncomeRatio and ExpenseRatio of v2 are gone (the debt is split into InstallmentToIncome and NetDebtToIncome, the expense ratio double-counted the savings rate). Older results in the history keep their own version (v2: factor-breakdown.v2.schema.json, v1: no version field). The rule set itself is in GET /api/financial-iq/scoring-rules/v3. New fields must be optional.",
+  "type": "object",
+  "required": ["version", "factors", "warnings", "appliedRule"],
+  "properties": {
+    "version": {
+      "description": "Scoring rules that produced the result.",
+      "const": "v3"
+    },
+    "factors": {
+      "description": "Points each factor earned, in this order. Each is round(maximum x share x solvency cap), half up; the factors always add up to the score (no rule overrides them).",
+      "type": "object",
+      "required": ["CashReserveMonths", "InstallmentToIncome", "NetDebtToIncome", "SavingsRate", "Impatience"],
+      "properties": {
+        "CashReserveMonths": { "type": "integer", "minimum": 0, "maximum": 30 },
+        "InstallmentToIncome": { "type": "integer", "minimum": 0, "maximum": 25 },
+        "NetDebtToIncome": { "type": "integer", "minimum": 0, "maximum": 10 },
+        "SavingsRate": { "type": "integer", "minimum": 0, "maximum": 30 },
+        "Impatience": { "type": "integer", "minimum": 0, "maximum": 5 }
+      },
+      "additionalProperties": false
+    },
+    "factorMaximums": {
+      "description": "Optional in the contract, always sent by the IQ service since v3. The most each factor can give (sum 100), same keys and order as factors, so a client can draw the bars of any version without its own table.",
+      "type": "object",
+      "required": ["CashReserveMonths", "InstallmentToIncome", "NetDebtToIncome", "SavingsRate", "Impatience"],
+      "properties": {
+        "CashReserveMonths": { "const": 30 },
+        "InstallmentToIncome": { "const": 25 },
+        "NetDebtToIncome": { "const": 10 },
+        "SavingsRate": { "const": 30 },
+        "Impatience": { "const": 5 }
+      },
+      "additionalProperties": false
+    },
+    "warnings": {
+      "description": "Fixed order, no duplicates: factor warnings in factor order (a factor below 60% of its maximum before the solvency cap always has one; at 60% or above never), then \"Extreme total debt\" (solvency cap below 1), then \"Installment below interest\", \"Expenses look too low\", \"Installment without debt\", \"Installment exceeds total debt\". The v2 texts keep their v2 meaning and line: \"High debt burden\" = installment above 36% of income, \"High total debt\" = net debt above 3 years of income, \"Negative savings rate\" = savings below 0; the \"Elevated ...\" and \"Low savings rate\" texts are the milder versions. \"Overspending relative to income\" (v2) no longer occurs.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "Low cash reserve",
+          "High debt burden",
+          "Elevated debt burden",
+          "High total debt",
+          "Elevated total debt",
+          "Negative savings rate",
+          "Low savings rate",
+          "High impatience",
+          "Extreme total debt",
+          "Installment below interest",
+          "Expenses look too low",
+          "Installment without debt",
+          "Installment exceeds total debt"
+        ]
+      }
+    },
+    "appliedRule": {
+      "description": "A label that explains the score; it never sets it. SOLVENCY_CAP: net debt above 5 years of income, every factor is scaled down (to 0 at 15 years). WEALTH_RUNWAY: the liquid net worth covers enough years of expenses (25 years = full) to lift InstallmentToIncome and/or SavingsRate, and the score is higher than without it. null: neither. The v2 values VERY_HIGH_INCOME, VERY_HIGH_WEALTH and EXTREME_DEBT do not occur in v3.",
+      "enum": [null, "SOLVENCY_CAP", "WEALTH_RUNWAY"]
+    }
+  },
+  "examples": [
+    {
+      "version": "v3",
+      "factors": { "CashReserveMonths": 2, "InstallmentToIncome": 13, "NetDebtToIncome": 10, "SavingsRate": 2, "Impatience": 0 },
+      "factorMaximums": { "CashReserveMonths": 30, "InstallmentToIncome": 25, "NetDebtToIncome": 10, "SavingsRate": 30, "Impatience": 5 },
+      "warnings": ["Low cash reserve", "Elevated debt burden", "Negative savings rate", "High impatience"],
+      "appliedRule": null
+    },
+    {
+      "version": "v3",
+      "factors": { "CashReserveMonths": 30, "InstallmentToIncome": 25, "NetDebtToIncome": 10, "SavingsRate": 19, "Impatience": 0 },
+      "factorMaximums": { "CashReserveMonths": 30, "InstallmentToIncome": 25, "NetDebtToIncome": 10, "SavingsRate": 30, "Impatience": 5 },
+      "warnings": ["High impatience"],
+      "appliedRule": "WEALTH_RUNWAY"
+    }
+  ]
+}

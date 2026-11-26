@@ -3,7 +3,7 @@
 # Direct calls to the IQ service (dev only; clients go through the gateway, see EdgeGateway.Api.http).
 # POST /calculate and POST /debt-payoff are internal: Finance Profile calls them, the gateway does not route them.
 
-### 1) Calculate - healthy profile (expect 100, HIGH: every factor at its maximum, no warnings)
+### 1) Calculate - healthy profile (expect 100, HIGH: every factor at its maximum, no warnings; version v3 with factorMaximums)
 POST {{FinancialIQ.Api_HostAddress}}/api/financial-iq/calculate
 Content-Type: application/json
 
@@ -12,8 +12,8 @@ Content-Type: application/json
   "monthlyIncome": 10000,
   "monthlyExpenses": 4000,
   "monthlyDebtPayment": 1000,
-  "totalDebt": 0,
-  "cashReserve": 24000,
+  "totalDebt": 12000,
+  "cashReserve": 30000,
   "investmentAmount": 0,
   "impatienceLevel": 1
 }
@@ -21,7 +21,7 @@ Content-Type: application/json
 ### 2) Latest result - note createdAt and resultVersion
 GET {{FinancialIQ.Api_HostAddress}}/api/financial-iq/http-sample-user/latest
 
-### 3) Calculate - SAME user, much weaker numbers (expect 18, LOW: "Low cash reserve", "Negative savings rate")
+### 3) Calculate - SAME user, much weaker numbers (expect 20, LOW: "Low cash reserve", "Elevated debt burden", "Negative savings rate")
 POST {{FinancialIQ.Api_HostAddress}}/api/financial-iq/calculate
 Content-Type: application/json
 
@@ -30,7 +30,7 @@ Content-Type: application/json
   "monthlyIncome": 10000,
   "monthlyExpenses": 8000,
   "monthlyDebtPayment": 3500,
-  "totalDebt": 0,
+  "totalDebt": 40000,
   "cashReserve": 2000,
   "investmentAmount": 0,
   "impatienceLevel": 3
@@ -42,7 +42,7 @@ GET {{FinancialIQ.Api_HostAddress}}/api/financial-iq/http-sample-user/latest
 ### 5) History - both calculations, oldest first, with scoreChange and movingAverage3 (fn_IqTrend)
 GET {{FinancialIQ.Api_HostAddress}}/api/financial-iq/http-sample-user/history?take=12
 
-### 6) Sample weak profile (expect 8, LOW, 4 warnings)
+### 6) Sample weak profile (expect 27, LOW, 4 warnings; v2 gave 8)
 POST {{FinancialIQ.Api_HostAddress}}/api/financial-iq/calculate
 Content-Type: application/json
 
@@ -57,7 +57,7 @@ Content-Type: application/json
   "impatienceLevel": 5
 }
 
-### 7) Rule VERY_HIGH_INCOME (expect 100, appliedRule VERY_HIGH_INCOME)
+### 7) Very high income, no cash yet (expect 58, MEDIUM, appliedRule null: v3 has no TL rules, v2's VERY_HIGH_INCOME gave 100)
 POST {{FinancialIQ.Api_HostAddress}}/api/financial-iq/calculate
 Content-Type: application/json
 
@@ -72,7 +72,7 @@ Content-Type: application/json
   "impatienceLevel": 1
 }
 
-### 8) Rule VERY_HIGH_WEALTH (expect 100: net worth 2,000,000 + 9,000,000 - 1,000,000 = 10,000,000)
+### 8) Wealth runway (expect 89, HIGH, appliedRule WEALTH_RUNWAY: 6,500,000 liquid - 1,000,000 debt = 15.8 years of expenses lifts the savings factor; v2 gave 100)
 POST {{FinancialIQ.Api_HostAddress}}/api/financial-iq/calculate
 Content-Type: application/json
 
@@ -87,7 +87,7 @@ Content-Type: application/json
   "impatienceLevel": 1
 }
 
-### 9) Rule EXTREME_DEBT (expect 0; warnings "High total debt" + "Extreme total debt": the rule keeps the true warnings)
+### 9) Solvency cap (expect 0, appliedRule SOLVENCY_CAP: net debt ~240 years of income; the true warnings stay, "Extreme total debt" is added)
 POST {{FinancialIQ.Api_HostAddress}}/api/financial-iq/calculate
 Content-Type: application/json
 
@@ -133,10 +133,10 @@ Content-Type: application/json
 
 { "totalDebt": 1000000, "monthlyPayment": 10000, "monthlyInterestRate": 0.008 }
 
-### 14) IQ rule table: every scoring version (v2 active, v1 kept for old results)
+### 14) IQ rule table: every scoring version (v3 active, v1 and v2 kept for old results)
 GET {{FinancialIQ.Api_HostAddress}}/api/financial-iq/scoring-rules
 
-### 15) The active rule set only (thresholds, points, warnings, special rules)
+### 15) The active rule set only (measures, anchors, maximums, warnings, solvency cap, wealth runway)
 GET {{FinancialIQ.Api_HostAddress}}/api/financial-iq/scoring-rules/current
 
 ### 16) The old v1 rule set (6 factors incl. RiskAlignment)
