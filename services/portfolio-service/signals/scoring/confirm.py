@@ -36,11 +36,22 @@ from signals.structure.zigzag import SwingPoint, zigzag
 
 ASSETS = ("BTCUSDT", "XAU", "SPX")
 LEFT, RIGHT = 5, 2
-ROOM = 0.25            # x ATR: a top counts as exceeded only beyond this (Aykut: a few dollars over it do not matter)
-# %: Aykut's rule, "if it moved 2 % before the top was exceeded, it worked", set for BTC. Gold and the S&P move less (yearly volatility 16.8 and 18.3 %
-# against 64.7 %, January 2018 - November 2026), so the same difficulty is 2 % x their volatility / that of BTC. With 2 % only 2 % of their 15m tops
-# "worked" and no rule could be told from another.
-WORKED = {"BTCUSDT": 2.0, "XAU": 0.52, "SPX": 0.57}
+ROOM = 0.0             # x ATR: Aykut, 26 Nov: the top may not be taken at all ("2. mumdaki tepeyi almaması")
+# "Worked" (Aykut, 26 Nov): from the top, at least this many % before the top is taken, within the window below. LTF (15m-2h): BTC 2 %, gold and
+# the S&P 1.5 %. HTF (4h and up): 4 % (BTC) and 3 % (gold, S&P) on 4h, and on the higher frames the move a top reaches as often as a 4h top
+# reaches that (first 70 % of the data, measured on 26 Nov): with a flat 4 % almost every daily BTC top "worked" (96 %), so no rule stood out.
+LTF_FRAMES = ("15m", "30m", "45m", "1h", "2h")
+NEED_LTF = {"BTCUSDT": 2.0, "XAU": 1.5, "SPX": 1.5}
+NEED_HTF = {"BTCUSDT": {"4h": 4.0, "6h": 5.0, "12h": 7.0, "1d": 10.0, "3d": 20.0, "1w": 27.0, "1M": 60.0},
+            "XAU": {"4h": 3.0, "6h": 4.0, "12h": 5.0, "1d": 8.0, "3d": 15.0, "1w": 18.0, "1M": 30.0},
+            "SPX": {"4h": 3.0, "6h": 4.0, "12h": 5.5, "1d": 8.0, "3d": 14.0, "1w": 18.0, "1M": 40.0}}
+
+
+def need(asset: str, f: str) -> float:
+    return NEED_LTF[asset] if f in LTF_FRAMES else NEED_HTF[asset][f]
+
+
+WORKED = {a: {f: need(a, f) for f in TIMEFRAMES} for a in ASSETS}
 WINDOWS = {"1w": 26, "1M": 12}          # bars the move may take (40 on the other frames): later moves are not this top's doing
 
 
@@ -431,7 +442,7 @@ def job(asset: str, f: str, seed: int) -> list:
             begin, known = fr.t[j] + fr.span, fr.t[conf] + fr.span
             if begin + window > path.t[-1]:
                 continue
-            got = outcome(path, begin, known, window, p.value, b.close[conf], side, ROOM * atr, WORKED[asset])
+            got = outcome(path, begin, known, window, p.value, b.close[conf], side, ROOM * atr, need(asset, f))
             tags = fr.at(j, conf, p.value, side)
             i = bisect_right(funding[0], fr.t[j]) - 1
             if i >= 0 and fr.t[j] - funding[0][i] < 9 * 3600 and -side * funding[1][i] >= 0.0005:
@@ -456,7 +467,7 @@ def rescore(asset: str, seed: int) -> dict:
             j = at[r[0]]
             conf, side = j + RIGHT, r[1]
             price = float(b.high[j] if side == -1 else b.low[j])
-            got = outcome(path, r[0] + span, ts(x.times[conf]) + span, bars_of(f) * span, price, float(b.close[conf]), side, ROOM * b.atr[j - 1], WORKED[asset])
+            got = outcome(path, r[0] + span, ts(x.times[conf]) + span, bars_of(f) * span, price, float(b.close[conf]), side, ROOM * b.atr[j - 1], need(asset, f))
             r[6] = [g for g in r[6] if not g.endswith("|gösterge etiketi")]          # needed bars after the candidate was known (25 Nov)
             new.append([r[0], side, *(v.item() if hasattr(v, 'item') else v for v in got), r[6], r[7]])
         old[f] = new

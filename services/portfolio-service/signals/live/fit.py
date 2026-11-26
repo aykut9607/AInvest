@@ -1,10 +1,9 @@
-r"""Category weights, rule qualities and trade limits from the backtests -> table.json, and how each score band did.
+r"""Points per rule and timeframe, trade limits from the backtests -> table.json, and how each score band did.
 
   .\venv\Scripts\python.exe -m signals.live.fit
 
-Weights: from the rule backtest at tops and bottoms (confirm_points.json, first 70 %, confirmed on the last 30 %), one table for all three assets.
-For every category the best rule of every timeframe, averaged over the timeframes and over the assets that have the data; square root, scaled
-to 100; Elliott is never below the highest (Aykut). "Worked" is the same difficulty on every asset (confirm.WORKED).
+Points: from the rule backtest at tops and bottoms (confirm_points.json, first 70 %): every rule its own success, one table per asset (Aykut,
+26 Nov; how they are made: signals/live/score.py). Weights (only shown on the screen): what each category can add at most, HTF + LTF.
 Limits: from the past triggers (live_<asset>_0.json). A limit is the score only the strongest triggers of the FIRST 70 % reached; what those
 triggers earned on the last 30 %, after fees, is stored next to it. Nothing is chosen on the last 30 %.
 """
@@ -18,9 +17,8 @@ import numpy as np
 
 from signals.data.candles import TIMEFRAMES
 from signals.live.plan import FEE_PERCENT
-from signals.live.score import TABLE, eligible, score
+from signals.live.score import SHARE, TABLE, eligible, score, side_of
 from signals.scoring.confirm import ASSETS
-from signals.scoring.confirm_report import SURE
 from signals.scoring.run import OUT
 
 MIN_CASES = 50
@@ -30,38 +28,19 @@ SPLIT = 0.7
 MIN_EVIDENCE = 100
 
 
-def edges(points: dict, asset: str) -> tuple[dict[str, float], dict[str, float], set[str]]:
-    """(rule -> its proven edge averaged over the 12 timeframes, category -> that of its best rules, rules that were measured at all)."""
-    cells: dict[str, dict[str, float]] = {}
-    measured: set[str] = set()
-    for f in TIMEFRAMES:
-        key = f"{asset} {f}"
-        earned = points["points"].get(key, {})
-        for k, s in points["fit"].get(key, {}).items():
-            if "|" not in k or s["n"] < MIN_CASES or "p" not in s:          # rules only: the total of a whole category is not a rule
-                continue
-            measured.add(k)
-            if k in earned:
-                cells.setdefault(k, {})[f] = 100 * (s["rate"] - s["rest"]) - SURE * s["se"] - s["geo"]
-    rules = {k: sum(v.values()) / len(TIMEFRAMES) for k, v in cells.items()}
-    groups = {c: sum(max((v.get(f, 0.0) for k, v in cells.items() if k.split("|")[0] == c), default=0.0) for f in TIMEFRAMES) / len(TIMEFRAMES) for c in {k.split("|")[0] for k in measured}}
-    return rules, groups, measured
-
-
-def common(points: dict) -> tuple[dict, dict]:
-    """(category weights adding up to 100, rule qualities 0-1), the SAME for every asset: the proven edge averaged over the assets that have the data
-    for it (funding, volume and CVD only on BTC). One table, because a rule should not be worth three times as much only because an asset has
-    fewer rules; an asset without some data simply cannot reach 100."""
-    per = [edges(points, a) for a in ASSETS]
-    mean = lambda values: sum(values) / len(values)
-    names = {k for r, _, _ in per for k in r}
-    rules = {k: mean([r.get(k, 0.0) for r, _, m in per if k in m]) for k in names}
-    raw = {c: mean([g[c] for _, g, _ in per if c in g]) for c in {k.split("|")[0] for k in names}}
-    raw = {c: v ** 0.5 for c, v in raw.items() if v > 0}          # the differences are uncertain: shrunk towards equal weights
-    raw["Elliott"] = max(raw.values())                            # Aykut: the highest
-    total = sum(raw.values())
-    top = {c: max(v for k, v in rules.items() if k.split("|")[0] == c) for c in raw}
-    return {c: round(100 * v / total, 1) for c, v in sorted(raw.items(), key=lambda x: -x[1])}, {k: round(v / top[k.split("|")[0]], 3) for k, v in rules.items()}
+def table_of(points: dict, asset: str) -> dict:
+    """{points: frame -> rule -> points, weights: category -> the most it can add (best HTF + best LTF rule)}."""
+    pts = {f: points["points"].get(f"{asset} {f}", {}) for f in TIMEFRAMES}
+    weights: dict[str, float] = {}
+    for side in SHARE:
+        best: dict[str, float] = {}
+        for f, d in pts.items():
+            if side_of(f) == side:
+                for k, v in d.items():
+                    best[k.split("|")[0]] = max(best.get(k.split("|")[0], 0.0), v)
+        for c, v in best.items():
+            weights[c] = weights.get(c, 0.0) + v
+    return {"points": pts, "weights": {c: round(v, 1) for c, v in sorted(weights.items(), key=lambda x: -x[1])}}
 
 
 def load(asset: str, seed: int) -> tuple[list, list]:
@@ -94,9 +73,8 @@ def main() -> None:
     sys.stdout.reconfigure(encoding="utf-8")
     points = json.loads((OUT / "confirm_points.json").read_text(encoding="utf-8"))
     out = {}
-    weights, quality = common(points)
     for a in ASSETS:
-        table = {"weights": weights, "quality": quality}
+        table = table_of(points, a)
         real, fake = scored(a, 0, table), scored(a, 1, table)
         fit = real["fit"]
         limits = {k: round(float(np.quantile(real["score"][fit], 1 - s)), 1) for k, s in SHARES.items()}
@@ -109,7 +87,7 @@ def main() -> None:
             evidence[k]["proven"] = e["n"] >= MIN_EVIDENCE and e["average_r"] - 2 * e["error_r"] > 0
         table |= {"limits": limits, "evidence": evidence, "base": {"first70": band(real, fit), "last30": band(real, ~fit)}}
         out[a] = table
-        print("==", a, weights)
+        print("==", a, table["weights"])
         print("  puan dağılımı (ilk %70): ortanca", round(float(np.median(real["score"][fit])), 1), "en yüksek", round(float(real["score"].max()), 1), "sınırlar", limits)
         print("  taban", table["base"])
         for k, e in evidence.items():

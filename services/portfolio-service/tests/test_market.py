@@ -21,56 +21,73 @@ from signals.live import plan as planning
 from signals.live import run
 from signals.live.fibs import Fib
 from signals.live.scan import Event
-from signals.live.score import FRAME_WEIGHT, kind_of, score, tables
+from signals.live.score import LTF_FRAMES, kind_of, score, side_of, tables
+from signals.scoring.confirm_report import quality
 
 T0 = datetime(2026, 11, 25, 9, 0, tzinfo=timezone.utc)
 EVIDENCE = {"proven": False, "last30": {"n": 5}, "shuffled": {"n": 9}}
-TABLE = {"weights": {"Elliott": 60.0, "SFP": 40.0}, "quality": {"Elliott|12345 sonu|diyagonal": 0.5, "Elliott|12345 sonu": 0.2, "SFP": 0.3, "SFP|RSI uyumsuz": 1.0},
-         "limits": {"SCALP": 40, "SWING": 70}, "evidence": {"SCALP": EVIDENCE, "SWING": EVIDENCE}, "base": {}}
+# points per timeframe and rule (Aykut, 26 Nov: each rule its own success; HTF 70, LTF 30)
+TABLE = {"points": {"15m": {"Elliott|12345 sonu|diyagonal": 5.0, "SFP|RSI uyumsuz": 8.0}, "30m": {"SFP|RSI uyumsuz": 6.0}, "1h": {"SFP|RSI uyumsuz": 10.0},
+                    "4h": {"SFP|RSI uyumsuz": 20.0, "Elliott|12345 sonu|diyagonal": 30.0}, "1M": {"Elliott|12345 sonu|diyagonal": 50.0, "SFP|RSI uyumsuz": 20.0}},
+         "weights": {"Elliott": 55.0, "SFP": 30.0}, "limits": {"SCALP": 40, "SWING": 70}, "evidence": {"SCALP": EVIDENCE, "SWING": EVIDENCE}, "base": {}}
 ME = {"X-User-Id": "u1"}
 
 
 # ---------- score
 
-def test_frames_weigh_more_the_higher_they_are():
-    w = [FRAME_WEIGHT[f] for f in TIMEFRAMES]
-    assert w == sorted(w) and w[-1] == 1.0 and w[0] == 0.45
+def test_quality_is_the_rules_own_success_shrunk_by_its_sample():
+    assert quality(5, 5) == pytest.approx(0.8)          # 5 of 5: at least 80 (Aykut)
+    assert quality(4, 5) == pytest.approx(0.64)         # 80 % on 5 cases: 0.8 x 80
+    assert quality(75, 75) > quality(75, 100)           # 100 % on 75 beats 75 % on 100
+    assert quality(4, 4) == 0 and quality(4, 10) == 0   # fewer than 5 cases, or below 51 %
 
 
-def test_a_category_counts_once_with_its_best_rule_and_frame():
-    s = score({"15m": ["Elliott|12345 sonu|diyagonal", "SFP|RSI uyumsuz|"], "1M": ["Elliott|12345 sonu|uzamasız", "SFP|uyumsuzluk yok|"]}, TABLE)
-    assert s.categories["Elliott"]["points"] == pytest.approx(60 * 0.45 * 0.5)
-    assert s.categories["SFP"] == {"points": 18.0, "frame": "15m", "rule": "SFP|RSI uyumsuz|", "also": []}
-    assert s.total == pytest.approx(13.5 + 18)
-    assert score({"1M": ["Elliott|12345 sonu|uzamasız", "SFP|uyumsuzluk yok|"]}, TABLE).total == 0          # only the rule's own value counts
+def test_ltf_is_15m_to_2h_and_htf_4h_and_up():
+    assert LTF_FRAMES == ("15m", "30m", "45m", "1h", "2h")
+    assert [side_of(f) for f in TIMEFRAMES].count("HTF") == len(TIMEFRAMES) - 5
+
+
+def test_only_the_rules_own_points_count():
+    assert score({"1M": ["Elliott|12345 sonu|uzamasız", "SFP|uyumsuzluk yok|"]}, TABLE).total == 0          # siblings lend nothing
     assert score({"1M": ["Harmonik|Bat|"]}, TABLE).total == 0          # nothing proven, nothing earned
 
 
-def test_the_same_category_on_more_frames_adds_only_a_little():
+def test_a_category_counts_its_best_ltf_and_its_best_htf():
+    s = score({"15m": ["SFP|RSI uyumsuz|"], "4h": ["SFP|RSI uyumsuz|"]}, TABLE)
+    assert s.categories["SFP"]["points"] == pytest.approx(8 + 20) and s.categories["SFP"]["frame"] == "4h" and s.categories["SFP"]["also"] == ["15m"]
+
+
+def test_the_same_side_on_more_frames_adds_at_most_ten_percent():
     one = score({"1h": ["SFP|RSI uyumsuz|"]}, TABLE)
-    two = score({"1h": ["SFP|RSI uyumsuz|"], "15m": ["SFP|RSI uyumsuz|"], "30m": ["SFP|uyumsuzluk yok|"]}, TABLE)
-    assert two.categories["SFP"]["also"] == ["15m"] and two.total == pytest.approx(one.total * 1.05)          # 30m earned nothing
-    every = score({f: ["SFP|RSI uyumsuz|"] for f in TIMEFRAMES}, TABLE)
-    assert every.categories["SFP"]["points"] == pytest.approx(40 * 1.2)          # at most four further frames
+    three = score({"15m": ["SFP|RSI uyumsuz|"], "30m": ["SFP|RSI uyumsuz|"], "1h": ["SFP|RSI uyumsuz|"]}, TABLE)
+    assert three.total == pytest.approx(one.total * 1.10)
+    two = score({"30m": ["SFP|RSI uyumsuz|"], "1h": ["SFP|RSI uyumsuz|"], "45m": ["SFP|uyumsuzluk yok|"]}, TABLE)          # 45m earned nothing
+    assert two.total == pytest.approx(one.total * 1.05)
 
 
 def test_one_category_alone_is_never_a_trade():
-    alone = score({"1M": ["Elliott|12345 sonu|diyagonal"]}, {**TABLE, "weights": {"Elliott": 100.0}})
+    alone = score({"1M": ["Elliott|12345 sonu|diyagonal"]}, TABLE)
     assert alone.total == 50 and kind_of(alone, TABLE) is None
     both = score({"1M": ["Elliott|12345 sonu|diyagonal", "SFP|RSI uyumsuz|"]}, TABLE)
     assert both.total == 70 and kind_of(both, TABLE) == "SWING"
 
 
 def test_the_score_never_exceeds_100():
-    tags = {f: ["Elliott|12345 sonu|diyagonal", "SFP|RSI uyumsuz|"] for f in TIMEFRAMES}
-    assert score(tags, {**TABLE, "quality": {k: 1.0 for k in TABLE["quality"]}}).total <= 100
+    big = {**TABLE, "points": {f: {"Elliott|12345 sonu|diyagonal": 60.0, "SFP|RSI uyumsuz": 60.0} for f in TIMEFRAMES}}
+    assert score({f: ["Elliott|12345 sonu|diyagonal", "SFP|RSI uyumsuz|"] for f in TIMEFRAMES}, big).total == 100
 
 
 def test_the_stored_tables_follow_the_agreed_shape():
     for asset, t in tables().items():
-        assert sum(t["weights"].values()) == pytest.approx(100, abs=0.5) and all(v >= 0 for v in t["weights"].values())
-        assert t["weights"]["Elliott"] == max(t["weights"].values())
-        assert all(0 <= q <= 1 for q in t["quality"].values())
+        assert set(t["points"]) <= set(TIMEFRAMES) and all(v > 0 for d in t["points"].values() for v in d.values())
+        assert sum(t["weights"].values()) <= 100.5          # every category at its best on both sides makes 100
+        for side, share in (("HTF", 70), ("LTF", 30)):
+            best: dict[str, float] = {}
+            for f, d in t["points"].items():
+                if side_of(f) == side:
+                    for k, v in d.items():
+                        best[k.split("|")[0]] = max(best.get(k.split("|")[0], 0.0), v)
+            assert not best or sum(best.values()) == pytest.approx(share, abs=0.2)
         assert list(t["limits"].values()) == sorted(t["limits"].values())
         assert set(t["evidence"]) == set(t["limits"])
 
@@ -86,10 +103,10 @@ def event(side=-1, **tags):
 
 def test_a_plan_only_when_a_limit_is_reached():
     shown, plan = run.judge("BTCUSDT", event(**{"15m": ["SFP|RSI uyumsuz|"]}), TABLE)
-    assert shown["kind"] is None and plan is None and shown["score"] == 18
-    shown, plan = run.judge("BTCUSDT", event(**{"1M": ["SFP|RSI uyumsuz|"]}), TABLE)
-    assert shown["score"] == 40 and shown["kind"] is None and plan is None          # enough points, but a single category
-    enough = {"1M": ["SFP|RSI uyumsuz|"], "15m": ["Elliott|12345 sonu|diyagonal"]}
+    assert shown["kind"] is None and plan is None and shown["score"] == 8
+    shown, plan = run.judge("BTCUSDT", event(**{"1M": ["Elliott|12345 sonu|diyagonal"]}), TABLE)
+    assert shown["score"] == 50 and shown["kind"] is None and plan is None          # enough points, but a single category
+    enough = {"1M": ["Elliott|12345 sonu|diyagonal"], "15m": ["SFP|RSI uyumsuz|"]}
     shown, plan = run.judge("BTCUSDT", event(**enough), TABLE)
     assert (plan.kind, plan.direction, plan.stop) == ("SCALP", "SHORT", 102.45)          # the fib stop (100.8 + 0.412 x 4) is farther than 101 + 0.25 x ATR
     assert plan.evidence["proven"] is False and plan.confirmations == enough and plan.trigger == ["Uyumsuzluk|RSI|tepede anlık"]

@@ -18,7 +18,7 @@ import numpy as np
 from signals.data.candles import TIMEFRAMES
 from signals.data.download import SERVICE_DIR
 from signals.rules import pa_detect
-from signals.scoring.confirm import ASSETS, BANDS, DEGREES, bars_of, ROOM, WORKED, Frame, elliott, five_waves, harmonics, shared_levels
+from signals.scoring.confirm import ASSETS, BANDS, DEGREES, bars_of, ROOM, need, Frame, elliott, five_waves, harmonics, shared_levels
 from signals.scoring.confirm_report import NAME, ORDER, load, pct
 from signals.scoring.run import OUT
 from signals.scoring.turns import load_full
@@ -226,7 +226,7 @@ def draw(fr: Frame, e: Evidence, j: int, price: float, side: int, thr: float, wo
 
 def chart(fr: Frame, tag: str, row: list, j: int, conf: int) -> str:
     t, side, move, worked, after, _, _, _ = row
-    thr_pct = WORKED[fr.asset]
+    thr_pct = need(fr.asset, fr.f)
     b = fr.x.bars
     price = float(b.high[j] if side == -1 else b.low[j])
     thr = thr_pct / 100 * price
