@@ -34,5 +34,9 @@ evaluation/out/*
 !evaluation/out/model_comparison_v1.json
 !evaluation/out/model_outputs_v1.md
 !evaluation/out/assistant_comparison.json
+!evaluation/out/iq_v3_results.json
+!evaluation/out/iq_v3_golden.json
+!evaluation/out/iq_v3_v2_frozen.json
+!evaluation/out/iq_model_summary.json
 !evaluation/out/assistant_outputs.md
 !evaluation/out/realism_clean.json

@@ -1,12 +1,21 @@
 """Live demo of the AI layer: one profile, several models and modes side by side, every check visible.
 
     services/ai-rag-service/venv/Scripts/python evaluation/playground.py [--scorer <FinancialIQ.BatchScorer>]
+        [--iq-url http://localhost:5109]
     -> http://127.0.0.1:8090
+
+    The repo's BatchScorer is scoring v3; `--scorer evaluation/out/scorer-v2` uses the frozen v2 build instead.
 
 What runs is the production AI-service code (coach, assistant router/tools, trend, portfolio explanation, number and
 language checks, templates), the same way evaluation/assistant_eval.py runs it. Only the gateway is replaced: the
 profile typed on the page stands in for the user's data, and its Financial IQ is computed by the production C# rules
 through FinancialIQ.BatchScorer. So no Docker, gateway or other service is needed, only Ollama for the local models.
+
+With --iq-url the score history is the product's instead of the page's: every calculation goes to the running Financial
+IQ service (POST /api/financial-iq/calculate -> usp_SaveIqResult, a row in iq_history on SQL Server), and the AI reads
+the latest result and the history back from it (/latest, /history -> fn_IqTrend), as it does through the gateway.
+That needs SQL Server and the IQ service running (CLAUDE.md 6.2, 6.4.2). Each preset or reset starts a new
+"playground-..." user, because iq_history is append-only.
 
 It is an evaluation tool, not part of the product: choosing the model and calling the hosted reference model (Claude,
 key from the repo's .env) is only possible here. It listens on 127.0.0.1 only.
@@ -36,11 +45,12 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "services" / "ai-rag-service"))
 
 import run_evaluation as scoring  # noqa: E402
+from adapters.gateway import GatewayClient, GatewayError  # noqa: E402
 from adapters.llm import LlmUnavailable, OllamaChatModel  # noqa: E402
 from adapters.portfolio_sample import sample_proposal  # noqa: E402
 from compare_models import load_dotenv  # noqa: E402
 from core.config import get_settings  # noqa: E402
-from core.domain import FACTORS, RULES, SEGMENT_TR, WARNINGS  # noqa: E402
+from core.domain import FACTORS, FACTORS_BY_VERSION, RULES, SEGMENT_TR, WARNINGS  # noqa: E402
 from schemas.explain import ExplainRequest  # noqa: E402
 from services.alerts import alerts_for  # noqa: E402
 from services.assistant import ask  # noqa: E402
@@ -99,12 +109,21 @@ QUESTIONS = [
 
 # --- Financial IQ through the production rules ------------------------------------------------------------------------
 class Scorer:
-    def __init__(self, project: Path):
-        self.project = project
-        self.dll = project / "bin" / "Release" / "net10.0" / "FinancialIQ.BatchScorer.dll"
+    DLL_NAME = "FinancialIQ.BatchScorer.dll"
+
+    def __init__(self, path: Path):
+        # a BatchScorer project (built here), or an already built DLL / its folder, e.g. evaluation/out/scorer-v2
+        if path.suffix.lower() == ".dll":
+            self.project, self.dll = None, path
+        elif (path / self.DLL_NAME).exists():
+            self.project, self.dll = None, path / self.DLL_NAME
+        else:
+            self.project, self.dll = path, path / "bin" / "Release" / "net10.0" / self.DLL_NAME
         self._lock = threading.Lock()
 
     def build(self) -> None:
+        if self.project is None:
+            return  # a prebuilt DLL: nothing to build
         scoring.SCORER = self.project
         scoring.build_scorer()
 
@@ -123,6 +142,45 @@ class Scorer:
         return [{k: by_id[i["userId"]][k] for k in ("score", "segment", "factorBreakdown")} for i in items]
 
 
+class IqService:
+    """The running Financial IQ service on its dev port (no gateway, so no token): scores are saved to SQL Server and
+    read back the way the AI reads them through the gateway."""
+
+    HISTORY_TAKE = 12  # what the AI service asks the gateway for (adapters/gateway.py)
+
+    def __init__(self, base_url: str):
+        self.base_url = base_url.rstrip("/")
+        # the AI service's own client: same envelope handling, 404 -> None
+        self.reader = GatewayClient(self.base_url, "", 10)
+
+    def _unreachable(self, error: Exception) -> HTTPException:
+        return HTTPException(502, f"Financial IQ servisine ulaşılamadı ({self.base_url}): {error}. "
+                                  "SQL Server ve IQ servisi açık mı? (CLAUDE.md 6.2, 6.4.2)")
+
+    def calculate(self, user_id: str, profile: dict) -> dict:
+        try:
+            response = httpx.post(f"{self.base_url}/api/financial-iq/calculate", json={"userId": user_id, **profile},
+                                  timeout=10)
+        except httpx.HTTPError as error:
+            raise self._unreachable(error) from error
+        body = response.json() if response.headers.get("content-type", "").startswith("application/json") else {}
+        if response.status_code == 400:
+            raise HTTPException(400, body.get("message") or "IQ servisi girdiyi reddetti.")
+        if response.status_code >= 400 or not body.get("success"):
+            raise self._unreachable(RuntimeError(f"HTTP {response.status_code}"))
+        data = body["data"]
+        return {k: data[k] for k in ("score", "segment", "factorBreakdown")}
+
+    def read(self, path: str, params: dict | None = None):
+        try:
+            return self.reader.get_data(f"/api/financial-iq/{path}", params)
+        except GatewayError as error:
+            raise self._unreachable(error) from error
+
+    def history(self, user_id: str) -> list[dict]:
+        return self.read(f"{user_id}/history", {"take": self.HISTORY_TAKE}) or []
+
+
 # --- the request models -----------------------------------------------------------------------------------------------
 class Profile(BaseModel):
     monthlyIncome: float = Field(gt=0, le=999_999_999_999_999)
@@ -134,8 +192,13 @@ class Profile(BaseModel):
     impatienceLevel: int = Field(ge=1, le=5)
 
 
+# only the page's own throwaway users may be written to the IQ database
+PLAYGROUND_USER = r"^playground-[a-z0-9-]{1,60}$"
+
+
 class ScoreRequest(BaseModel):
     profiles: list[Profile] = Field(min_length=1, max_length=20)
+    userId: str | None = Field(default=None, pattern=PLAYGROUND_USER)  # set when the history is the IQ database
 
 
 class Point(BaseModel):
@@ -152,6 +215,7 @@ class RunRequest(BaseModel):
     question: str = Field(default="", max_length=500)
     profile: Profile
     timeline: list[Point] = Field(min_length=1, max_length=50)
+    userId: str | None = Field(default=None, pattern=PLAYGROUND_USER)
 
 
 # --- user data in place of the gateway --------------------------------------------------------------------------------
@@ -185,6 +249,16 @@ class PageUserData:
     def portfolio(self):
         # the Portfolio Service does not exist yet: the schema's sample, labelled as such (as in the service)
         return sample_proposal(), "sample"
+
+
+class DbUserData(PageUserData):
+    """The latest result and the history come from the IQ service (SQL Server: usp_GetLatestIqResult, fn_IqTrend).
+    The profile still comes from the page: the Finance Profile service is not part of the playground."""
+
+    def __init__(self, profile: Profile, iq: IqService, user_id: str):
+        self._profile = profile.model_dump()
+        self._latest = iq.read(f"{user_id}/latest")
+        self._history = iq.history(user_id)
 
 
 # --- models -----------------------------------------------------------------------------------------------------------
@@ -245,8 +319,8 @@ def _execute(req: RunRequest, data: PageUserData, llm):
         try:
             request = ExplainRequest.model_validate({k: latest[k] for k in ("score", "segment", "factorBreakdown")})
         except ValidationError as error:
-            # e.g. a BatchScorer built from scoring v1: the coach only reads v2 breakdowns
-            raise HTTPException(400, f"Skor dökümü okunamadı (scoring v2 bekleniyor): {error.errors()[0]['msg']}")
+            # e.g. a BatchScorer built from scoring v1: the coach reads v2 and v3 breakdowns only
+            raise HTTPException(400, f"Skor dökümü okunamadı (scoring v2 ya da v3 bekleniyor): {error.errors()[0]['msg']}")
         r = explain(request, llm)
         return r.explanation, r, []
     if req.task == "assistant":
@@ -261,10 +335,16 @@ def _execute(req: RunRequest, data: PageUserData, llm):
     return r.explanation, r, []
 
 
-def run(req: RunRequest) -> dict:
-    data = PageUserData(req.profile, req.timeline)
+def run(req: RunRequest, iq: IqService | None = None) -> dict:
+    if iq and req.userId:
+        data = DbUserData(req.profile, iq, req.userId)
+        if not data.latest_iq():
+            raise HTTPException(400, "Bu kullanıcının veritabanında skoru yok; önce skoru hesaplayın.")
+    else:
+        data = PageUserData(req.profile, req.timeline)
     if req.task == "warnings":
-        alerts = alerts_for(data.profile(), data.history())
+        # the latest result's breakdown picks the scoring version (v2 or v3) and the rule label for the alerts
+        alerts = alerts_for(data.profile(), data.history(), data.latest_iq())
         return {"alerts": [a.model_dump(by_alias=True) for a in alerts]}
 
     hosted = bool(req.model and req.model.startswith("claude-"))
@@ -300,7 +380,7 @@ def run(req: RunRequest) -> dict:
 
 
 # --- the app ----------------------------------------------------------------------------------------------------------
-def create_app(scorer: Scorer) -> FastAPI:
+def create_app(scorer: Scorer, iq: IqService | None = None) -> FastAPI:
     app = FastAPI(title="AInvest AI playground", docs_url=None, redoc_url=None)
     probe: dict = {}
 
@@ -321,20 +401,30 @@ def create_app(scorer: Scorer) -> FastAPI:
             "presets": [{"key": k, "label": label, "description": d, "profiles": p} for k, label, d, p in PRESETS],
             "questions": [{"kind": k, "text": t} for k, t in QUESTIONS],
             "factors": {k: {"label": label, "max": mx} for k, (label, mx) in FACTORS.items()},
+            # per scoring version; the page picks the table by factorBreakdown.version (factorMaximums wins when sent)
+            "factorsByVersion": {
+                v: {k: {"label": label, "max": mx} for k, (label, mx) in table.items()}
+                for v, table in FACTORS_BY_VERSION.items()
+            },
             "warnings": WARNINGS,
             "rules": {k: {"score": s, "meaning": m} for k, (s, m) in RULES.items()},
             "segments": SEGMENT_TR,
             "prices": PRICES,
             "promptExamples": get_settings().prompt_examples,
+            "iqDb": {"url": iq.base_url} if iq else None,
         }
 
     @app.post("/api/score")
     def score(req: ScoreRequest):
+        if iq and req.userId:
+            # one call per profile, in order: each one is a row in iq_history, as when a user recalculates
+            results = [iq.calculate(req.userId, p.model_dump()) for p in req.profiles]
+            return {"results": results, "history": iq.history(req.userId)}
         return {"results": scorer.score([p.model_dump() for p in req.profiles])}
 
     @app.post("/api/run")
     def run_endpoint(req: RunRequest):
-        return run(req)
+        return run(req, iq)
 
     return app
 
@@ -342,9 +432,12 @@ def create_app(scorer: Scorer) -> FastAPI:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--scorer", type=Path, default=Path(os.environ.get("AINVEST_SCORER", scoring.SCORER)),
-                    help="FinancialIQ.BatchScorer project (default: this repo's; point it at another checkout to compare rule versions)")
+                    help="FinancialIQ.BatchScorer project (default: this repo's, scoring v3), or a built DLL or its folder "
+                         "(e.g. evaluation/out/scorer-v2 for the frozen scoring v2)")
     ap.add_argument("--port", type=int, default=8090)
     ap.add_argument("--no-build", action="store_true", help="skip dotnet build of the BatchScorer")
+    ap.add_argument("--iq-url", default=os.environ.get("AINVEST_IQ_URL"),
+                    help="running Financial IQ service (e.g. http://localhost:5109): scores and history in SQL Server")
     args = ap.parse_args()
 
     load_dotenv()  # ANTHROPIC_API_KEY for the hosted reference model; never printed
@@ -352,9 +445,17 @@ def main() -> None:
     if not args.no_build:
         print("building FinancialIQ.BatchScorer...", flush=True)
         scorer.build()
+    iq = IqService(args.iq_url) if args.iq_url else None
+    if iq:
+        try:
+            db = httpx.get(f"{iq.base_url}/health/db-check", timeout=5)
+            print(f"Financial IQ service: {iq.base_url} (db-check {db.status_code})", flush=True)
+        except httpx.HTTPError as error:
+            print(f"WARNING: Financial IQ service not reachable at {iq.base_url} ({type(error).__name__}); "
+                  "start it first (CLAUDE.md 6.4.2)", flush=True)
     import uvicorn
     print(f"AInvest AI playground: http://127.0.0.1:{args.port}", flush=True)
-    uvicorn.run(create_app(scorer), host="127.0.0.1", port=args.port, log_level="warning")
+    uvicorn.run(create_app(scorer, iq), host="127.0.0.1", port=args.port, log_level="warning")
 
 
 if __name__ == "__main__":
