@@ -23,6 +23,7 @@ import numpy as np
 
 from signals.data.candles import TIMEFRAMES
 from signals.indicators.cvd import cvd
+from signals.live.plan import MAX_STOP_PERCENT, ROOM_PERCENT, stop_percent_of
 from signals.patterns import elliott as ew
 from signals.patterns.fib import in_range, near
 from signals.rules import elliott_check, pa_detect, smc_detect
@@ -40,8 +41,6 @@ LEFT = 5               # a candidate is the highest (lowest) of the LEFT bars be
 # top with room for a sweep (SFP): stop distance = (top - entry) + ROOM_PERCENT, at most MAX_STOP_PERCENT (% of the entry). Leverage = 100 / stop % (5 % -> 20x,
 # 4 % -> 25x, 3 % -> 33x). At +50 % on the margin (price moved half the stop distance) half is closed and the stop goes to the entry: that is
 # "worked", whatever comes after. Gold and the S&P move about a quarter as much as BTC: their room and cap are a quarter (Aykut).
-ROOM_PERCENT = {"BTCUSDT": 2.0, "XAU": 0.5, "SPX": 0.5}
-MAX_STOP_PERCENT = {"BTCUSDT": 5.0, "XAU": 1.25, "SPX": 1.25}
 TAKE_AT = 0.5            # of the stop distance: +50 % on the margin
 WORKED = {a: {"room": ROOM_PERCENT[a], "maxStop": MAX_STOP_PERCENT[a], "takeAt": TAKE_AT} for a in ASSETS}
 WINDOWS = {"1w": 26, "1M": 12}          # bars the move may take (40 on the other frames): later moves are not this top's doing
@@ -51,10 +50,7 @@ def bars_of(f: str) -> int:
     return WINDOWS.get(f, 40)
 
 
-def stop_percent(asset: str, entry: float, extreme: float) -> float:
-    """% from the entry: the gap to the top (bottom) plus the SFP room, at most MAX_STOP (then the room is smaller; Aykut: the stop stays at 5 %)."""
-    gap = 100 * abs(extreme - entry) / entry
-    return min(gap + ROOM_PERCENT[asset], MAX_STOP_PERCENT[asset])
+stop_percent = stop_percent_of          # the live plan's rule (signals/live/plan.py), one home
 
 
 def outcome(path, begin: float, window: float, entry: float, stop: float, side: int, worked: float) -> tuple:

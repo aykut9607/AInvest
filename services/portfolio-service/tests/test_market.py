@@ -108,10 +108,10 @@ def test_a_plan_only_when_a_limit_is_reached():
     assert shown["score"] == 50 and shown["kind"] is None and plan is None          # enough points, but a single category
     enough = {"1M": ["Elliott|12345 sonu|diyagonal"], "15m": ["SFP|RSI uyumsuz|"]}
     shown, plan = run.judge("BTCUSDT", event(**enough), TABLE)
-    assert (plan.kind, plan.direction, plan.stop) == ("SCALP", "SHORT", 102.45)          # the fib stop (100.8 + 0.412 x 4) is farther than 101 + 0.25 x ATR
+    assert (plan.kind, plan.direction, plan.stop) == ("SCALP", "SHORT", 103.0)          # top 101 + 2 % room (Aykut, 27 Nov)
     assert plan.evidence["proven"] is False and plan.confirmations == enough and plan.trigger == ["Uyumsuzluk|RSI|tepede anlık"]
     _, long = run.judge("BTCUSDT", event(1, **enough), TABLE)
-    assert (long.direction, long.stop) == ("LONG", 97.55)
+    assert (long.direction, long.stop) == ("LONG", 97.0)
     shown, none = run.judge("BTCUSDT", replace(event(**enough), fib=None), TABLE)
     assert none is None and "fib" in shown["noPlan"]
 
@@ -130,7 +130,7 @@ CATEGORIES = {"SFP": {"points": 18.0, "frame": "1h", "rule": "SFP|RSI uyumsuz|"}
 
 
 def plan(side=-1, kind="SCALP", asset="BTCUSDT", **more):
-    """Entry 100, stop 2.448 % away, 25x: half at +-2 %, then the scalp fib (leg 4)."""
+    """Entry 100, top 102: stop 104 (gap 2 % + 2 % room), 25x: half at +-2 %, then the scalp fib (leg 4)."""
     return planning.make(asset, side, kind, T0.timestamp(), 50, 100.0, 100 - 2 * side, fib(side), "15m", CATEGORIES, EVIDENCE, ("Uyumsuzluk|RSI|tepede anlık",), {"1h": ["SFP|RSI uyumsuz|"]}, **more)
 
 
@@ -147,7 +147,7 @@ def test_one_open_trade_per_asset_and_direction(db):
 
 def test_the_plan_of_a_scalp_and_the_order_of_its_targets():
     p = plan()
-    assert (p.stop, p.stop_percent, p.leverage) == (102.45, 2.448, 25)
+    assert (p.stop, p.stop_percent, p.leverage) == (104.0, 4.0, 25)
     # +50 % on the cash is 2 % at 25x; the scalp TP is 2.088 % away: close enough, the half moves there and 20 units are left for the market sell
     assert [(s["zone"], s["price"], s["units"]) for s in p.steps] == [("HALF_AT_SCALP_TP", 97.91, 50), ("TP1", 97.19, 10), ("TP2", 95.86, 10), ("TP3", 94.33, 10), ("MARKET_SELL", 92.99, 20)]
     s = plan(kind="SCALP_SWING")
@@ -159,7 +159,7 @@ def test_the_plan_of_a_scalp_and_the_order_of_its_targets():
 
 def test_a_full_winner_is_recorded_step_by_step_and_compounds(db):
     t = market.open_trade(db, plan())
-    s = planning.size(50, 2.448, "SCALP")
+    s = planning.size(50, 4.0, "SCALP")
     assert (t.leverage, t.balance_before, t.margin_usd) == (25, 1000.0, round(10 * s.margin_percent, 2))
     notional = t.notional_usd
     lines = market.follow(db, "BTCUSDT", [candle(0, 100.5, 97.5, 98), candle(1, 98, 95, 96), candle(2, 96, 92, 93)])
@@ -193,9 +193,9 @@ def test_a_candle_that_takes_the_half_and_comes_back_closes_at_the_entry(db):
 
 
 @pytest.mark.parametrize(("bars", "price"), [
-    ([candle(0, 102.5, 99, opened=100)], 102.45),
-    ([candle(0, 103, 90, opened=100)], 102.45),                        # both in one candle: the stop counts
-    ([candle(0, 105, 103, opened=104)], 104),                          # opened beyond the stop: filled there, worse than the stop
+    ([candle(0, 104.5, 99, opened=100)], 104.0),
+    ([candle(0, 105, 90, opened=100)], 104.0),                         # both in one candle: the stop counts
+    ([candle(0, 106, 105, opened=105)], 105),                          # opened beyond the stop: filled there, worse than the stop
 ])
 def test_how_a_short_loses(db, bars, price):
     t = market.open_trade(db, plan())
@@ -304,7 +304,7 @@ def test_the_size_depends_on_the_users_score(web, db):
     market.open_trade(db, plan())
     d = web.get("/api/portfolio/u1/market-plan", headers=ME).json()["data"]
     assert d["iqScore"] == 50
-    assert d["items"][0]["size"] == {"marginPercent": 1.63, "leverage": 25, "notionalPercent": 40.85, "riskPercent": 1.0}          # 1 % / 2.448 % stop
+    assert d["items"][0]["size"] == {"marginPercent": 1.0, "leverage": 25, "notionalPercent": 25.0, "riskPercent": 1.0}          # 1 % / 4 % stop, at 25x
     assert web.get("/api/portfolio/u1/market-plan", headers={"X-User-Id": "u2"}).status_code == 403
 
 

@@ -2,7 +2,8 @@ r"""Every trigger of the past with its confirmations and what price did next: th
 
   .\venv\Scripts\python.exe -m signals.live.study [asset ...]     -> data/reports/live_<asset>_<seed>.json (seed 1 = shuffled prices)
 
-Entry = close of the trigger bar. Stop = the extreme plus STOP_ROOM x ATR(1h). On the 15m candles after it (HORIZON bars, the stop counts
+Entry = close of the trigger bar. Stop = the live plan's stop (plan.stop_percent_of: the gap to the extreme plus the SFP room, at most 5 %;
+Aykut, 27 Nov). On the 15m candles after it (HORIZON bars, the stop counts
 first inside a bar): the largest move in favour before the stop, whether the stop was hit, and where price was at the end.
 """
 
@@ -16,18 +17,17 @@ from concurrent.futures import ProcessPoolExecutor
 import numpy as np
 
 from signals.live.auxvol import SOURCES, AuxVolume
-from signals.live.plan import MIN_STOP
+from signals.live.plan import MIN_STOP, stop_percent_of
 from signals.live.scan import Event, Scanner
 from signals.scoring.confirm import ASSETS
 from signals.scoring.run import OUT
 from signals.scoring.turns import load_full, ts
 
-STOP_ROOM = 0.25
 HORIZON = 480          # 15m bars (5 days) this study looks ahead; a virtual trade itself has no time limit
 
 
-def stop_price(e: Event) -> float:
-    return e.extreme - e.side * STOP_ROOM * e.atr_1h
+def stop_price(asset: str, e: Event) -> float:
+    return e.entry * (1 - e.side * stop_percent_of(asset, e.entry, e.extreme) / 100)
 
 
 def after(high: np.ndarray, low: np.ndarray, close: np.ndarray, i: int, side: int, entry: float, stop: float, horizon: int = HORIZON) -> tuple | None:
@@ -64,7 +64,7 @@ def job(asset: str, seed: int) -> str:
     names: dict[str, int] = {}
     rows = []
     for i, e in sc.events():
-        stop = stop_price(e)
+        stop = stop_price(asset, e)
         distance = 100 * abs(stop - e.entry) / e.entry
         got = after(b.high, b.low, b.close, i, e.side, e.entry, stop)
         if got is None or distance < MIN_STOP:

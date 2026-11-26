@@ -17,7 +17,7 @@ from signals.live.feed import LIVE_ASSETS, Feed
 from signals.live.scan import BASE, Event, Scanner
 from signals.live.auxvol import SOURCES, AuxVolume
 from signals.live.score import kind_of, score, tables
-from signals.live.study import funding_tags, stop_price
+from signals.live.study import funding_tags
 
 WAIT_AFTER_CLOSE = 5          # seconds until the exchange has the closed candle
 LATE = 120                    # seconds after the close a trade may still be opened
@@ -30,13 +30,12 @@ def judge(asset: str, event: Event, table: dict) -> tuple[dict, planning.Plan | 
     kind = kind_of(s, table)
     shown = {"time": event.time, "direction": "SHORT" if event.side == -1 else "LONG", "triggerFrame": event.frame, "trigger": list(event.reasons), "price": event.entry,
              "score": s.total, "kind": kind, "categories": s.categories, "confirmations": event.tags}
-    stop = stop_price(event)
-    if kind is None or 100 * abs(stop - event.entry) / event.entry < planning.MIN_STOP:
+    if kind is None:
         return shown, None
     if event.fib is None:
         return shown | {"noPlan": "no leg to draw a fib on"}, None
     e = table["evidence"][kind]
-    plan = planning.make(asset, event.side, kind, event.time, s.total, event.entry, stop, event.fib, event.frame, s.categories,
+    plan = planning.make(asset, event.side, kind, event.time, s.total, event.entry, event.extreme, event.fib, event.frame, s.categories,
                          {"proven": e["proven"], **{k: e[k] for k in ("last30", "shuffled")}}, event.reasons, event.tags)
     return (shown, plan) if plan else (shown | {"noPlan": "entry in the dear half of the fib, or the last target pays less than 1.5 x the stop"}, None)
 

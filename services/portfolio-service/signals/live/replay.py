@@ -44,7 +44,7 @@ def plans(asset: str, seed: int, scanner: Scanner) -> tuple[list, dict]:
     names, rows = fit.load(asset, seed)
     out, left = [], defaultdict(int)
     for r in rows:
-        when, side, frame, entry, stop_percent = r[:5]
+        when, side, frame, entry = r[:4]
         tags = {f: [names[x] for x in v] for f, v in r[8].items()}
         s = score(tags, table)
         kind = kind_of(s, table)
@@ -54,7 +54,7 @@ def plans(asset: str, seed: int, scanner: Scanner) -> tuple[list, dict]:
         fr = scanner.frames[frame]
         j, b = fr.closed_at(when), fr.x.bars
         f = fibs.draw(b.high, b.low, j, side, float(b.atr[j - 1]))
-        p = f and planning.make(asset, side, kind, when, s.total, entry, entry * (1 - side * stop_percent / 100), f, frame, s.categories, {}, (), tags)
+        p = f and planning.make(asset, side, kind, when, s.total, entry, f.extreme, f, frame, s.categories, {}, (), tags)
         if not p:
             left["fib" if f is None else "half" if side * (entry - f.scalp(planning.ENTRY_HALF)) > 0 else "reward"] += 1
             continue

@@ -1,8 +1,10 @@
 """From a score to a conditional plan: direction, entry, stop, targets, leverage and how much cash. Virtual trades only, no order is ever sent.
 
-Size (Aykut, 25 November 2026): the Financial IQ gives 1-10 % of the cash at 10x, i.e. a position of 10-100 % of the account. The position also
-never loses more than 1 % of the account at the stop (RK-01). The closer the stop, the higher the leverage (at most 25x, a swing at most 10x) and
-the smaller the cash put in: 10 USD at 10x and 4 USD at 25x are the same position. Everything is a percentage of the CURRENT balance, so it compounds.
+Stop (Aykut, 27 November 2026): above the top (below the bottom) with room for a sweep (SFP): the gap from the entry to the extreme plus 2 %
+(gold and the S&P: 0.5 %), at most 5 % (1.25 %). Top 102 and entry 100 -> stop 104; top 103 -> 105; top 104 -> still 105.
+Leverage = 100 / stop % (5 % -> 20x, 4 % -> 25x, 3 % -> 33x): at the stop the cash put in is gone, so the cash put in is the risk; a swing at
+most 10x (Aykut, 25 Nov). Size (25 Nov): the Financial IQ gives 1-10 % of the cash at 10x, i.e. a position of 10-100 % of the account, and the
+position never loses more than 1 % of the account at the stop (RK-01). Everything is a percentage of the CURRENT balance, so it compounds.
 
 Exit: half of the position at +50 % on the cash put in and the stop goes to the entry; the rest leaves in steps of 10 % at the fib targets
 (scalp: scalp fib, scalp with swing potential and swing: trend fib). A trade has no time limit.
@@ -17,8 +19,10 @@ from signals.live import fibs
 
 RISK_PER_TRADE = 1.0                                          # % of the account lost if the stop is hit
 REFERENCE_LEVERAGE = 10                                       # the leverage the 1-10 % of cash is meant for
-LEVERAGE_CAP = {"SCALP": 25, "SCALP_SWING": 25, "SWING": 10}
-STOP_TO_LIQUIDATION = 0.75                                    # at the stop at most this part of the cash put in is gone (25x up to a stop of 3 %)
+LEVERAGE_CAP = {"SCALP": 100, "SCALP_SWING": 100, "SWING": 10}        # 100: the exchange limit; Aykut's rule gives 20-50x on BTC
+STOP_TO_LIQUIDATION = 1.0                                     # Aykut, 27 Nov: leverage = 100 / stop, the whole cash put in is gone at the stop
+ROOM_PERCENT = {"BTCUSDT": 2.0, "XAU": 0.5, "SPX": 0.5}       # beyond the extreme, from the entry: room for a sweep (SFP)
+MAX_STOP_PERCENT = {"BTCUSDT": 5.0, "XAU": 1.25, "SPX": 1.25}  # gold and the S&P move about a quarter as much as BTC
 MIN_REWARD = 1.5                                              # the last target against the stop (RK-03)
 FEE_PERCENT = 0.1                                             # of the position, opening and closing together
 MIN_STOP = 0.15                                               # %: a closer stop is inside the spread and the fee
@@ -41,6 +45,11 @@ class Size:
 def margin_percent(iq_score: int) -> float:
     """Cash at 10x: 1 % at IQ 0 ... 10 % at IQ 100."""
     return round(1 + 9 * max(0, min(100, iq_score)) / 100, 1)
+
+
+def stop_percent_of(asset: str, entry: float, extreme: float) -> float:
+    """% from the entry: the gap to the extreme plus the SFP room, at most MAX_STOP (then the room is smaller; Aykut: the stop stays at 5 %)."""
+    return min(100 * abs(extreme - entry) / entry + ROOM_PERCENT[asset], MAX_STOP_PERCENT[asset])
 
 
 def leverage_of(stop_percent: float, kind: str) -> int:
@@ -118,15 +127,16 @@ class Plan:
         return asdict(self)
 
 
-def make(asset: str, side: int, kind: str, time: float, score: float, entry: float, atr_stop: float, fib: fibs.Fib, frame: str, categories: dict, evidence: dict,
+def make(asset: str, side: int, kind: str, time: float, score: float, entry: float, extreme: float, fib: fibs.Fib, frame: str, categories: dict, evidence: dict,
          trigger: tuple[str, ...] = (), confirmations: dict | None = None) -> Plan | None:
-    """None when the plan is not worth opening: entry in the dear half of the fib, no target left, or the last target pays less than 1.5 x the stop."""
-    stop = side * min(side * atr_stop, side * fib.scalp(fibs.STOP))          # the farther one: room for a sweep of the low
-    if (stop - entry) * side >= 0:
-        raise ValueError("The stop is on the wrong side.")
+    """None when the plan is not worth opening: entry in the dear half of the fib, no target left, or the last target pays less than 1.5 x the stop.
+    `extreme`: the top (short) or bottom (long) the trigger bar made; the stop goes beyond it with room for a sweep (stop_percent_of)."""
+    if side * (extreme - entry) > 0:
+        raise ValueError("The extreme is on the wrong side of the entry.")
     if side * (entry - fib.scalp(ENTRY_HALF)) > 0:
         return None
-    stop_percent = round(100 * abs(stop - entry) / entry, 3)
+    stop_percent = round(stop_percent_of(asset, entry, extreme), 3)
+    stop = entry * (1 - side * stop_percent / 100)
     leverage = leverage_of(stop_percent, kind)
     steps = ladder(kind, side, entry, leverage, fib)
     if not steps or side * (steps[-1].price - entry) < MIN_REWARD * abs(stop - entry):

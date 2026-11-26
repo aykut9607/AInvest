@@ -33,10 +33,18 @@ def test_a_stop_never_costs_more_than_the_allowed_risk(iq, stop, kind):
 
 
 def test_higher_leverage_means_less_cash_for_the_same_position():
-    assert plan.size(50, 3.0).leverage == 25 and plan.size(50, 3.2).leverage == 23 and plan.size(50, 7.5).leverage == 10
+    # Aykut, 27 Nov: leverage = 100 / stop (5 % -> 20x, 4 % -> 25x, 3 % -> 33x); the cash put in is the risk
+    assert [plan.size(50, s).leverage for s in (5.0, 4.0, 3.0, 3.2)] == [20, 25, 33, 31]
     scalp, swing = plan.size(50, 2.0, "SCALP"), plan.size(50, 2.0, "SWING")
-    assert (scalp.leverage, swing.leverage) == (25, 10) and scalp.notional_percent == swing.notional_percent
-    assert (scalp.margin_percent, swing.margin_percent) == (2.0, 5.0)          # 10 USD at 10x = 4 USD at 25x
+    assert (scalp.leverage, swing.leverage) == (50, 10) and scalp.notional_percent == swing.notional_percent          # a swing at most 10x
+    assert (scalp.margin_percent, swing.margin_percent) == (1.0, 5.0)          # 1 USD at 50x = 5 USD at 10x
+
+
+def test_the_stop_is_the_gap_to_the_top_plus_room_for_a_sweep():
+    # Aykut's examples: entry 100, top 101 -> stop 103 (33x), top 102 -> 104 (25x), top 103 -> 105 (20x), top 104 -> still 105 (at most 5 %)
+    assert [plan.stop_percent_of("BTCUSDT", 100.0, top) for top in (101.0, 102.0, 103.0, 104.0)] == [3.0, 4.0, 5.0, 5.0]
+    assert plan.stop_percent_of("BTCUSDT", 100.0, 98.0) == 4.0          # a long: bottom 98
+    assert plan.stop_percent_of("XAU", 100.0, 100.25) == 0.75 and plan.stop_percent_of("SPX", 100.0, 102.0) == 1.25          # a quarter for gold, S&P
 
 
 # ---------- the two fibs
@@ -50,9 +58,12 @@ def test_the_scalp_fib_gives_the_published_prices():
 
 
 def test_the_units_of_the_published_plan():
+    # bottom 67,300, entry 67,900: 0.884 % + 2 % = 2.884 % -> 34x, stop 65,941.76; +50 % on the cash = 1.47 % -> 68,898.53, the scalp TP (2.25 %)
+    # is not within a quarter of that, so the half stays at +50 % and every fib target takes 10 units
     p = plan.make("BTCUSDT", 1, "SCALP", 0.0, 50, 67900.0, 67300.0, PHOTO, "30m", {}, {})
-    assert (p.leverage, p.stop) == (25, 66338.75)
-    assert [(s["zone"], s["units"]) for s in p.steps] == [("HALF_AT_SCALP_TP", 50), ("TP1", 10), ("TP2", 10), ("TP3", 10), ("MARKET_SELL", 20)]
+    assert (p.leverage, p.stop, p.stop_percent) == (34, 65941.76, 2.884)
+    assert [(s["zone"], s["price"], s["units"]) for s in p.steps] == [("HALF", 68898.53, 50), ("SCALP_TP", 69425.73, 10), ("TP1", 69915.72, 10),
+                                                                     ("TP2", 70824.94, 10), ("TP3", 71864.82, 10), ("MARKET_SELL", 72774.03, 10)]
 
 
 @pytest.mark.parametrize("kind", plan.KINDS)
@@ -93,8 +104,8 @@ def test_kind_is_the_highest_limit_reached():
 def test_a_plan_needs_a_stop_on_the_right_side_and_a_target_worth_it():
     f = fibs.Fib(-1, 100.8, 96.8, 101.0, False)
     p = plan.make("BTCUSDT", -1, "SCALP", 0.0, 33.33, 100.0, 101.0, f, "15m", {}, {})
-    assert (p.direction, p.stop, p.score, p.final_target) == ("SHORT", 102.45, 33.3, 92.99)
-    assert plan.make("BTCUSDT", -1, "SCALP", 0.0, 1, 100.0, 108.0, f, "15m", {}, {}) is None          # 8 % risk for 7 %
+    assert (p.direction, p.stop, p.score, p.final_target) == ("SHORT", 103.0, 33.3, 92.99)          # top 101 + 2 %
+    assert plan.make("BTCUSDT", -1, "SCALP", 0.0, 1, 100.0, 108.0, f, "15m", {}, {}) is None          # the stop at its 5 % cap; 7 % is less than 1.5 x 5 %
     assert plan.make("BTCUSDT", -1, "SCALP", 0.0, 1, 98.7, 101.0, f, "15m", {}, {}) is None          # below the middle of the fib (98.8): the dear half for a short
     with pytest.raises(ValueError):
         plan.make("BTCUSDT", -1, "SCALP", 0.0, 1, 103.0, 101.0, f, "15m", {}, {})
