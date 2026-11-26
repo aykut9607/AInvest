@@ -15,11 +15,14 @@ function time(value: string | undefined | null): number | null {
 // proposal: the sample belongs to a demo user, comparing it with the signed-in user's IQ says nothing.
 // (Later: compare IQ's resultVersion instead of dates, CLAUDE.md 5.4.)
 export function isProposalStale(
-  proposal: Pick<PortfolioProposal, "basedOn">,
+  proposal: Pick<PortfolioProposal, "basedOn" | "stale">,
   latest: Pick<IqResult, "score" | "updatedAt" | "createdAt"> | null,
   source: PortfolioSource
 ): boolean {
-  if (source !== "service" || !latest) return false;
+  if (source !== "service") return false;
+  // the service compares IQ's resultVersion itself; its answer wins when it sends one
+  if (typeof proposal.stale === "boolean") return proposal.stale;
+  if (!latest) return false;
   const based = time(proposal.basedOn.iqCalculatedAt);
   const latestAt = time(latest.updatedAt) ?? time(latest.createdAt);
   if (based !== null && latestAt !== null && latestAt > based) return true;
@@ -77,7 +80,7 @@ export function allocationParts(allocations: PortfolioProposal["allocations"]): 
   const tail = visible.length > MAX_SLOTS ? visible.slice(MAX_SLOTS - 1) : [];
   const parts = head.map((a, index) => ({
     key: a.asset,
-    label: assetLabel(a.asset),
+    label: a.label ?? assetLabel(a.asset),
     percent: a.percent,
     amount: a.amount,
     color: slotColor(index + 1),

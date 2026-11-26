@@ -56,7 +56,7 @@ describe("OptionPicker", () => {
     for (const code of ["4.1", "4.2", "4.3", "4.4"]) expect(none).toContain(code);
     expect(none).not.toContain("Kurum tarzı</legend>");
 
-    expect(render("INSTITUTION")).toContain("Koruyucu (Ziraat tarzı)");
+    expect(render("INSTITUTION")).toContain("Aktif yönetilen değişken fon (Ziraat)");
     expect(render("CUSTOM")).toContain("Odaklanmak istediğin alanlar");
     expect(render("STANDARD")).toContain("Sepette istemediğin varlıklar");
     expect(render("AINVEST")).toContain('href="/piyasa"');

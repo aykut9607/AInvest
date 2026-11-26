@@ -67,7 +67,9 @@ describe("labels", () => {
     expect(fallbackReasonLabel("UNVERIFIED_NUMBERS")).toBe("Model veride olmayan sayı yazdı");
     expect(fallbackReasonLabel(null)).toBe("");
     expect(portfolioReasonLabel("EXCLUDED_ASSET_REPLACED:BTC->GOLD")).toBe("İstemediğin Bitcoin yerine Altın kondu.");
-    expect(portfolioReasonLabel("RESERVE_FIRST")).toContain("Acil durum fonun");
+    expect(portfolioReasonLabel("RESERVE_FIRST")).toContain("acil durum fonunu");
+    expect(portfolioReasonLabel("FOCUS:BTC")).toBe("Bitcoin: seçtiğin varlık.");
+    expect(portfolioReasonLabel("PUBLISHED_ALLOCATION:ISBANK:2026-11")).toBe("Kurumun 11.2026 döneminde yayımladığı dağılım.");
     expect(portfolioReasonLabel("<script>")).toBeNull();
   });
 

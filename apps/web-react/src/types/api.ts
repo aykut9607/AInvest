@@ -221,6 +221,8 @@ export interface PortfolioProposal {
     appliedRule: AppliedRule | null;
     iqCalculatedAt: string;
     scoringVersion: string;
+    // IQ's resultVersion when the proposal was made (optional)
+    resultVersion?: number | null;
   };
   preferences: {
     option: PortfolioOption;
@@ -234,8 +236,13 @@ export interface PortfolioProposal {
   // sharePercent = clamp(IQ - 30, 0, 70); computed by the service, never in the frontend
   investable: { sharePercent: number; monthlyAmount: number; oneTimeAmount: number };
   // percent sums to 100; amount = share of investable.monthlyAmount
-  allocations: { asset: string; percent: number; amount: number }[];
-  // e.g. EXCLUDED_ASSET_REPLACED:BTC->GOLD, IQ_TILT_TO_SAFE_ASSETS, RESERVE_FIRST
+  // label (Turkish name) and oneTimeAmount are optional fields the service adds
+  allocations: { asset: string; percent: number; amount: number; label?: string; oneTimeAmount?: number }[];
+  // e.g. EXCLUDED_ASSET_REPLACED:BTC->GOLD, RESERVE_FIRST, FOCUS:BTC, PUBLISHED_ALLOCATION:ISBANK:2026-11
   reasons: string[];
+  // optional, only INSTITUTION: where the published percentages come from
+  source?: { name?: string; period?: string; url?: string } | null;
+  // optional: the service's own check that the IQ was recalculated after this proposal
+  stale?: boolean;
   disclaimer: string;
 }

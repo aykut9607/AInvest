@@ -91,7 +91,7 @@ export default function OptionPicker({ preferences, onChange }: OptionPickerProp
             </div>
           </fieldset>
           <p className="text-xs text-muted">
-            Kurum adları yalnızca yatırım tarzını anlatmak için kullanılıyor; bu kurumların ürünü ya da önerisi değildir.
+            Dağılım, kurumun kendi yayımladığı fon dağılımından alınır; kaynağı ve dönemi öneride yazar.
           </p>
         </div>
       ) : null}

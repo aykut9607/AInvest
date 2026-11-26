@@ -220,6 +220,14 @@ export const ASSET_LABELS: Record<string, string> = {
   ETH: "Ethereum",
   OIL: "Petrol",
   AI_STOCKS: "Yapay zekâ şirketleri hisseleri",
+  // fund categories of the institutions' published allocations (4.1); the service also sends its own label
+  TRY_EQUITY: "TL hisse",
+  FOREIGN_EQUITY: "Yabancı hisse",
+  CONSERVATIVE_FUND: "Temkinli değişken fon",
+  EUROBOND: "Eurobond",
+  EQUITY: "Hisse",
+  CASH_REPO: "Nakit ve ters repo",
+  OTHER_FUNDS: "Diğer fon payları",
 };
 
 export function assetLabel(code: string): string {
@@ -234,23 +242,38 @@ export const PORTFOLIO_OPTION_LABELS: Record<PortfolioOption, string> = {
 };
 
 export const INSTITUTION_STYLE_LABELS: Record<InstitutionStyle, string> = {
-  ZIRAAT: "Koruyucu (Ziraat tarzı)",
-  ISBANK: "Dengeli (İş Bankası tarzı)",
-  YAPIKREDI: "Agresif (Yapı Kredi tarzı)",
+  // the code names whose PUBLISHED allocation is used, not a risk style: each institution publishes all three levels
+  ZIRAAT: "Aktif yönetilen değişken fon (Ziraat)",
+  ISBANK: "Çok varlıklı fon sepeti (İş Bankası)",
+  YAPIKREDI: "Mevduat temelli paket (Yapı Kredi)",
 };
 
+// sentences for the Portfolio Service's reason codes (same texts as the service's own portfolio pages)
 const PORTFOLIO_REASON_LABELS: Record<string, string> = {
   IQ_TILT_TO_SAFE_ASSETS: "Finansal IQ'na göre dağılım daha güvenli varlıklara kaydırıldı.",
-  RESERVE_FIRST: "Acil durum fonun yeterli olmadığı için yatırılabilir tutar sınırlandı; önce fonu tamamlaman öngörüldü.",
+  RESERVE_FIRST: "Önce 3 aylık acil durum fonunu tamamla; şimdilik yatırılabilir payın 0.",
   RISK_CAPPED_BY_IQ: "Seçebileceğin risk seviyesi Finansal IQ'nla sınırlandı.",
+  NO_MONTHLY_SURPLUS: "Aylık artan paran yok.",
+  DEBT_FIRST: "Borcun nakit ve yatırımından fazla; önce borcu düşünmek daha mantıklı olabilir.",
+  CEILING_RESERVE: "Risk tavanın düşük: acil durum fonun 3 aylık giderini karşılamıyor.",
+  CEILING_NO_SURPLUS: "Risk tavanın düşük: aylık artan paran yok.",
+  CEILING_DEBT: "Risk tavanın en çok orta: taksitlerin gelirinin %36'sını ya da net borcun 3 yıllık gelirini aşıyor.",
+  CEILING_IMPATIENCE: "Risk tavanın bir kademe düşürüldü: yatırım sabrın düşük (4–5).",
+  RISK_CEILING_REACHED: "Riskli varlıkların toplamı, seçtiğin risk seviyesinin sınırında.",
 };
 
 const REPLACED = /^EXCLUDED_ASSET_REPLACED:([A-Z0-9_]{1,24})->([A-Z0-9_]{1,24})$/;
+const FOCUS = /^FOCUS:([A-Z0-9_]{1,24})$/;
+const PUBLISHED = /^PUBLISHED_ALLOCATION:[A-Z0-9_]{1,24}:(\d{4})-(\d{2})$/;
 
 // null for an unknown code. The AI service drops unknown codes from its explanation; the portfolio page lists them
 // as the raw code (escaped by React), so a new service code is visible until it gets a Turkish sentence here.
 export function portfolioReasonLabel(code: string): string | null {
   const replaced = REPLACED.exec(code);
   if (replaced) return `İstemediğin ${assetLabel(replaced[1])} yerine ${assetLabel(replaced[2])} kondu.`;
+  const focus = FOCUS.exec(code);
+  if (focus) return `${assetLabel(focus[1])}: seçtiğin varlık.`;
+  const published = PUBLISHED.exec(code);
+  if (published) return `Kurumun ${published[2]}.${published[1]} döneminde yayımladığı dağılım.`;
   return PORTFOLIO_REASON_LABELS[code] ?? null;
 }

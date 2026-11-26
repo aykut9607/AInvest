@@ -1,7 +1,7 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { getLatestIq } from "../api/iqApi";
-import { getPortfolioProposal, portfolioSource } from "../api/portfolioApi";
+import { computePortfolioProposal, getPortfolioProposal, portfolioSource } from "../api/portfolioApi";
 import { useAuth } from "../auth/useAuth";
 import Card from "../components/Card";
 import EmptyState from "../components/EmptyState";
@@ -55,6 +55,24 @@ function PortfolioContent({ latestIq, userId }: { latestIq: IqResult; userId: st
   const riskLevel = clampRisk(preferences.riskLevel, ceiling);
   const missing = missingChoices({ ...preferences, riskLevel });
   const sample = portfolioSource() === "mock";
+  const [version, setVersion] = useState(0);
+  const [computing, setComputing] = useState(false);
+  const [computeError, setComputeError] = useState<unknown>(null);
+  const ready = missing.length === 0 && preferences.option !== null && riskLevel !== null;
+
+  async function compute() {
+    if (!ready || preferences.option === null || riskLevel === null) return;
+    setComputing(true);
+    setComputeError(null);
+    try {
+      await computePortfolioProposal({ ...preferences, option: preferences.option, riskLevel });
+      setVersion((v) => v + 1);
+    } catch (error) {
+      setComputeError(error);
+    } finally {
+      setComputing(false);
+    }
+  }
 
   const chosen = [
     preferences.option ? PORTFOLIO_OPTION_LABELS[preferences.option] : null,
@@ -89,13 +107,25 @@ function PortfolioContent({ latestIq, userId }: { latestIq: IqResult; userId: st
       <Notice title={missing.length === 0 ? "Seçimin hazır" : "Seçimin eksik"}>
         <p>
           {missing.length === 0 ? `${chosen.join(" · ")}. ` : `Eksik: ${missing.join(", ")}. `}
-          Seçimlerin şimdilik yalnızca bu sekmede saklanıyor; Portföy servisi hazır olduğunda ona gönderilecek ve önerin
-          onlara göre hesaplanacak.
+          {sample
+            ? "Seçimlerin şimdilik yalnızca bu sekmede saklanıyor; Portföy servisi hazır olduğunda ona gönderilecek ve önerin onlara göre hesaplanacak."
+            : preferences.option === "AINVEST"
+              ? "AInvest önerisi koşullu piyasa planlarıdır; Piyasa (4.4) sayfasında."
+              : "Öneriyi hesapla dediğinde seçimin Portföy servisine kaydedilir ve dağılımı servis hesaplar."}
         </p>
+        {sample || preferences.option === "AINVEST" ? null : (
+          <div className="cluster">
+            <button type="button" className="btn btn-primary" onClick={compute} disabled={!ready || computing}>
+              {computing ? "Hesaplanıyor…" : "Öneriyi hesapla"}
+            </button>
+          </div>
+        )}
       </Notice>
+      {computeError ? <ErrorBox title="Öneri hesaplanamadı" error={computeError} onRetry={compute} /> : null}
 
       <Card title="Öneri" subtitle={sample ? undefined : "Portföy servisinin hesapladığı son önerin."}>
-        <ProposalSection latestIq={latestIq} />
+        {/* a new key after each computed proposal reloads the latest one */}
+        <ProposalSection key={version} latestIq={latestIq} />
       </Card>
     </>
   );

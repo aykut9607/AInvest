@@ -101,7 +101,7 @@ export default function AllocationChart({
                 <th scope="row">
                   <span className="alloc-asset">
                     <span className="alloc-swatch" style={{ background: swatchFor(parts, allocation.asset) }} aria-hidden="true" />
-                    {assetLabel(allocation.asset)}
+                    {allocation.label ?? assetLabel(allocation.asset)}
                   </span>
                 </th>
                 <td className="num">{formatPercent(allocation.percent)}</td>

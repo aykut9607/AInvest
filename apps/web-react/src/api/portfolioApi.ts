@@ -34,3 +34,32 @@ export async function getPortfolioProposal(options: CallOptions = {}): Promise<P
   if (response.status !== 200 || !proposal) throw errorFrom(response, "Portföy önerisi yüklenemedi.");
   return { proposal, source: "service" };
 }
+
+export interface PortfolioChoice {
+  option: PortfolioProposal["preferences"]["option"];
+  riskLevel: PortfolioProposal["preferences"]["riskLevel"];
+  institutionStyle: PortfolioProposal["preferences"]["institutionStyle"] | null;
+  focusAssets: string[];
+  excludedAssets: string[];
+}
+
+// The service refuses fields that do not belong to the chosen option, so only the option's own fields are sent.
+export function choiceBody(choice: PortfolioChoice): PortfolioProposal["preferences"] {
+  const body: PortfolioProposal["preferences"] = { option: choice.option, riskLevel: choice.riskLevel };
+  if (choice.option === "INSTITUTION" && choice.institutionStyle) body.institutionStyle = choice.institutionStyle;
+  if (choice.option === "CUSTOM") body.focusAssets = choice.focusAssets;
+  if (choice.option === "CUSTOM" || choice.option === "STANDARD") body.excludedAssets = choice.excludedAssets;
+  return body;
+}
+
+// Stores the choice and lets the Portfolio Service compute a new proposal (PUT preferences, then POST proposal).
+// The allocation is the service's; nothing is computed here.
+export async function computePortfolioProposal(choice: PortfolioChoice, options: CallOptions = {}): Promise<PortfolioProposal> {
+  const base = `/api/portfolio/${encodeURIComponent(currentUserId())}`;
+  const saved = await authorizedRequest<ApiResult<unknown>>(`${base}/preferences`, { ...options, method: "PUT", body: choiceBody(choice) });
+  if (saved.status !== 200) throw errorFrom(saved, "Seçimin kaydedilemedi.");
+  const created = await authorizedRequest<ApiResult<PortfolioProposal>>(`${base}/proposal`, { ...options, method: "POST", body: {} });
+  const proposal = created.body?.data;
+  if (created.status !== 200 || !proposal) throw errorFrom(created, "Öneri hesaplanamadı.");
+  return proposal;
+}

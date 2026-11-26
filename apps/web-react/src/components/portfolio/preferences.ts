@@ -36,7 +36,7 @@ export const OPTIONS: OptionInfo[] = [
   {
     value: "INSTITUTION",
     code: "4.1",
-    description: "Bir kurumun yatırım tarzına benzeyen hazır dağılım: koruyucu, dengeli ya da agresif.",
+    description: "Üç kurumun kendi yayımladığı dağılımlardan biri; kaynağı ve dönemiyle.",
   },
   {
     value: "CUSTOM",
@@ -56,17 +56,15 @@ export const OPTIONS: OptionInfo[] = [
 ];
 
 export const INSTITUTION_STYLES: { value: InstitutionStyle; description: string }[] = [
-  { value: "ZIRAAT", description: "Mevduat ve emtia ağırlıklı." },
-  { value: "ISBANK", description: "S&P 500 ve mevduat dengesi." },
-  { value: "YAPIKREDI", description: "S&P 500 ve yapay zekâ şirketleri ağırlıklı." },
+  { value: "YAPIKREDI", description: "Paranın bir kısmı vadeli mevduatta durur, kalanı fon sepetine gider; risk arttıkça fon payı artar." },
+  { value: "ISBANK", description: "TL borçlanma, TL hisse, yabancı hisse, altın ve eurobond fonlarından oluşan sepet." },
+  { value: "ZIRAAT", description: "Yöneticinin piyasaya göre ağırlık değiştirdiği değişken fonların dağılımı." },
 ];
 
-// 4.2 focus areas (codes the AI service and lib/labels.ts know)
-export const FOCUS_ASSETS = ["GOLD", "SILVER", "TRY_DEPOSIT", "TRY_BOND", "SPX", "NDQ", "BIST100", "EUR", "USD", "AI_STOCKS", "BTC", "ETH"];
+// 4.2 focus areas and the 4.3 basket: the Portfolio Service's assets (services/baskets.py ASSETS = safe + risky)
+export const FOCUS_ASSETS = ["TRY_DEPOSIT", "GOLD", "EUR", "SPX", "NVDA", "BIST", "BTC"];
 
-// 4.3 basket. ASSUMPTION until the Portfolio Service defines it: the assets of the draft schema's example (its
-// allocation plus the excluded BTC).
-export const STANDARD_BASKET = ["GOLD", "TRY_DEPOSIT", "SPX", "EUR", "NVDA", "BTC"];
+export const STANDARD_BASKET = ["TRY_DEPOSIT", "GOLD", "EUR", "SPX", "NVDA", "BIST", "BTC"];
 
 const OPTION_VALUES = OPTIONS.map((o) => o.value);
 const STYLE_VALUES = INSTITUTION_STYLES.map((s) => s.value);
