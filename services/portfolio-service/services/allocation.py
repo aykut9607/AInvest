@@ -50,6 +50,15 @@ class Basket:
     source: dict | None = None
 
 
+def basis(p: Profile) -> dict[str, float]:
+    """The inputs of investable(), for the screen: where the two amounts come from."""
+    fund = RESERVE_MONTHS * p.monthly_expenses
+    return {"monthly_income": p.monthly_income, "monthly_expenses": p.monthly_expenses, "monthly_debt_payment": p.monthly_debt_payment,
+            "monthly_surplus": p.monthly_income - p.monthly_expenses - p.monthly_debt_payment, "cash_reserve": p.cash_reserve,
+            "investment_amount": p.investment_amount, "reserve": p.cash_reserve + p.investment_amount * INVESTMENT_IN_RESERVE,
+            "emergency_fund": fund, "free_cash": max(0.0, p.cash_reserve - fund), "reserve_months": RESERVE_MONTHS}
+
+
 def investable(iq_score: int, applied_rule: str | None, p: Profile, adjustment: str | None = None) -> Investable:
     """share = clamp(IQ - 30, 0, 70) %, on the monthly surplus and on the cash above a 3-month fund; 0 while that fund is missing."""
     share = float(min(70, max(0, iq_score - 30)))
@@ -115,7 +124,9 @@ def institution(style: str | None, risk: str) -> Basket:
     if style not in INSTITUTION_BASKETS:
         raise AllocationError("institutionStyle is required for INSTITUTION.")
     source = INSTITUTION_SOURCES[style]
-    return Basket(dict(INSTITUTION_BASKETS[style][risk]), [f"PUBLISHED_ALLOCATION:{style}:{source['period']}"], dict(source))
+    url = source.get("urls", {}).get(risk, source["url"])          # Ziraat: one fund, one page per risk level
+    return Basket(dict(INSTITUTION_BASKETS[style][risk]), [f"PUBLISHED_ALLOCATION:{style}:{source['period']}"],
+                  {"name": source["name"], "period": source["period"], "url": url})
 
 
 def standard(risk: str, excluded: tuple[str, ...] = ()) -> Basket:

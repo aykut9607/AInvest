@@ -32,13 +32,16 @@ INSTITUTION_LABELS: Final = {
 # names for the screen (the AI service has its own table for sentences)
 ASSET_LABELS: Final = {
     "TRY_DEPOSIT": "TL mevduat", "GOLD": "Altın", "EUR": "Euro", "SPX": "S&P 500", "NVDA": "Nvidia", "BIST": "BIST 100", "BTC": "Bitcoin",
-    "TRY_BOND": "TL borçlanma araçları", "TRY_EQUITY": "TL hisse", "FOREIGN_EQUITY": "Yabancı hisse", "CONSERVATIVE_FUND": "Temkinli değişken fon",
+    "TRY_BOND": "TL borçlanma ve faiz fonları", "TRY_EQUITY": "TL hisse", "FOREIGN_EQUITY": "Yabancı hisse", "CONSERVATIVE_FUND": "Temkinli değişken fon",
     "EUROBOND": "Eurobond", "EQUITY": "Hisse", "CASH_REPO": "Nakit ve ters repo", "OTHER_FUNDS": "Diğer fon payları (içeriği yayımlanmıyor)",
 }
 
 # 4.1: allocations the institutions themselves published, one per risk level. A snapshot: never updated silently.
 INSTITUTION_BASKETS: Final = {
-    "YAPIKREDI": {          # deposit/fund package x the published "ideal" fund distribution (TRY bonds 50, TRY equity 20, gold 20, foreign equity 10)
+    # Yapi Kredi "Varlik Dagilim Onerileri", Ekim 2026: Temkinli 20 % ideal fund distribution + 80 % time deposit, Dengeli 50 + 50, Atak 80 + 20
+    # (Dinamik 65 + 35 is between Dengeli and Atak and not used); ideal fund distribution: TL interest 50 (money market fund 40 + bond fund 10),
+    # TL equity 20, gold 20, foreign (technology) equity 10. Checked against the PDF on 27 Nov 2026.
+    "YAPIKREDI": {
         "LOW": {"TRY_DEPOSIT": 80, "TRY_BOND": 10, "TRY_EQUITY": 4, "GOLD": 4, "FOREIGN_EQUITY": 2},
         "MEDIUM": {"TRY_DEPOSIT": 50, "TRY_BOND": 25, "TRY_EQUITY": 10, "GOLD": 10, "FOREIGN_EQUITY": 5},
         "HIGH": {"TRY_DEPOSIT": 20, "TRY_BOND": 40, "TRY_EQUITY": 16, "GOLD": 16, "FOREIGN_EQUITY": 8},
@@ -48,17 +51,24 @@ INSTITUTION_BASKETS: Final = {
         "MEDIUM": {"TRY_BOND": 50, "TRY_EQUITY": 20, "FOREIGN_EQUITY": 15, "GOLD": 10, "EUROBOND": 5},
         "HIGH": {"TRY_BOND": 30, "TRY_EQUITY": 30, "FOREIGN_EQUITY": 25, "GOLD": 15},
     },
-    "ZIRAAT": {             # Ziraat Portfoy variable funds ZDD / ZBD / ZDZ; what "other funds" hold is not published, so it is not guessed
-        "LOW": {"EQUITY": 7.61, "TRY_BOND": 42.14, "CASH_REPO": 5.52, "OTHER_FUNDS": 44.72},
-        "MEDIUM": {"EQUITY": 30.23, "TRY_BOND": 19.58, "CASH_REPO": 1.96, "OTHER_FUNDS": 48.22},
-        "HIGH": {"EQUITY": 81.41, "CASH_REPO": 4.89, "OTHER_FUNDS": 13.70},
+    # Ziraat Portfoy variable funds ZDD (Temkinli) / ZBD (Dengeli) / ZDZ (Agresif), "Fon Varlik Dagilimi" on their fund pages, values of the last business
+    # day of October 2026 (read 27 Nov 2026; the pages change every month). Bonds = government + other bonds, cash/repo = cash collateral + reverse
+    # repo. What "other funds" (katilma payi) hold is not published, so it is not guessed.
+    "ZIRAAT": {
+        "LOW": {"EQUITY": 7.24, "TRY_BOND": 43.32, "CASH_REPO": 4.48, "OTHER_FUNDS": 44.95},
+        "MEDIUM": {"EQUITY": 29.73, "TRY_BOND": 20.38, "CASH_REPO": 1.38, "OTHER_FUNDS": 48.52},
+        "HIGH": {"EQUITY": 81.13, "CASH_REPO": 5.06, "OTHER_FUNDS": 13.81},
     },
 }
 
 INSTITUTION_SOURCES: Final = {
-    "YAPIKREDI": {"name": "Yapı Kredi, Varlık Dağılımı", "period": "2026-10", "url": "https://yapikredi.com.tr/medium/file/ekim_72960/view"},
+    "YAPIKREDI": {"name": "Yapı Kredi, Varlık Dağılım Önerileri", "period": "2026-10", "url": "https://yapikredi.com.tr/medium/file/ekim_72960/view"},
     "ISBANK": {"name": "İş Portföy, risk profili sayfası", "period": "2026-11", "url": "https://www.isportfoy.com.tr/risk-profili-anketi"},
-    "ZIRAAT": {"name": "Ziraat Portföy değişken fonları (ZDD, ZBD, ZDZ)", "period": "2026-10", "url": "https://www.ziraatportfoy.com.tr"},
+    "ZIRAAT": {"name": "Ziraat Portföy değişken fonları (ZDD, ZBD, ZDZ)", "period": "2026-10", "url": "https://www.ziraatportfoy.com.tr/zbd-ziraat-portfoy-dengeli-degisken-fon",
+               # the fund of each risk level has its own page
+               "urls": {"LOW": "https://www.ziraatportfoy.com.tr/zdd-ziraat-portfoy-temkinli-degisken-fon",
+                        "MEDIUM": "https://www.ziraatportfoy.com.tr/zbd-ziraat-portfoy-dengeli-degisken-fon",
+                        "HIGH": "https://www.ziraatportfoy.com.tr/zdz-ziraat-portfoy-agresif-degisken-fon"}},
 }
 
 DISCLAIMER: Final = "Yatırım tavsiyesi değildir. Dağılımlar bilgi ve demo amaçlıdır; kurumlarla bir bağlantımız yoktur."

@@ -22,9 +22,9 @@ export const day = (seconds: number) => new Date(seconds * 1000).toLocaleDateStr
 export const LEVEL: Record<Level, string> = { LOW: "Düşük", MEDIUM: "Orta", HIGH: "Yüksek" };
 export const SEGMENT: Record<Level, string> = { LOW: "DÜŞÜK · 0–40", MEDIUM: "ORTA · 41–70", HIGH: "YÜKSEK · 71–100" };
 export const RISK_TEXT: Record<Level, string> = {
-  LOW: "Riskli varlıklar en çok %20. Daha az dalgalanma.",
-  MEDIUM: "Riskli varlıklar en çok %50. Dengeli.",
-  HIGH: "Riskli varlıklar en çok %80. Dalgalanma yüksek.",
+  LOW: "Riskli varlıklar (Bitcoin, Nvidia, S&P 500, BIST 100) en çok %20. Daha az dalgalanma.",
+  MEDIUM: "Riskli varlıklar (Bitcoin, Nvidia, S&P 500, BIST 100) en çok %50. Dengeli.",
+  HIGH: "Riskli varlıklar (Bitcoin, Nvidia, S&P 500, BIST 100) en çok %80. Dalgalanma yüksek.",
 };
 
 export const OPTION: Record<Option, { number: string; title: string; text: string }> = {

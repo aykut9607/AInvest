@@ -26,6 +26,7 @@ SHARES = {"SCALP": 0.10, "SCALP_SWING": 0.04, "SWING": 0.015}          # stronge
 TARGET = 1.5                  # R: the smallest reward allowed
 SPLIT = 0.7
 MIN_EVIDENCE = 100
+NO_TRADE = 101.0              # a limit no score reaches
 
 
 def table_of(points: dict, asset: str) -> dict:
@@ -78,6 +79,8 @@ def main() -> None:
         real, fake = scored(a, 0, table), scored(a, 1, table)
         fit = real["fit"]
         limits = {k: round(float(np.quantile(real["score"][fit], 1 - s)), 1) for k, s in SHARES.items()}
+        if int((real["score"][fit] > 0).sum()) < MIN_CASES:          # too few scored triggers: a limit of 0 would let any two categories trade
+            limits = {k: NO_TRADE for k in SHARES}
         evidence = {}
         for k, limit in limits.items():
             up = min((v for v in limits.values() if v > limit), default=10**9)

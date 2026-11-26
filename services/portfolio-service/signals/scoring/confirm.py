@@ -3,11 +3,11 @@ r"""Every rule on every timeframe (15m ... 1M) of every asset, at the tops and b
   .\venv\Scripts\python.exe -m signals.scoring.confirm          -> data/reports/confirm_<asset>_<seed>.json
   .\venv\Scripts\python.exe -m signals.scoring.confirm rescore  only the outcomes again (WORKED or ROOM changed)
 
-Candidate: a pivot of the timeframe (5 bars before, 2 after; known two bars later). At each one: which rules were present ON THAT TIMEFRAME,
-using only what was known when the pivot was known. Then the 15m candles: how far did price go before the pivot was exceeded (by more than
-0.25 ATR)?
-  worked   at least 2 % inside 40 bars (1w: 26, 1M: 12; Aykut: "2 % is a confirmation"); the average move of those is reported
-  after    2 % again from the close at which the pivot was known
+Candidate (Aykut, 27 Nov): a bar that is the highest (lowest) of the 5 bars before it, at its own close; whether it stays a top is NOT
+known yet (no bars after it are used). At each one: which rules were present ON THAT TIMEFRAME, using only what was known at that close.
+Then Aykut's trade: entry = that close (the next bar's open), stop = gap to the top + SFP room (BTC 2 %, gold/S&P 0.5 %), at most 5 % /
+1.25 % (stop_percent). On the 15m candles:
+  worked   price moved half the stop distance FROM THE ENTRY (+50 % on the margin) before reaching the stop, inside 40 bars (1w: 26, 1M: 12)
 Rules are a tree: category -> rule -> variation ("Elliott|ABC|yassı (genişleyen)"). Elliott corrections count only after a finished 12345.
 """
 
@@ -35,23 +35,15 @@ from signals.structure.sfp import find_open_sfps
 from signals.structure.zigzag import SwingPoint, zigzag
 
 ASSETS = ("BTCUSDT", "XAU", "SPX")
-LEFT, RIGHT = 5, 2
-ROOM = 0.0             # x ATR: Aykut, 26 Nov: the top may not be taken at all ("2. mumdaki tepeyi almaması")
-# "Worked" (Aykut, 26 Nov): from the top, at least this many % before the top is taken, within the window below. LTF (15m-2h): BTC 2 %, gold and
-# the S&P 1.5 %. HTF (4h and up): 4 % (BTC) and 3 % (gold, S&P) on 4h, and on the higher frames the move a top reaches as often as a 4h top
-# reaches that (first 70 % of the data, measured on 26 Nov): with a flat 4 % almost every daily BTC top "worked" (96 %), so no rule stood out.
-LTF_FRAMES = ("15m", "30m", "45m", "1h", "2h")
-NEED_LTF = {"BTCUSDT": 2.0, "XAU": 1.5, "SPX": 1.5}
-NEED_HTF = {"BTCUSDT": {"4h": 4.0, "6h": 5.0, "12h": 7.0, "1d": 10.0, "3d": 20.0, "1w": 27.0, "1M": 60.0},
-            "XAU": {"4h": 3.0, "6h": 4.0, "12h": 5.0, "1d": 8.0, "3d": 15.0, "1w": 18.0, "1M": 30.0},
-            "SPX": {"4h": 3.0, "6h": 4.0, "12h": 5.5, "1d": 8.0, "3d": 14.0, "1w": 18.0, "1M": 40.0}}
-
-
-def need(asset: str, f: str) -> float:
-    return NEED_LTF[asset] if f in LTF_FRAMES else NEED_HTF[asset][f]
-
-
-WORKED = {a: {f: need(a, f) for f in TIMEFRAMES} for a in ASSETS}
+LEFT = 5               # a candidate is the highest (lowest) of the LEFT bars before it, known at its own close
+# The trade (Aykut, 27 Nov), the same on every timeframe: short at the close of the candidate bar (= the open of the next one), stop above the
+# top with room for a sweep (SFP): stop distance = (top - entry) + ROOM_PERCENT, at most MAX_STOP_PERCENT (% of the entry). Leverage = 100 / stop % (5 % -> 20x,
+# 4 % -> 25x, 3 % -> 33x). At +50 % on the margin (price moved half the stop distance) half is closed and the stop goes to the entry: that is
+# "worked", whatever comes after. Gold and the S&P move about a quarter as much as BTC: their room and cap are a quarter (Aykut).
+ROOM_PERCENT = {"BTCUSDT": 2.0, "XAU": 0.5, "SPX": 0.5}
+MAX_STOP_PERCENT = {"BTCUSDT": 5.0, "XAU": 1.25, "SPX": 1.25}
+TAKE_AT = 0.5            # of the stop distance: +50 % on the margin
+WORKED = {a: {"room": ROOM_PERCENT[a], "maxStop": MAX_STOP_PERCENT[a], "takeAt": TAKE_AT} for a in ASSETS}
 WINDOWS = {"1w": 26, "1M": 12}          # bars the move may take (40 on the other frames): later moves are not this top's doing
 
 
@@ -59,11 +51,18 @@ def bars_of(f: str) -> int:
     return WINDOWS.get(f, 40)
 
 
-def outcome(path, begin: float, known: float, window: float, price: float, entry: float, side: int, room: float, worked: float) -> tuple:
-    """(move %, worked, worked after the pivot was known, that move %)."""
-    move = 100 * path.reaction(begin, begin + window, price, side, room) / price
-    later = 100 * (path.reaction(known, known + window, price, side, room) - abs(price - entry)) / entry
-    return round(move, 3), bool(move >= worked), bool(later >= worked), round(max(0.0, later), 3)
+def stop_percent(asset: str, entry: float, extreme: float) -> float:
+    """% from the entry: the gap to the top (bottom) plus the SFP room, at most MAX_STOP (then the room is smaller; Aykut: the stop stays at 5 %)."""
+    gap = 100 * abs(extreme - entry) / entry
+    return min(gap + ROOM_PERCENT[asset], MAX_STOP_PERCENT[asset])
+
+
+def outcome(path, begin: float, window: float, entry: float, stop: float, side: int, worked: float) -> tuple:
+    """(largest move % from the entry before the stop is hit, worked, worked (kept for the old column), stop distance %). Worked = it moved at
+    least `worked` % from the entry, within the window, before price reached the stop. Inside a 15m candle the stop counts first."""
+    risk = abs(stop - entry)
+    move = max(0.0, 100 * (path.reaction(begin, begin + window, stop, side, 0.0) - risk) / entry)
+    return round(move, 3), bool(move >= worked), bool(move >= worked), round(100 * risk / entry, 3)
 
 
 DEGREES = (1.5, 2.0, 3.0, 4.0)
@@ -433,16 +432,17 @@ def job(asset: str, f: str, seed: int) -> list:
         r = derivatives.load("funding")
         funding = ([ts(a) for a, _ in r], [v for _, v in r])
     window = bars_of(f) * fr.span
-    for ps, side in ((pivot_highs([c.high for c in x.candles], LEFT, RIGHT), -1), (pivot_lows([c.low for c in x.candles], LEFT, RIGHT), 1)):
+    for ps, side in ((pivot_highs([c.high for c in x.candles], LEFT, 0), -1), (pivot_lows([c.low for c in x.candles], LEFT, 0), 1)):
         for p in ps:
-            j, conf = p.index, p.confirmed_at
+            j = conf = p.index          # Aykut, 27 Nov: known at the close of the bar itself; whether it stays a top is not known yet
             atr = b.atr[j - 1] if j else np.nan
-            if np.isnan(atr) or j < (24 if f == "1M" else 70) or conf >= len(x.candles):
+            if np.isnan(atr) or j < (24 if f == "1M" else 70) or j + 1 >= len(x.candles):
                 continue
-            begin, known = fr.t[j] + fr.span, fr.t[conf] + fr.span
+            begin, entry = fr.t[j] + fr.span, float(b.close[j])
             if begin + window > path.t[-1]:
                 continue
-            got = outcome(path, begin, known, window, p.value, b.close[conf], side, ROOM * atr, need(asset, f))
+            d = stop_percent(asset, entry, p.value)
+            got = outcome(path, begin, window, entry, entry * (1 - side * d / 100), side, TAKE_AT * d)
             tags = fr.at(j, conf, p.value, side)
             i = bisect_right(funding[0], fr.t[j]) - 1
             if i >= 0 and fr.t[j] - funding[0][i] < 9 * 3600 and -side * funding[1][i] >= 0.0005:
@@ -452,7 +452,7 @@ def job(asset: str, f: str, seed: int) -> list:
 
 
 def rescore(asset: str, seed: int) -> dict:
-    """The stored candidates (their confirmations do not change) with a new outcome: for a changed WORKED or ROOM."""
+    """The stored candidates (their confirmations do not change) with a new outcome: for a changed trade rule."""
     if seed == 0:
         cache = load_full(asset)
     else:
@@ -464,11 +464,10 @@ def rescore(asset: str, seed: int) -> dict:
         x, span, new = Context(asset, f, cache), SPAN[f].total_seconds(), []
         b, at = x.bars, {ts(c): i for i, c in enumerate(x.times)}
         for r in rows:
-            j = at[r[0]]
-            conf, side = j + RIGHT, r[1]
-            price = float(b.high[j] if side == -1 else b.low[j])
-            got = outcome(path, r[0] + span, ts(x.times[conf]) + span, bars_of(f) * span, price, float(b.close[conf]), side, ROOM * b.atr[j - 1], need(asset, f))
-            r[6] = [g for g in r[6] if not g.endswith("|gösterge etiketi")]          # needed bars after the candidate was known (25 Nov)
+            j, side = at[r[0]], r[1]
+            begin, entry = r[0] + span, float(b.close[j])
+            d = stop_percent(asset, entry, float(b.high[j] if side == -1 else b.low[j]))
+            got = outcome(path, begin, bars_of(f) * span, entry, entry * (1 - side * d / 100), side, TAKE_AT * d)
             new.append([r[0], side, *(v.item() if hasattr(v, 'item') else v for v in got), r[6], r[7]])
         old[f] = new
     (OUT / f"confirm_{asset}_{seed}.json").write_text(json.dumps(old, ensure_ascii=False), encoding="utf-8")

@@ -25,10 +25,27 @@ class Preferences(Camel):
     excluded_assets: list[AssetName] = Field(default_factory=list, max_length=10)
 
 
+class InvestableBasis(Camel):
+    """Where the amounts come from (optional): surplus = income - expenses - installment; emergency fund = reserve_months x expenses;
+    free cash = cash above that fund; reserve = cash + half of the investments (the IQ counts it the same way)."""
+    monthly_income: float
+    monthly_expenses: float
+    monthly_debt_payment: float
+    monthly_surplus: float
+    cash_reserve: float
+    investment_amount: float
+    reserve: float
+    emergency_fund: float
+    free_cash: float
+    reserve_months: int
+
+
 class InvestableOut(Camel):
     share_percent: float
     monthly_amount: float
     one_time_amount: float
+    basis: InvestableBasis | None = None          # optional, 27 Nov
+    reasons: list[str] = []                       # RESERVE_FIRST, NO_MONTHLY_SURPLUS, DEBT_FIRST
 
 
 class Source(Camel):

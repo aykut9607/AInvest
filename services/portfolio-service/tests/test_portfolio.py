@@ -205,7 +205,12 @@ def choose(client, **body):
 def test_options(client, services):
     d = client.get(f"{URL}/options", headers=ME).json()["data"]
     assert d["maxRisk"] == "HIGH" and d["unavailableOptions"] == ["AINVEST"]
-    assert d["investable"] == {"sharePercent": 58, "monthlyAmount": 5800, "oneTimeAmount": 3480}
+    i = d["investable"]
+    assert {k: i[k] for k in ("sharePercent", "monthlyAmount", "oneTimeAmount")} == {"sharePercent": 58, "monthlyAmount": 5800, "oneTimeAmount": 3480}
+    # the screen shows where they come from: 58 % of the monthly surplus and of the cash above the 3-month fund
+    s = i["basis"]
+    assert s["monthlySurplus"] * 0.58 == pytest.approx(5800) and s["freeCash"] * 0.58 == pytest.approx(3480)
+    assert s["emergencyFund"] == 3 * s["monthlyExpenses"] and s["freeCash"] == s["cashReserve"] - s["emergencyFund"]
 
 
 def test_only_the_owner_and_only_through_the_gateway(client, services):

@@ -182,8 +182,7 @@ def tree(a: str, all_: dict) -> str:
             body += row(r, "— " + r.split("|")[1], "rule")
             for v in sorted(k for k in ks if k.startswith(r + "|")):
                 body += row(v, "— — " + v.split("|")[2], "var")
-    need = "".join(f"<td>%{fmt(WORKED[a][f])}</td>" for f in TIMEFRAMES)
-    return f'<div class="scroll"><table class="bt left tree"><tr><th>Kural</th>{head}</tr><tr><td><i>çalıştı sayılan hareket</i></td>{need}</tr>{body}</table></div>'
+    return f'<div class="scroll"><table class="bt left tree"><tr><th>Kural</th>{head}</tr>{body}</table></div>'
 
 
 BUCKETS = ((0, 0.01), (0.01, 5), (5, 10), (10, 15), (15, 20), (20, 30), (30, 40), (40, 999))
@@ -218,11 +217,13 @@ def main() -> None:
     all_ = analyse()
     sc = {p: scores(all_, p) for p in ("fit_rows", "exam_rows", "fake_rows")}
     from signals.scoring.report import CSS as REPORT_CSS
-    lead = ("Her satır bir kural, her sütun bir zaman dilimi. Aday = o dilimde oluşan tepe ya da dip (önünde 5, arkasında 2 mum). <b>Çalıştı</b> = fiyat tepeyi hiç geçmeden, "
-            "tepeden en az şu kadar döndü (o dilimin 40 mumu içinde; 1w 26, 1M 12): <b>LTF (15m–2h)</b> BTC %2, altın ve S&P %1,5; <b>HTF</b> 4h'de BTC %4, altın ve S&P %3, "
-            "üst dilimlerde bir tepenin 4h'deki kadar sık ulaştığı hareket (tablonun ilk satırı). "
+    lead = ("Her satır bir kural, her sütun bir zaman dilimi. Aday = o dilimde önceki 5 mumun en yükseği (en düşüğü) olan mum, <b>kendi kapanışında</b>; "
+            "tepe olarak kalıp kalmayacağı bilinmiyor, sonraki mumlar kullanılmıyor. Onaylar da yalnız o kapanışa kadar bilinenle. "
+            "<b>İşlem (Aykut, 27 Kas):</b> giriş = o mumun kapanışı (sonraki mumun açılışı); stop = girişten tepeye olan fark + SFP payı (BTC %2, altın ve S&P %0,5), "
+            "en çok %5 (altın, S&P %1,25); kaldıraç = 100 / stop. <b>Çalıştı</b> = fiyat stopa değmeden girişten stop mesafesinin yarısı kadar gitti "
+            "(teminat +%50, yarısı kapanır, stop girişe); o dilimin 40 mumu içinde (1w 26, 1M 12); bütün dilimlerde aynı. "
             "Hücrede: çalışma oranı ve kaç kezde kaç kez; altında <b>kalite</b> = Wilson %80 güven alt sınırı ile oranın 0,8 katının büyüğü (en az 5 kez ve %51, yoksa 0), çalışanların ortalama hareketi ve puanı. "
-            "Puan yalnız kuralın kendi oranından: 100'ün 70'i HTF'ye, 30'u LTF'ye, kalitelerle orantılı; her kategorinin iki taraftaki en iyi kuralı aynı anda olsa 100 eder. "
+            "Puan yalnız kuralın kendi oranından: 100'ün 70'i HTF'ye (4h+), 30'u LTF'ye, kalitelerle orantılı. "
             "Yeşil: puan aldı. Soluk: 5'ten az örnek. Ölçüm verinin ilk %70'inde; hücrenin üstüne gelince son %30 da görünür.")
     blocks = "".join(f'<h2 id="{a}">{NAME[a]}</h2>{tree(a, all_)}<h3>{NAME[a]}: toplam puan ne kadar yüksekse o kadar mı iyi?</h3>'
                      f"<p>Toplam puan = o tepedeki bütün onayların puanları (aynı tepedeki alt dilim onayları dahil; Elliott ve harmonik birer onay sayılır).</p>{score_tables(a, sc)}" for a in ASSETS)

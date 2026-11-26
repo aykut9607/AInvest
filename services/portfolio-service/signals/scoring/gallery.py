@@ -18,7 +18,7 @@ import numpy as np
 from signals.data.candles import TIMEFRAMES
 from signals.data.download import SERVICE_DIR
 from signals.rules import pa_detect
-from signals.scoring.confirm import ASSETS, BANDS, DEGREES, bars_of, ROOM, need, Frame, elliott, five_waves, harmonics, shared_levels
+from signals.scoring.confirm import ASSETS, BANDS, DEGREES, TAKE_AT, bars_of, stop_percent, Frame, elliott, five_waves, harmonics, shared_levels
 from signals.scoring.confirm_report import NAME, ORDER, load, pct
 from signals.scoring.run import OUT
 from signals.scoring.turns import load_full
@@ -226,25 +226,25 @@ def draw(fr: Frame, e: Evidence, j: int, price: float, side: int, thr: float, wo
 
 def chart(fr: Frame, tag: str, row: list, j: int, conf: int) -> str:
     t, side, move, worked, after, _, _, _ = row
-    thr_pct = need(fr.asset, fr.f)
     b = fr.x.bars
-    price = float(b.high[j] if side == -1 else b.low[j])
-    thr = thr_pct / 100 * price
+    price, entry = float(b.high[j] if side == -1 else b.low[j]), float(b.close[j])
+    d = stop_percent(fr.asset, entry, price)          # Aykut's trade: the stop above the top with room for a sweep
+    thr_pct, stop = TAKE_AT * d, entry * (1 - side * d / 100)
+    thr = thr_pct / 100 * entry
     e = evidence(fr, tag, j, conf, price, side)
     end = min(len(b.close) - 1, j + bars_of(fr.f))
-    room = ROOM * b.atr[j - 1]
-    over = np.nonzero(b.high[j + 1:end + 1] > price + room)[0] if side == -1 else np.nonzero(b.low[j + 1:end + 1] < price - room)[0]
-    reach = np.nonzero(b.low[j + 1:end + 1] <= price - thr)[0] if side == -1 else np.nonzero(b.high[j + 1:end + 1] >= price + thr)[0]
+    over = np.nonzero(b.high[j + 1:end + 1] >= stop)[0] if side == -1 else np.nonzero(b.low[j + 1:end + 1] <= stop)[0]
+    reach = np.nonzero(b.low[j + 1:end + 1] <= entry - thr)[0] if side == -1 else np.nonzero(b.high[j + 1:end + 1] >= entry + thr)[0]
     hit = j + 1 + int((reach if worked else over)[0]) if len(reach if worked else over) else None
     e.until = hit
     top, moved = ("tepe", "düştü") if side == -1 else ("dip", "yükseldi")
     if worked:
-        why = f"Başarılı: {top} geçilmeden %{move:.1f} {moved} (gereken %{thr_pct:.1f})" + (f", {hit - j} mumda hedef" if hit else "")
+        why = f"Başarılı: stop (%{d:.1f}) görülmeden girişten %{move:.1f} {moved} (yarı kâr için gereken %{thr_pct:.1f})" + (f", {hit - j} mumda hedef" if hit else "")
     elif len(over):
-        why = f"Başarısız: en çok %{move:.1f} {moved} (gereken %{thr_pct:.1f}), {over[0] + 1} mum sonra {top} açıkça geçildi; piyasa kurala saygı duymadı"
+        why = f"Başarısız: en çok %{move:.1f} {moved} (gereken %{thr_pct:.1f}), {over[0] + 1} mum sonra stop (%{d:.1f}) geldi"
     else:
-        why = f"Başarısız: {top} geçilmedi ama hareket yetmedi: %{move:.1f} (gereken %{thr_pct:.1f})"
-    return (f'<figure class="{"win" if worked else "loss"}">{draw(fr, e, j, price, side, thr, worked, hit)}<figcaption><b>{fr.x.times[j]:%d.%m.%Y %H:%M}</b> UTC · {top} {fmt(price)}<br>{html.escape(e.words)}'
+        why = f"Başarısız: stop gelmedi ama hareket yetmedi: %{move:.1f} (gereken %{thr_pct:.1f})"
+    return (f'<figure class="{"win" if worked else "loss"}">{draw(fr, e, j, entry, side, thr, worked, hit)}<figcaption><b>{fr.x.times[j]:%d.%m.%Y %H:%M}</b> UTC · {top} {fmt(price)}<br>{html.escape(e.words)}'
             f'<br><span class="{"ok" if worked else "no"}">{html.escape(why)}</span></figcaption></figure>')
 
 
@@ -268,7 +268,7 @@ def job(asset: str, f: str) -> dict:
         for worked, r in by.items():
             j = at[r[0]]
             try:
-                out[tag]["1" if worked else "0"] = chart(fr, tag, r, j, j + 2)
+                out[tag]["1" if worked else "0"] = chart(fr, tag, r, j, j)
             except Exception as error:
                 out[tag]["1" if worked else "0"] = f'<p class="no">Çizilemedi: {type(error).__name__} {html.escape(str(error))}</p>'
     return out

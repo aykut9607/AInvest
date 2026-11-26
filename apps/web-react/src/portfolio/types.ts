@@ -8,10 +8,25 @@ export interface Source {
   url: string;
 }
 
+export interface InvestableBasis {
+  monthlyIncome: number;
+  monthlyExpenses: number;
+  monthlyDebtPayment: number;
+  monthlySurplus: number;
+  cashReserve: number;
+  investmentAmount: number;
+  reserve: number;
+  emergencyFund: number;
+  freeCash: number;
+  reserveMonths: number;
+}
+
 export interface Investable {
   sharePercent: number;
   monthlyAmount: number;
   oneTimeAmount: number;
+  basis?: InvestableBasis | null;
+  reasons?: string[];
 }
 
 export interface PortfolioOptions {

@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { ApiError, type PortfolioApi } from "./api";
 import { Distribution } from "./charts";
 import { LEVEL, OPTION, RISK_TEXT, SEGMENT, date, month, percent, problem, reason, tl } from "./text";
-import type { Explanation, Level, Option, PortfolioOptions, Preferences, Proposal, Style } from "./types";
+import type { Explanation, Investable, Level, Option, PortfolioOptions, Preferences, Proposal, Style } from "./types";
 import { Banner, Button, Card, Chips, Choice, Empty, Loading, Pill, Tile } from "./ui";
 import { useLoad } from "./useLoad";
 
@@ -22,6 +22,37 @@ async function orNull<T>(request: Promise<T>): Promise<T | null> {
     if (error instanceof ApiError && error.status === 404) return null;
     throw error;
   }
+}
+
+// where the share and the two amounts come from, step by step (the numbers are the service's, nothing is computed here but the display)
+function HowInvestable({ iq, i }: { iq: number; i: Investable }) {
+  const b = i.basis;
+  if (!b) return null;
+  const share = i.sharePercent;
+  const reserveFirst = i.reasons?.includes("RESERVE_FIRST");
+  return (
+    <details className="pf-how">
+      <summary>Bu rakamlar nereden geliyor?</summary>
+      <ol>
+        <li>
+          <b>Yatırılabilir pay</b> = Finansal IQ − 30 = {iq} − 30, en az %0 en çok %70 → <b>{percent(share)}</b>
+          {reserveFirst && " (acil durum fonun eksik olduğu için önce onu tamamlaman gerekiyor; pay 0)"}.
+        </li>
+        <li>
+          <b>Aylık artı</b> = gelir − gider − taksit = {tl(b.monthlyIncome)} − {tl(b.monthlyExpenses)} − {tl(b.monthlyDebtPayment)} = {tl(b.monthlySurplus)}.
+          Bunun {percent(share)}'si → <b>her ay {tl(i.monthlyAmount)}</b>.
+        </li>
+        <li>
+          <b>Acil durum fonu</b> = {b.reserveMonths} × aylık gider = {tl(b.emergencyFund)}. Nakdin {tl(b.cashReserve)}; fonun üstünde kalan {tl(b.freeCash)}.
+          Bunun {percent(share)}'si → <b>tek seferlik {tl(i.oneTimeAmount)}</b>.
+        </li>
+        <li>
+          Kalan kısım (aylık artının ve fazla nakdin %{100 - share}'si, acil durum fonu ve mevcut yatırımların) sende kalır; bu öneriye girmez.
+          Acil fon kontrolünde nakit + yatırımların yarısı sayılır: {tl(b.reserve)}.
+        </li>
+      </ol>
+    </details>
+  );
 }
 
 export default function PortfolioPage({ api, marketOpen, onChosen, onOpenMarket, onOpenProfile }: { api: PortfolioApi; marketOpen: boolean; onChosen: () => void; onOpenMarket: () => void; onOpenProfile: () => void }) {
@@ -116,6 +147,7 @@ function Chooser({ api, base, loaded, marketOpen, onChosen, onOpenMarket }: { ap
         <p>
           Risk tavanın <strong>{LEVEL[options.maxRisk].toLowerCase()}</strong>. Yatırılabilir payın <strong>{percent(options.investable.sharePercent)}</strong>: her ay {tl(options.investable.monthlyAmount)}, tek seferlik {tl(options.investable.oneTimeAmount)}.
         </p>
+        <HowInvestable iq={options.iqScore} i={options.investable} />
       </div>
 
       {warnings.length > 0 && (
@@ -187,7 +219,7 @@ function Chooser({ api, base, loaded, marketOpen, onChosen, onOpenMarket }: { ap
       )}
 
       {option === "CUSTOM" && (
-        <Card title="3. Odaklanacağın varlıkları seç" note="Seçtiklerin sepetin %60'ını eşit paylaşır; riskli varlıkların toplamı risk seviyenin sınırını geçemez.">
+        <Card title="3. Odaklanacağın varlıkları seç" note="Seçtiklerin sepetin %60'ını eşit paylaşır; riskli varlıkların (Bitcoin, Nvidia, S&P 500, BIST 100) toplamı risk seviyenin sınırını geçemez, sınıra eşit olabilir. Güvenli varlıklar: TL mevduat, altın, euro.">
           <Chips label="Odak varlıklar" items={options.assetInfo} value={focus} disabled={excluded} onToggle={toggle(focus, setFocus)} />
         </Card>
       )}

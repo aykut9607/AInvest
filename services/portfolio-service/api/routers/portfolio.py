@@ -12,7 +12,7 @@ from api.deps import current_user_id
 from db.models import PortfolioPreference, PortfolioProposal
 from db.session import get_session
 from schemas.envelope import Envelope
-from schemas.portfolio import AllocationOut, BasedOn, InvestableOut, NamedCode, Options, Preferences, Proposal, RiskOut, Source, StyleInfo
+from schemas.portfolio import AllocationOut, BasedOn, InvestableBasis, InvestableOut, NamedCode, Options, Preferences, Proposal, RiskOut, Source, StyleInfo
 from services import allocation
 from services.baskets import ASSET_LABELS, ASSETS, DISCLAIMER, INSTITUTION_LABELS, INSTITUTION_SOURCES, INSTITUTIONS
 
@@ -53,8 +53,9 @@ def based_on(iq: IqResult) -> BasedOn:
     return BasedOn(iq_score=iq.score, segment=iq.segment, applied_rule=iq.applied_rule, iq_calculated_at=iq.calculated_at, scoring_version=iq.scoring_version, result_version=iq.result_version)
 
 
-def money(i: allocation.Investable) -> InvestableOut:
-    return InvestableOut(share_percent=i.share_percent, monthly_amount=i.monthly_amount, one_time_amount=i.one_time_amount)
+def money(i: allocation.Investable, profile: allocation.Profile | None = None) -> InvestableOut:
+    return InvestableOut(share_percent=i.share_percent, monthly_amount=i.monthly_amount, one_time_amount=i.one_time_amount,
+                         basis=InvestableBasis(**allocation.basis(profile)) if profile else None, reasons=list(i.reasons))
 
 
 @router.get("/options", response_model=Envelope[Options])
@@ -65,9 +66,9 @@ def options(user_id: Owner, upstream: Data):
         return failure(error)
     i = allocation.investable(iq.score, iq.applied_rule, profile, iq.adjustment)
     ceiling, why = allocation.risk_ceiling(iq.segment, iq.applied_rule, profile, iq.adjustment)
-    return Envelope[Options].ok(Options(iq_score=iq.score, segment=iq.segment, max_risk=ceiling, investable=money(i), options=OPTIONS, unavailable_options=NOT_READY,
+    return Envelope[Options].ok(Options(iq_score=iq.score, segment=iq.segment, max_risk=ceiling, investable=money(i, profile), options=OPTIONS, unavailable_options=NOT_READY,
                                         institution_styles=list(INSTITUTIONS),
-                                        institution_style_info=[StyleInfo(code=c, label=INSTITUTION_LABELS[c][0], description=INSTITUTION_LABELS[c][1], source=Source(**INSTITUTION_SOURCES[c])) for c in INSTITUTIONS],
+                                        institution_style_info=[StyleInfo(code=c, label=INSTITUTION_LABELS[c][0], description=INSTITUTION_LABELS[c][1], source=Source(**{k: v for k, v in INSTITUTION_SOURCES[c].items() if k != "urls"})) for c in INSTITUTIONS],
                                         assets=list(ASSETS), asset_info=[NamedCode(code=a, label=ASSET_LABELS[a]) for a in ASSETS], reasons=[*i.reasons, *why]), "Options loaded.")
 
 
