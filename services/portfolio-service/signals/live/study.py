@@ -78,7 +78,8 @@ def job(asset: str, seed: int) -> str:
 
 def main() -> None:
     sys.stdout.reconfigure(encoding="utf-8")
-    jobs = [(a, s) for a in ([x for x in sys.argv[1:] if x in ASSETS] or ASSETS) for s in (0, 1)]
+    seeds = (0,) if "real" in sys.argv else (0, 1)          # "real": real prices only, no shuffled control
+    jobs = [(a, s) for a in ([x for x in sys.argv[1:] if x in ASSETS] or ASSETS) for s in seeds]
     with ProcessPoolExecutor(max_workers=3) as pool:
         for line in pool.map(job, *zip(*jobs)):
             print(line, flush=True)

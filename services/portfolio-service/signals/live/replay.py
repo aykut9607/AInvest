@@ -202,7 +202,11 @@ def main() -> None:
         return year()
     chosen = [x for x in sys.argv[1:] if x in ASSETS] or list(ASSETS)
     summary = json.loads(SUMMARY.read_text(encoding="utf-8")) if SUMMARY.exists() else {}
-    jobs = [(a, s) for a in chosen for s in (0, 1)]
+    seeds = (0,) if "real" in sys.argv else (0, 1)          # "real": real prices only; an older shuffled result is dropped, not kept
+    jobs = [(a, s) for a in chosen for s in seeds]
+    if seeds == (0,):
+        for a in chosen:
+            summary.get(a, {}).pop("shuffled", None)
     with ProcessPoolExecutor(max_workers=3) as pool:
         for asset, seed, out in pool.map(job, *zip(*jobs)):
             summary.setdefault(asset, {})["real" if seed == 0 else "shuffled"] = out

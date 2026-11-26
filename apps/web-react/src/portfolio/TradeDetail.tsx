@@ -78,6 +78,10 @@ export function TradeDrawer({ api, path, onClose }: { api: PortfolioApi; path: s
             <p className="pf-note">
               Giriş {price(t.entry)} · stop {price(t.stop)} ({percent(t.stopPercent, 2)}) · dolu noktalar gerçekleşti
             </p>
+            <p className="pf-note">
+              Stop = girişten tepeye (dipte dibe) olan fark + SFP payı (BTC %2, altın ve S&P %0,5), en çok %5 (altın ve S&P %1,25). Kaldıraç = 100 / stop
+              (%5 → 20x, %4 → 25x, %3 → 33x; swing en çok 10x): stopta teminat biter, kayıp hesabın %1'i. Teminat +%50 olunca yarısı kapanır, stop girişe çekilir.
+            </p>
             <div className="pf-scroll">
               <table className="pf-table">
                 <thead>

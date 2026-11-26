@@ -479,7 +479,8 @@ def main() -> None:
         return
     assets = [a for a in sys.argv[1:] if a in ASSETS] or list(ASSETS)
     frames = [f for f in sys.argv[1:] if f in TIMEFRAMES] or TIMEFRAMES
-    jobs = [(a, f, s) for a in assets for s in (0, 1) for f in frames]
+    seeds = (0,) if "real" in sys.argv else (0, 1)          # "real": real prices only (Aykut, 27 Nov: the shuffled control is not needed)
+    jobs = [(a, f, s) for a in assets for s in seeds for f in frames]
     out: dict = {}
     with ProcessPoolExecutor(max_workers=4) as pool:
         for (a, f, s), rows in zip(jobs, pool.map(job, *zip(*jobs))):
