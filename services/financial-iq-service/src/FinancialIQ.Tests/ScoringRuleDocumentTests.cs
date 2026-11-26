@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using FinancialIQ.Api.Application.Concrete;
 using FinancialIQ.Api.Application.Constants;
@@ -5,7 +7,7 @@ using FinancialIQ.Api.Application.Constants;
 namespace FinancialIQ.Tests;
 
 // scoring_rule_versions holds a frozen copy of every version's rules (ScoringRuleSnapshots). These tests make sure
-// that copy is the truth: if a threshold, point value or rule in ScoringRules changes, the document built from the
+// that copy is the truth: if an anchor, maximum, constant or rule in ScoringRules changes, the document built from the
 // code no longer equals the stored snapshot of ScoringVersion, and the fix is a NEW version, not an edited snapshot
 public class ScoringRuleDocumentTests
 {
@@ -21,8 +23,30 @@ public class ScoringRuleDocumentTests
     }
 
     [Fact]
+    public void TheCurrentVersion_IsV3()
+    {
+        Assert.Equal("v3", ScoringRules.ScoringVersion);
+        // the migration AddScoringRulesV3 inserts exactly this text
+        Assert.Equal(ScoringRuleSnapshots.V3, ScoringRuleDocument.CurrentJson());
+    }
+
+    // SHA-256 of each published snapshot. Results in the database point at these rule sets, so they must never
+    // change (v1 and v2 are byte for byte what AddScoringRuleVersions stored). A new rule set is a new version
+    [Theory]
+    [InlineData("v1", "5C696A7EA382A442D651326DCAC0383DE5D8BE33AF6B2766D64FE55AD0666E55")]
+    [InlineData("v2", "08DFC12F0911F5542EB30BC08BCE94A7753A31AA363B7CC85426D46BE58934D2")]
+    [InlineData("v3", "B819EA86A391126559D0D9836573179079DAB7D0968A94B850FF67F4F7130B35")]
+    public void PublishedSnapshots_AreNeverEdited(string version, string sha256)
+    {
+        var json = ScoringRuleSnapshots.ForVersion(version)!;
+
+        Assert.Equal(sha256, Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(json))));
+    }
+
+    [Fact]
     public void EverySnapshot_IsValidJson_AndNamesItsOwnVersion()
     {
+        Assert.Equal(["v1", "v2", "v3"], ScoringRuleSnapshots.All.Keys);
         foreach (var (version, json) in ScoringRuleSnapshots.All)
         {
             var root = JsonDocument.Parse(json).RootElement;
@@ -39,24 +63,23 @@ public class ScoringRuleDocumentTests
         Assert.Equal(FinancialIqCommandManager.FactorMaximums.Values.Sum(), total);
     }
 
-    [Theory]
-    [InlineData(6, 25)]
-    [InlineData(5.99, 15)]
-    [InlineData(3, 15)]
-    [InlineData(1, 8)]
-    [InlineData(0.99, 0)]
-    public void AtLeastScale_GivesThePointsOfTheFirstThresholdReached(double months, int expected)
+    [Fact]
+    public void TheDocument_DescribesTheV3Mechanisms()
     {
-        Assert.Equal(expected, ScoringRules.CashReserveMonths.Points((decimal)months));
-    }
+        var rules = ScoringRuleDocument.Current();
 
-    [Theory]
-    [InlineData(0.10, 25)]
-    [InlineData(0.1001, 15)]
-    [InlineData(0.36, 8)]
-    [InlineData(0.37, 0)]
-    public void AtMostScale_GivesThePointsOfTheFirstThresholdNotExceeded(double ratio, int expected)
-    {
-        Assert.Equal(expected, ScoringRules.InstallmentToIncome.Points((decimal)ratio));
+        Assert.Equal(["CashReserveMonths", "InstallmentToIncome", "NetDebtToIncome", "SavingsRate", "Impatience"], rules.Factors.Select(f => f.Name));
+        // every factor and both modifiers are scored on a measure the document defines
+        var measures = rules.Measures.Select(m => m.Name).ToHashSet();
+        Assert.All(rules.Factors, f => Assert.Contains(f.Measure, measures));
+        Assert.Contains(rules.SolvencyCap.Measure, measures);
+        Assert.Contains(rules.WealthRunway.Measure, measures);
+        Assert.Equal(ScoringRules.SolvencyCapRule, rules.SolvencyCap.AppliedRule);
+        Assert.Equal(ScoringRules.WealthRunwayRule, rules.WealthRunway.AppliedRule);
+        // the numbers inside the texts are written with a dot whatever the machine's culture (0.035, not 0,035)
+        Assert.Contains("0.035 x netDebt", rules.Measures.Single(m => m.Name == "effectiveDebtPayment").Formula);
+        // no TL threshold is left: the v2 rules are gone
+        Assert.DoesNotContain("VERY_HIGH", ScoringRuleDocument.CurrentJson());
+        Assert.DoesNotContain("EXTREME_DEBT", ScoringRuleDocument.CurrentJson());
     }
 }

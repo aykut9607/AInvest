@@ -1,0 +1,433 @@
+/* Portfolio page (/portfoy). Values from tokens.css only; phone first. */
+
+/* ---- IQ strip ------------------------------------------------------------------------------------------------ */
+
+.iq-strip-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-6);
+}
+
+.iq-strip-score {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.iq-strip-label {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  font-weight: var(--weight-medium);
+}
+
+.iq-strip-value {
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-semibold);
+  line-height: 1;
+}
+
+.iq-strip-inner p {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+/* ---- step 1: option cards ------------------------------------------------------------------------------------ */
+
+.option-picker,
+.option-styles,
+.asset-checklist,
+.risk-picker {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.option-picker legend,
+.option-styles legend,
+.asset-checklist legend,
+.risk-picker legend {
+  padding: 0;
+  margin-bottom: var(--space-2);
+}
+
+.option-grid {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 640px) {
+  .option-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .option-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.option-card,
+.risk-option,
+.option-style {
+  position: relative;
+  display: flex;
+  cursor: pointer;
+}
+
+/* the input covers the whole card: one click target, native keyboard behaviour */
+.option-card input,
+.risk-option input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.option-card-body,
+.risk-option-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.option-card:hover .option-card-body,
+.risk-option:not(.is-locked):hover .risk-option-body {
+  border-color: var(--color-text-muted);
+}
+
+.option-card input:checked + .option-card-body,
+.risk-option input:checked + .risk-option-body {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  box-shadow: inset 0 0 0 1px var(--color-primary);
+}
+
+.option-card input:focus-visible + .option-card-body,
+.risk-option input:focus-visible + .risk-option-body {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.option-card-code {
+  align-self: flex-start;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-sunken);
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.option-card input:checked + .option-card-body .option-card-code {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.option-card-title,
+.risk-option-title {
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-snug);
+  color: var(--color-text);
+}
+
+.option-card-text,
+.risk-option-text {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.option-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+}
+
+.option-style-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.option-style {
+  align-items: flex-start;
+  gap: var(--space-3);
+  min-height: 44px;
+  padding: var(--space-2) 0;
+}
+
+.option-style input {
+  margin-top: 3px;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.option-style-title {
+  display: block;
+  font-weight: var(--weight-semibold);
+}
+
+.option-style-text {
+  display: block;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+/* asset chips (checkboxes) */
+.asset-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.asset-chip {
+  position: relative;
+  display: inline-flex;
+}
+
+.asset-chip input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.asset-chip span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 36px;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.asset-chip input:checked + span {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-ink);
+}
+
+.asset-chip input:checked + span::before {
+  content: "✓";
+  font-weight: var(--weight-bold);
+}
+
+.asset-chip input:focus-visible + span {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* ---- step 2: risk levels ------------------------------------------------------------------------------------- */
+
+.risk-options {
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 640px) {
+  .risk-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.risk-option-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.risk-option.is-locked {
+  cursor: not-allowed;
+}
+
+.risk-option.is-locked input {
+  cursor: not-allowed;
+}
+
+.risk-option.is-locked .risk-option-body {
+  background: var(--color-surface-sunken);
+  border-style: dashed;
+  border-color: var(--color-border-strong);
+}
+
+.risk-option.is-locked .risk-option-title,
+.risk-option.is-locked .risk-option-text {
+  color: var(--color-text-muted);
+}
+
+.risk-picker .field-hint {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+/* ---- proposal ---------------------------------------------------------------------------------------------- */
+
+.proposal-subtitle {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  margin-bottom: var(--space-3);
+}
+
+.proposal-block {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.proposal-block .text-xs {
+  margin-top: var(--space-3);
+}
+
+.proposal-note {
+  margin-top: var(--space-2);
+}
+
+.proposal-reasons {
+  margin: 0;
+  padding-left: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+}
+
+.proposal-reasons code {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  overflow-wrap: anywhere;
+}
+
+/* stat tiles: label + value (proportional figures, dataviz "stat tile") */
+.stat-row {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.stat-tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+  min-width: 0;
+}
+
+.stat-label {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.stat-value {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+  overflow-wrap: anywhere;
+}
+
+/* ---- allocation: tall segmented bar + table -------------------------------------------------------------- */
+
+.alloc {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.alloc-bar {
+  display: flex;
+  gap: 2px; /* the surface gap between touching blocks */
+  height: 28px;
+  width: 100%;
+}
+
+.alloc-part {
+  flex-basis: 0;
+  min-width: 2px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  cursor: default;
+  transition: filter var(--transition-fast);
+}
+
+.alloc-part.is-active {
+  filter: brightness(1.12);
+  box-shadow: 0 0 0 2px var(--chart-ring), 0 0 0 3px var(--color-text-secondary);
+}
+
+.alloc-part:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.alloc-readout {
+  min-height: 1.6em;
+  font-size: var(--text-sm);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: baseline;
+}
+
+.alloc-readout strong {
+  font-size: var(--text-base);
+  color: var(--color-text);
+}
+
+.alloc .table tbody th {
+  background: none;
+  color: var(--color-text);
+  font-weight: var(--weight-medium);
+}
+
+.alloc-asset {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.alloc-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.is-refreshing {
+  opacity: 0.55;
+  transition: opacity var(--transition-fast);
+}

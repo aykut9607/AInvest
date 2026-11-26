@@ -7,3 +7,7 @@ bin/
 obj/
 .vs/
 .vscode/
+# Playwright output
+test-results/
+playwright-report/
+blob-report/

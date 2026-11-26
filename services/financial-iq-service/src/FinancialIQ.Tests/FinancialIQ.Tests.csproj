@@ -22,4 +22,9 @@
     <ProjectReference Include="..\FinancialIQ.Api\FinancialIQ.Api.csproj" />
   </ItemGroup>
 
+  <!-- scoring v3 golden table (copied from evaluation/out/iq_v3_golden.json); embedded so the tests never read evaluation/ -->
+  <ItemGroup>
+    <EmbeddedResource Include="TestData\iq_v3_golden.v3c-i5.json" LogicalName="iq_v3_golden.v3c-i5.json" />
+  </ItemGroup>
+
 </Project>

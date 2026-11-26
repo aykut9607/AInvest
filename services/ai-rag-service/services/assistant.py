@@ -22,7 +22,7 @@ from pydantic import ValidationError
 
 from adapters.gateway import GatewayUnavailable, UserData
 from adapters.llm import JsonChatModel, LlmUnavailable, ToolChatModel, tool_calls
-from core.domain import DISCLAIMER
+from core.domain import DEFAULT_SCORING_VERSION, DISCLAIMER, scoring_version_of
 from core.injection import looks_like_injection
 from core.number_check import allowed_from
 from core.text import tr_lower
@@ -147,6 +147,18 @@ class Gathered:
     missing: list[str] = field(default_factory=list)
 
 
+def scoring_version(data: UserData) -> str:
+    """Scoring version of the user's latest IQ result, so the facts use the definitions behind the score the user
+    sees. Only a choice of definitions: when the IQ result cannot be read, v2 is used instead of failing the answer
+    (questions about the profile or the FAQ did not depend on the IQ service before)."""
+    try:
+        latest = data.latest_iq()
+    except GatewayUnavailable as error:
+        log.warning("latest IQ unavailable, using the v2 definitions: %s", error)
+        return DEFAULT_SCORING_VERSION
+    return scoring_version_of((latest or {}).get("factorBreakdown"))
+
+
 def gather(intent: str, data: UserData, question: str) -> Gathered:
     """Lines for one intent; raises GatewayUnavailable when the data cannot be read."""
     if intent in _PROFILE_INTENTS:
@@ -158,7 +170,7 @@ def gather(intent: str, data: UserData, question: str) -> Gathered:
             "PROFILE_SUMMARY": facts.summary_lines, "INCOME_EXPENSE": facts.income_expense_lines,
             "DEBT": facts.debt_lines, "INVESTMENT": facts.investment_lines,
             "CASH_RESERVE": facts.reserve_lines, "SAVINGS": facts.savings_lines,
-        }[intent](m)
+        }[intent](m, scoring_version(data))
         return Gathered(lines=lines)
 
     if intent == "IQ_SCORE":
@@ -178,7 +190,7 @@ def gather(intent: str, data: UserData, question: str) -> Gathered:
         return Gathered(lines=trend_lines(history))
 
     if intent == "WARNINGS":
-        alerts = alerts_for(data.profile(), data.history())
+        alerts = alerts_for(data.profile(), data.history(), data.latest_iq())
         return Gathered(lines=[f"Uyarı: {a.message}" for a in alerts] or ["Şu an bir uyarı yok"])
 
     if intent == "PORTFOLIO":
@@ -194,7 +206,7 @@ def gather(intent: str, data: UserData, question: str) -> Gathered:
         return Gathered(lines=lines)
 
     if intent == "FAQ":
-        entries = search(question)
+        entries = search(question, version=scoring_version(data))
         if not entries:
             return Gathered(missing=["Bu konuda kayıtlı bir bilgi yok"])
         return Gathered(lines=[line for e in entries for line in (f"Soru: {e.question}", f"Cevap: {e.answer}")])

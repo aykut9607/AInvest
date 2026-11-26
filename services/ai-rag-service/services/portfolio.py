@@ -12,7 +12,7 @@ from pydantic import ValidationError
 
 from adapters.gateway import UserData
 from adapters.llm import ChatModel
-from core.domain import DISCLAIMER, LEVEL_TR, SEGMENT_TR
+from core.domain import DISCLAIMER, LEVEL_TR, SEGMENT_TR, scoring_version_of
 from core.fmt import date_tr, num, parse_time, tl
 from core.number_check import allowed_from
 from schemas.portfolio import PortfolioExplanationResponse, PortfolioProposal
@@ -97,7 +97,9 @@ def _stale_since(p: PortfolioProposal, latest: dict | None) -> str | None:
     if not latest:
         return None
     newer = parse_time(latest["createdAt"]) > parse_time(p.based_on.iq_calculated_at)
-    if not newer and int(latest["score"]) == p.based_on.iq_score:
+    # a result rescored under other rules (v2 -> v3) may keep its createdAt and even its score
+    same_rules = scoring_version_of(latest.get("factorBreakdown")) == p.based_on.scoring_version
+    if not newer and int(latest["score"]) == p.based_on.iq_score and same_rules:
         return None
     return (f"Bu öneri {date_tr(parse_time(p.based_on.iq_calculated_at))} tarihli {p.based_on.iq_score} skoruna "
             f"dayanıyor; Finansal IQ'n o tarihten sonra {latest['score']} olarak yeniden hesaplandı. Güncel bir öneri "

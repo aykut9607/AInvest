@@ -15,7 +15,8 @@ router = APIRouter(tags=["insights"])
 
 @router.get("/ai/insights/warnings", response_model=WarningsResponse)
 def warnings(data: UserData = Depends(get_user_data)) -> WarningsResponse:
-    return WarningsResponse(alerts=alerts_for(data.profile(), data.history()), disclaimer=DISCLAIMER)
+    # the latest IQ result decides the scoring version (and rule) whose thresholds the alerts use
+    return WarningsResponse(alerts=alerts_for(data.profile(), data.history(), data.latest_iq()), disclaimer=DISCLAIMER)
 
 
 @router.get("/ai/explain-iq-trend", response_model=TrendResponse)

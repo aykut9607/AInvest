@@ -50,10 +50,12 @@ public class CalculateValidationTests
 
         Assert.True(result.Success);
         Assert.Equal("u1", Assert.Single(_dal.Stored).UserId);
-        Assert.Equal(95, result.Data!.Score);
-        // contract v2: the breakdown is a JSON object in the response, not a string
+        // v3: reserve 4.8 months 25 + installment 10% 25 + no debt 10 + savings 50% 30 + impatience 3 -> 3
+        Assert.Equal(93, result.Data!.Score);
+        // since contract v2 the breakdown is a JSON object in the response, not a string
         Assert.Equal(System.Text.Json.JsonValueKind.Object, result.Data.FactorBreakdown.ValueKind);
-        Assert.Equal("v2", result.Data.FactorBreakdown.GetProperty("version").GetString());
+        Assert.Equal("v3", result.Data.FactorBreakdown.GetProperty("version").GetString());
+        Assert.Equal(System.Text.Json.JsonValueKind.Object, result.Data.FactorBreakdown.GetProperty("factorMaximums").ValueKind);
     }
 
     [Fact]
@@ -63,6 +65,21 @@ public class CalculateValidationTests
 
         // the procedure writes it into financial_iq_results and iq_history (foreign key to scoring_rule_versions)
         Assert.Equal(ScoringRules.ScoringVersion, Assert.Single(_dal.Stored).ScoringVersion);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public async Task IncomeNotAboveZero_IsStillRejected(decimal income)
+    {
+        // v3 divides by the income (and its expense floor is a share of it), so the v2 rule stays: income > 0
+        var request = Request("u1");
+        request.MonthlyIncome = income;
+
+        var result = await Manager.CalculateAsync(request);
+
+        Assert.Equal(Messages.InvalidMonthlyIncome, result.Message);
+        Assert.Empty(_dal.Stored);
     }
 
     [Fact]

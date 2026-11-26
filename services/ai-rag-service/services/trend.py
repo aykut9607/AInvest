@@ -55,6 +55,13 @@ def trend_lines(history: list[dict]) -> list[str]:
         lines.append(f"Segment değişti: {SEGMENT_TR.get(first['segment'], '?')} -> {SEGMENT_TR.get(last['segment'], '?')}")
     else:
         lines.append(f"Segment değişmedi: {SEGMENT_TR.get(last['segment'], '?')}")
+    # optional field of a history row: which scoring rules computed it. v2 and v3 results can sit in one history,
+    # and a change of rules moves the score without the user doing anything. No version names in the text: their
+    # digits would become numbers the model may write.
+    versions = {p.get("scoringVersion") for p in points} - {None}
+    if len(versions) > 1:
+        lines.append("Skor hesaplama kuralları bu dönemde güncellendi; değişimin bir kısmı kural değişikliğinden "
+                     "kaynaklanıyor olabilir")
     lines.append(f"Gidişat yorumu: skor genel olarak {_direction(total)}")
     return lines
 

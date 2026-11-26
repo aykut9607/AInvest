@@ -1,0 +1,2315 @@
+{
+  "description": "Golden table of Financial IQ scoring v3, variant v3c-i5: the v3c-i5 column of evaluation/out/iq_v3_golden.json (produced by evaluation/iq_v3/scoring.py, the Python reference with decimal arithmetic), copied on 25 Nov 2026 (52 cases, incl. L1/L2 for the WEALTH_RUNWAY label rule). Intermediates are the measures rounded to 6 decimals, half up (expense_ratio is left out: only variant v3a uses it). Do not edit by hand: regenerate from the reference when the rules change (and raise the scoring version).",
+  "variant": "v3c-i5",
+  "factorMaximums": {
+    "CashReserveMonths": 30,
+    "InstallmentToIncome": 25,
+    "NetDebtToIncome": 10,
+    "SavingsRate": 30,
+    "Impatience": 5
+  },
+  "cases": [
+    {
+      "id": "demo-low",
+      "input": {
+        "monthlyIncome": 30000,
+        "monthlyExpenses": 25000,
+        "monthlyDebtPayment": 7000,
+        "totalDebt": 90000,
+        "cashReserve": 3000,
+        "investmentAmount": 10000,
+        "impatienceLevel": 5
+      },
+      "intermediates": {
+        "liquid": "8000.000000",
+        "expenses_eff": "25000.000000",
+        "outflow": "32000.000000",
+        "reserve_months": "0.250000",
+        "excess_liquid": "0.000000",
+        "net_debt": "90000.000000",
+        "net_debt_years": "0.250000",
+        "payment_eff": "7000.000000",
+        "installment_ratio": "0.233333",
+        "savings_rate": "-0.066667",
+        "liquid_net_worth": "-82000.000000",
+        "runway_years": "0.000000",
+        "runway_share": "0.000000",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 27,
+        "segment": "LOW",
+        "factors": {
+          "CashReserveMonths": 2,
+          "InstallmentToIncome": 13,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 2,
+          "Impatience": 0
+        },
+        "warnings": [
+          "Low cash reserve",
+          "Elevated debt burden",
+          "Negative savings rate",
+          "High impatience"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "demo-medium",
+      "input": {
+        "monthlyIncome": 50000,
+        "monthlyExpenses": 30000,
+        "monthlyDebtPayment": 8000,
+        "totalDebt": 0,
+        "cashReserve": 60000,
+        "investmentAmount": 0,
+        "impatienceLevel": 3
+      },
+      "intermediates": {
+        "liquid": "60000.000000",
+        "expenses_eff": "30000.000000",
+        "outflow": "38000.000000",
+        "reserve_months": "1.578947",
+        "excess_liquid": "0.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "8000.000000",
+        "installment_ratio": "0.160000",
+        "savings_rate": "0.240000",
+        "liquid_net_worth": "60000.000000",
+        "runway_years": "0.166667",
+        "runway_share": "0.006667",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 71,
+        "segment": "HIGH",
+        "factors": {
+          "CashReserveMonths": 9,
+          "InstallmentToIncome": 19,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 3
+        },
+        "warnings": [
+          "Low cash reserve",
+          "Installment without debt"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "demo-high",
+      "input": {
+        "monthlyIncome": 20000,
+        "monthlyExpenses": 8000,
+        "monthlyDebtPayment": 2000,
+        "totalDebt": 0,
+        "cashReserve": 30000,
+        "investmentAmount": 0,
+        "impatienceLevel": 2
+      },
+      "intermediates": {
+        "liquid": "30000.000000",
+        "expenses_eff": "8000.000000",
+        "outflow": "10000.000000",
+        "reserve_months": "3.000000",
+        "excess_liquid": "0.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "2000.000000",
+        "installment_ratio": "0.100000",
+        "savings_rate": "0.500000",
+        "liquid_net_worth": "30000.000000",
+        "runway_years": "0.312500",
+        "runway_share": "0.012500",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 87,
+        "segment": "HIGH",
+        "factors": {
+          "CashReserveMonths": 18,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 4
+        },
+        "warnings": [
+          "Installment without debt"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "demo-highdebt",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 16000,
+        "monthlyDebtPayment": 2000,
+        "totalDebt": 2000000,
+        "cashReserve": 50000,
+        "investmentAmount": 0,
+        "impatienceLevel": 2
+      },
+      "intermediates": {
+        "liquid": "50000.000000",
+        "expenses_eff": "16000.000000",
+        "outflow": "18000.000000",
+        "reserve_months": "2.777778",
+        "excess_liquid": "0.000000",
+        "net_debt": "2000000.000000",
+        "net_debt_years": "4.166667",
+        "payment_eff": "70000.000000",
+        "installment_ratio": "1.750000",
+        "savings_rate": "-1.150000",
+        "liquid_net_worth": "-1950000.000000",
+        "runway_years": "0.000000",
+        "runway_share": "0.000000",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 22,
+        "segment": "LOW",
+        "factors": {
+          "CashReserveMonths": 17,
+          "InstallmentToIncome": 0,
+          "NetDebtToIncome": 1,
+          "SavingsRate": 0,
+          "Impatience": 4
+        },
+        "warnings": [
+          "Low cash reserve",
+          "High debt burden",
+          "High total debt",
+          "Negative savings rate",
+          "Installment below interest"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "demo-richincome",
+      "input": {
+        "monthlyIncome": 1000000,
+        "monthlyExpenses": 900000,
+        "monthlyDebtPayment": 0,
+        "totalDebt": 0,
+        "cashReserve": 0,
+        "investmentAmount": 0,
+        "impatienceLevel": 5
+      },
+      "intermediates": {
+        "liquid": "0.000000",
+        "expenses_eff": "900000.000000",
+        "outflow": "900000.000000",
+        "reserve_months": "0.000000",
+        "excess_liquid": "0.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "0.000000",
+        "installment_ratio": "0.000000",
+        "savings_rate": "0.100000",
+        "liquid_net_worth": "0.000000",
+        "runway_years": "0.000000",
+        "runway_share": "0.000000",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 53,
+        "segment": "MEDIUM",
+        "factors": {
+          "CashReserveMonths": 0,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 18,
+          "Impatience": 0
+        },
+        "warnings": [
+          "Low cash reserve",
+          "High impatience"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "demo-richwealth",
+      "input": {
+        "monthlyIncome": 30000,
+        "monthlyExpenses": 29000,
+        "monthlyDebtPayment": 0,
+        "totalDebt": 1000000,
+        "cashReserve": 2000000,
+        "investmentAmount": 9000000,
+        "impatienceLevel": 5
+      },
+      "intermediates": {
+        "liquid": "6500000.000000",
+        "expenses_eff": "29000.000000",
+        "outflow": "29000.000000",
+        "reserve_months": "224.137931",
+        "excess_liquid": "6326000.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "0.000000",
+        "installment_ratio": "0.000000",
+        "savings_rate": "0.033333",
+        "liquid_net_worth": "5500000.000000",
+        "runway_years": "15.804598",
+        "runway_share": "0.632184",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 84,
+        "segment": "HIGH",
+        "factors": {
+          "CashReserveMonths": 30,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 19,
+          "Impatience": 0
+        },
+        "warnings": [
+          "High impatience"
+        ],
+        "appliedRule": "WEALTH_RUNWAY"
+      }
+    },
+    {
+      "id": "demo-extremedebt",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 16000,
+        "monthlyDebtPayment": 4000,
+        "totalDebt": 120000000,
+        "cashReserve": 96000,
+        "investmentAmount": 10000000,
+        "impatienceLevel": 1
+      },
+      "intermediates": {
+        "liquid": "5096000.000000",
+        "expenses_eff": "16000.000000",
+        "outflow": "20000.000000",
+        "reserve_months": "254.800000",
+        "excess_liquid": "4976000.000000",
+        "net_debt": "115024000.000000",
+        "net_debt_years": "239.633333",
+        "payment_eff": "4025840.000000",
+        "installment_ratio": "100.646000",
+        "savings_rate": "-100.046000",
+        "liquid_net_worth": "-114904000.000000",
+        "runway_years": "0.000000",
+        "runway_share": "0.000000",
+        "solvency_cap": "0.000000"
+      },
+      "expected": {
+        "score": 0,
+        "segment": "LOW",
+        "factors": {
+          "CashReserveMonths": 0,
+          "InstallmentToIncome": 0,
+          "NetDebtToIncome": 0,
+          "SavingsRate": 0,
+          "Impatience": 0
+        },
+        "warnings": [
+          "High debt burden",
+          "High total debt",
+          "Negative savings rate",
+          "Extreme total debt",
+          "Installment below interest"
+        ],
+        "appliedRule": "SOLVENCY_CAP"
+      }
+    },
+    {
+      "id": "demo-trend-2",
+      "input": {
+        "monthlyIncome": 30000,
+        "monthlyExpenses": 22000,
+        "monthlyDebtPayment": 5000,
+        "totalDebt": 70000,
+        "cashReserve": 15000,
+        "investmentAmount": 10000,
+        "impatienceLevel": 4
+      },
+      "intermediates": {
+        "liquid": "20000.000000",
+        "expenses_eff": "22000.000000",
+        "outflow": "27000.000000",
+        "reserve_months": "0.740741",
+        "excess_liquid": "0.000000",
+        "net_debt": "70000.000000",
+        "net_debt_years": "0.194444",
+        "payment_eff": "5000.000000",
+        "installment_ratio": "0.166667",
+        "savings_rate": "0.100000",
+        "liquid_net_worth": "-50000.000000",
+        "runway_years": "0.000000",
+        "runway_share": "0.000000",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 51,
+        "segment": "MEDIUM",
+        "factors": {
+          "CashReserveMonths": 4,
+          "InstallmentToIncome": 18,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 18,
+          "Impatience": 1
+        },
+        "warnings": [
+          "Low cash reserve",
+          "High impatience"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "demo-trend-3",
+      "input": {
+        "monthlyIncome": 30000,
+        "monthlyExpenses": 18000,
+        "monthlyDebtPayment": 4000,
+        "totalDebt": 50000,
+        "cashReserve": 45000,
+        "investmentAmount": 15000,
+        "impatienceLevel": 3
+      },
+      "intermediates": {
+        "liquid": "52500.000000",
+        "expenses_eff": "18000.000000",
+        "outflow": "22000.000000",
+        "reserve_months": "2.386364",
+        "excess_liquid": "0.000000",
+        "net_debt": "50000.000000",
+        "net_debt_years": "0.138889",
+        "payment_eff": "4000.000000",
+        "installment_ratio": "0.133333",
+        "savings_rate": "0.266667",
+        "liquid_net_worth": "2500.000000",
+        "runway_years": "0.011574",
+        "runway_share": "0.000463",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 79,
+        "segment": "HIGH",
+        "factors": {
+          "CashReserveMonths": 14,
+          "InstallmentToIncome": 22,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 3
+        },
+        "warnings": [
+          "Low cash reserve"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "demo-trend-4",
+      "input": {
+        "monthlyIncome": 30000,
+        "monthlyExpenses": 15000,
+        "monthlyDebtPayment": 3000,
+        "totalDebt": 30000,
+        "cashReserve": 90000,
+        "investmentAmount": 20000,
+        "impatienceLevel": 2
+      },
+      "intermediates": {
+        "liquid": "100000.000000",
+        "expenses_eff": "15000.000000",
+        "outflow": "18000.000000",
+        "reserve_months": "5.555556",
+        "excess_liquid": "0.000000",
+        "net_debt": "30000.000000",
+        "net_debt_years": "0.083333",
+        "payment_eff": "3000.000000",
+        "installment_ratio": "0.100000",
+        "savings_rate": "0.400000",
+        "liquid_net_worth": "70000.000000",
+        "runway_years": "0.388889",
+        "runway_share": "0.015556",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 97,
+        "segment": "HIGH",
+        "factors": {
+          "CashReserveMonths": 28,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 4
+        },
+        "warnings": [],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "G1a",
+      "input": {
+        "monthlyIncome": 30000,
+        "monthlyExpenses": 6000000,
+        "monthlyDebtPayment": 1000000,
+        "totalDebt": 0,
+        "cashReserve": 0,
+        "investmentAmount": 9999999,
+        "impatienceLevel": 5
+      },
+      "intermediates": {
+        "liquid": "4999999.500000",
+        "expenses_eff": "6000000.000000",
+        "outflow": "7000000.000000",
+        "reserve_months": "0.714286",
+        "excess_liquid": "0.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "1000000.000000",
+        "installment_ratio": "33.333333",
+        "savings_rate": "-232.333333",
+        "liquid_net_worth": "4999999.500000",
+        "runway_years": "0.069444",
+        "runway_share": "0.002778",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 14,
+        "segment": "LOW",
+        "factors": {
+          "CashReserveMonths": 4,
+          "InstallmentToIncome": 0,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 0,
+          "Impatience": 0
+        },
+        "warnings": [
+          "Low cash reserve",
+          "High debt burden",
+          "Negative savings rate",
+          "High impatience",
+          "Installment without debt"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "G1b",
+      "input": {
+        "monthlyIncome": 999999,
+        "monthlyExpenses": 2000000,
+        "monthlyDebtPayment": 500000,
+        "totalDebt": 0,
+        "cashReserve": 0,
+        "investmentAmount": 0,
+        "impatienceLevel": 5
+      },
+      "intermediates": {
+        "liquid": "0.000000",
+        "expenses_eff": "2000000.000000",
+        "outflow": "2500000.000000",
+        "reserve_months": "0.000000",
+        "excess_liquid": "0.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "500000.000000",
+        "installment_ratio": "0.500001",
+        "savings_rate": "-1.500003",
+        "liquid_net_worth": "0.000000",
+        "runway_years": "0.000000",
+        "runway_share": "0.000000",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 10,
+        "segment": "LOW",
+        "factors": {
+          "CashReserveMonths": 0,
+          "InstallmentToIncome": 0,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 0,
+          "Impatience": 0
+        },
+        "warnings": [
+          "Low cash reserve",
+          "High debt burden",
+          "Negative savings rate",
+          "High impatience",
+          "Installment without debt"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "G1c",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 16000,
+        "monthlyDebtPayment": 4000,
+        "totalDebt": 100095999,
+        "cashReserve": 96000,
+        "investmentAmount": 0,
+        "impatienceLevel": 1
+      },
+      "intermediates": {
+        "liquid": "96000.000000",
+        "expenses_eff": "16000.000000",
+        "outflow": "20000.000000",
+        "reserve_months": "4.800000",
+        "excess_liquid": "0.000000",
+        "net_debt": "100095999.000000",
+        "net_debt_years": "208.533331",
+        "payment_eff": "3503359.965000",
+        "installment_ratio": "87.583999",
+        "savings_rate": "-86.983999",
+        "liquid_net_worth": "-99999999.000000",
+        "runway_years": "0.000000",
+        "runway_share": "0.000000",
+        "solvency_cap": "0.000000"
+      },
+      "expected": {
+        "score": 0,
+        "segment": "LOW",
+        "factors": {
+          "CashReserveMonths": 0,
+          "InstallmentToIncome": 0,
+          "NetDebtToIncome": 0,
+          "SavingsRate": 0,
+          "Impatience": 0
+        },
+        "warnings": [
+          "High debt burden",
+          "High total debt",
+          "Negative savings rate",
+          "Extreme total debt",
+          "Installment below interest"
+        ],
+        "appliedRule": "SOLVENCY_CAP"
+      }
+    },
+    {
+      "id": "G1d",
+      "input": {
+        "monthlyIncome": 999999,
+        "monthlyExpenses": 400000,
+        "monthlyDebtPayment": 100000,
+        "totalDebt": 1002400000,
+        "cashReserve": 2400000,
+        "investmentAmount": 0,
+        "impatienceLevel": 1
+      },
+      "intermediates": {
+        "liquid": "2400000.000000",
+        "expenses_eff": "400000.000000",
+        "outflow": "500000.000000",
+        "reserve_months": "4.800000",
+        "excess_liquid": "0.000000",
+        "net_debt": "1002400000.000000",
+        "net_debt_years": "83.533417",
+        "payment_eff": "35084000.000000",
+        "installment_ratio": "35.084035",
+        "savings_rate": "-34.484035",
+        "liquid_net_worth": "-1000000000.000000",
+        "runway_years": "0.000000",
+        "runway_share": "0.000000",
+        "solvency_cap": "0.000000"
+      },
+      "expected": {
+        "score": 0,
+        "segment": "LOW",
+        "factors": {
+          "CashReserveMonths": 0,
+          "InstallmentToIncome": 0,
+          "NetDebtToIncome": 0,
+          "SavingsRate": 0,
+          "Impatience": 0
+        },
+        "warnings": [
+          "High debt burden",
+          "High total debt",
+          "Negative savings rate",
+          "Extreme total debt",
+          "Installment below interest"
+        ],
+        "appliedRule": "SOLVENCY_CAP"
+      }
+    },
+    {
+      "id": "G2a",
+      "input": {
+        "monthlyIncome": 1000000,
+        "monthlyExpenses": 2000000,
+        "monthlyDebtPayment": 0,
+        "totalDebt": 0,
+        "cashReserve": 0,
+        "investmentAmount": 0,
+        "impatienceLevel": 3
+      },
+      "intermediates": {
+        "liquid": "0.000000",
+        "expenses_eff": "2000000.000000",
+        "outflow": "2000000.000000",
+        "reserve_months": "0.000000",
+        "excess_liquid": "0.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "0.000000",
+        "installment_ratio": "0.000000",
+        "savings_rate": "-1.000000",
+        "liquid_net_worth": "0.000000",
+        "runway_years": "0.000000",
+        "runway_share": "0.000000",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 38,
+        "segment": "LOW",
+        "factors": {
+          "CashReserveMonths": 0,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 0,
+          "Impatience": 3
+        },
+        "warnings": [
+          "Low cash reserve",
+          "Negative savings rate"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "G2b",
+      "input": {
+        "monthlyIncome": 30000,
+        "monthlyExpenses": 6000000,
+        "monthlyDebtPayment": 0,
+        "totalDebt": 0,
+        "cashReserve": 10000000,
+        "investmentAmount": 0,
+        "impatienceLevel": 3
+      },
+      "intermediates": {
+        "liquid": "10000000.000000",
+        "expenses_eff": "6000000.000000",
+        "outflow": "6000000.000000",
+        "reserve_months": "1.666667",
+        "excess_liquid": "0.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "0.000000",
+        "installment_ratio": "0.000000",
+        "savings_rate": "-199.000000",
+        "liquid_net_worth": "10000000.000000",
+        "runway_years": "0.138889",
+        "runway_share": "0.005556",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 48,
+        "segment": "MEDIUM",
+        "factors": {
+          "CashReserveMonths": 10,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 0,
+          "Impatience": 3
+        },
+        "warnings": [
+          "Low cash reserve",
+          "Negative savings rate"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "G3",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 16000,
+        "monthlyDebtPayment": 4000,
+        "totalDebt": 50000000,
+        "cashReserve": 96000,
+        "investmentAmount": 0,
+        "impatienceLevel": 1
+      },
+      "intermediates": {
+        "liquid": "96000.000000",
+        "expenses_eff": "16000.000000",
+        "outflow": "20000.000000",
+        "reserve_months": "4.800000",
+        "excess_liquid": "0.000000",
+        "net_debt": "50000000.000000",
+        "net_debt_years": "104.166667",
+        "payment_eff": "1750000.000000",
+        "installment_ratio": "43.750000",
+        "savings_rate": "-43.150000",
+        "liquid_net_worth": "-49904000.000000",
+        "runway_years": "0.000000",
+        "runway_share": "0.000000",
+        "solvency_cap": "0.000000"
+      },
+      "expected": {
+        "score": 0,
+        "segment": "LOW",
+        "factors": {
+          "CashReserveMonths": 0,
+          "InstallmentToIncome": 0,
+          "NetDebtToIncome": 0,
+          "SavingsRate": 0,
+          "Impatience": 0
+        },
+        "warnings": [
+          "High debt burden",
+          "High total debt",
+          "Negative savings rate",
+          "Extreme total debt",
+          "Installment below interest"
+        ],
+        "appliedRule": "SOLVENCY_CAP"
+      }
+    },
+    {
+      "id": "G4",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 16000,
+        "monthlyDebtPayment": 4000,
+        "totalDebt": 0,
+        "cashReserve": 0,
+        "investmentAmount": 0,
+        "impatienceLevel": 3
+      },
+      "intermediates": {
+        "liquid": "0.000000",
+        "expenses_eff": "16000.000000",
+        "outflow": "20000.000000",
+        "reserve_months": "0.000000",
+        "excess_liquid": "0.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "4000.000000",
+        "installment_ratio": "0.100000",
+        "savings_rate": "0.500000",
+        "liquid_net_worth": "0.000000",
+        "runway_years": "0.000000",
+        "runway_share": "0.000000",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 68,
+        "segment": "MEDIUM",
+        "factors": {
+          "CashReserveMonths": 0,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 3
+        },
+        "warnings": [
+          "Low cash reserve",
+          "Installment without debt"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "G5a",
+      "input": {
+        "monthlyIncome": 50000,
+        "monthlyExpenses": 30000,
+        "monthlyDebtPayment": 8000,
+        "totalDebt": 0,
+        "cashReserve": 60000,
+        "investmentAmount": 0,
+        "impatienceLevel": 5
+      },
+      "intermediates": {
+        "liquid": "60000.000000",
+        "expenses_eff": "30000.000000",
+        "outflow": "38000.000000",
+        "reserve_months": "1.578947",
+        "excess_liquid": "0.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "8000.000000",
+        "installment_ratio": "0.160000",
+        "savings_rate": "0.240000",
+        "liquid_net_worth": "60000.000000",
+        "runway_years": "0.166667",
+        "runway_share": "0.006667",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 68,
+        "segment": "MEDIUM",
+        "factors": {
+          "CashReserveMonths": 9,
+          "InstallmentToIncome": 19,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 0
+        },
+        "warnings": [
+          "Low cash reserve",
+          "High impatience",
+          "Installment without debt"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "G5b",
+      "input": {
+        "monthlyIncome": 50000,
+        "monthlyExpenses": 0,
+        "monthlyDebtPayment": 0,
+        "totalDebt": 0,
+        "cashReserve": 0.01,
+        "investmentAmount": 0,
+        "impatienceLevel": 1
+      },
+      "intermediates": {
+        "liquid": "0.010000",
+        "expenses_eff": "5000.000000",
+        "outflow": "5000.000000",
+        "reserve_months": "0.000002",
+        "excess_liquid": "0.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "0.000000",
+        "installment_ratio": "0.000000",
+        "savings_rate": "0.900000",
+        "liquid_net_worth": "0.010000",
+        "runway_years": "0.000000",
+        "runway_share": "0.000000",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 70,
+        "segment": "MEDIUM",
+        "factors": {
+          "CashReserveMonths": 0,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 5
+        },
+        "warnings": [
+          "Low cash reserve",
+          "Expenses look too low"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "G6a",
+      "input": {
+        "monthlyIncome": 10000,
+        "monthlyExpenses": 4000,
+        "monthlyDebtPayment": 4000,
+        "totalDebt": 0,
+        "cashReserve": 24000,
+        "investmentAmount": 0,
+        "impatienceLevel": 1
+      },
+      "intermediates": {
+        "liquid": "24000.000000",
+        "expenses_eff": "4000.000000",
+        "outflow": "8000.000000",
+        "reserve_months": "3.000000",
+        "excess_liquid": "0.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "4000.000000",
+        "installment_ratio": "0.400000",
+        "savings_rate": "0.200000",
+        "liquid_net_worth": "24000.000000",
+        "runway_years": "0.500000",
+        "runway_share": "0.020000",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 67,
+        "segment": "MEDIUM",
+        "factors": {
+          "CashReserveMonths": 18,
+          "InstallmentToIncome": 4,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 5
+        },
+        "warnings": [
+          "High debt burden",
+          "Installment without debt"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "G6b",
+      "input": {
+        "monthlyIncome": 10000,
+        "monthlyExpenses": 7000,
+        "monthlyDebtPayment": 1000,
+        "totalDebt": 0,
+        "cashReserve": 60000,
+        "investmentAmount": 0,
+        "impatienceLevel": 1
+      },
+      "intermediates": {
+        "liquid": "60000.000000",
+        "expenses_eff": "7000.000000",
+        "outflow": "8000.000000",
+        "reserve_months": "7.500000",
+        "excess_liquid": "12000.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "1000.000000",
+        "installment_ratio": "0.100000",
+        "savings_rate": "0.200000",
+        "liquid_net_worth": "60000.000000",
+        "runway_years": "0.714286",
+        "runway_share": "0.028571",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 100,
+        "segment": "HIGH",
+        "factors": {
+          "CashReserveMonths": 30,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 5
+        },
+        "warnings": [
+          "Installment without debt"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "G8",
+      "input": {
+        "monthlyIncome": 20000,
+        "monthlyExpenses": 5000,
+        "monthlyDebtPayment": 7000,
+        "totalDebt": 0,
+        "cashReserve": 30000,
+        "investmentAmount": 0,
+        "impatienceLevel": 3
+      },
+      "intermediates": {
+        "liquid": "30000.000000",
+        "expenses_eff": "5000.000000",
+        "outflow": "12000.000000",
+        "reserve_months": "2.500000",
+        "excess_liquid": "0.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "7000.000000",
+        "installment_ratio": "0.350000",
+        "savings_rate": "0.400000",
+        "liquid_net_worth": "30000.000000",
+        "runway_years": "0.500000",
+        "runway_share": "0.020000",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 64,
+        "segment": "MEDIUM",
+        "factors": {
+          "CashReserveMonths": 15,
+          "InstallmentToIncome": 6,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 3
+        },
+        "warnings": [
+          "Low cash reserve",
+          "Elevated debt burden",
+          "Installment without debt"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "G9a",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 12000,
+        "monthlyDebtPayment": 1000,
+        "totalDebt": 100000,
+        "cashReserve": 120000,
+        "investmentAmount": 0,
+        "impatienceLevel": 2
+      },
+      "intermediates": {
+        "liquid": "120000.000000",
+        "expenses_eff": "12000.000000",
+        "outflow": "13000.000000",
+        "reserve_months": "9.230769",
+        "excess_liquid": "42000.000000",
+        "net_debt": "58000.000000",
+        "net_debt_years": "0.120833",
+        "payment_eff": "2030.000000",
+        "installment_ratio": "0.050750",
+        "savings_rate": "0.649250",
+        "liquid_net_worth": "20000.000000",
+        "runway_years": "0.138889",
+        "runway_share": "0.005556",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 99,
+        "segment": "HIGH",
+        "factors": {
+          "CashReserveMonths": 30,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 4
+        },
+        "warnings": [
+          "Installment below interest"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "G9b",
+      "input": {
+        "monthlyIncome": 50000,
+        "monthlyExpenses": 30000,
+        "monthlyDebtPayment": 8000,
+        "totalDebt": 0,
+        "cashReserve": 60000,
+        "investmentAmount": 0,
+        "impatienceLevel": 3
+      },
+      "intermediates": {
+        "liquid": "60000.000000",
+        "expenses_eff": "30000.000000",
+        "outflow": "38000.000000",
+        "reserve_months": "1.578947",
+        "excess_liquid": "0.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "8000.000000",
+        "installment_ratio": "0.160000",
+        "savings_rate": "0.240000",
+        "liquid_net_worth": "60000.000000",
+        "runway_years": "0.166667",
+        "runway_share": "0.006667",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 71,
+        "segment": "HIGH",
+        "factors": {
+          "CashReserveMonths": 9,
+          "InstallmentToIncome": 19,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 3
+        },
+        "warnings": [
+          "Low cash reserve",
+          "Installment without debt"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "G10a",
+      "input": {
+        "monthlyIncome": 50000,
+        "monthlyExpenses": 0,
+        "monthlyDebtPayment": 0,
+        "totalDebt": 0,
+        "cashReserve": 0,
+        "investmentAmount": 0,
+        "impatienceLevel": 3
+      },
+      "intermediates": {
+        "liquid": "0.000000",
+        "expenses_eff": "5000.000000",
+        "outflow": "5000.000000",
+        "reserve_months": "0.000000",
+        "excess_liquid": "0.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "0.000000",
+        "installment_ratio": "0.000000",
+        "savings_rate": "0.900000",
+        "liquid_net_worth": "0.000000",
+        "runway_years": "0.000000",
+        "runway_share": "0.000000",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 68,
+        "segment": "MEDIUM",
+        "factors": {
+          "CashReserveMonths": 0,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 3
+        },
+        "warnings": [
+          "Low cash reserve",
+          "Expenses look too low"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "G10b",
+      "input": {
+        "monthlyIncome": 1,
+        "monthlyExpenses": 0.4,
+        "monthlyDebtPayment": 0.1,
+        "totalDebt": 0,
+        "cashReserve": 2,
+        "investmentAmount": 0,
+        "impatienceLevel": 1
+      },
+      "intermediates": {
+        "liquid": "2.000000",
+        "expenses_eff": "0.400000",
+        "outflow": "0.500000",
+        "reserve_months": "4.000000",
+        "excess_liquid": "0.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "0.100000",
+        "installment_ratio": "0.100000",
+        "savings_rate": "0.500000",
+        "liquid_net_worth": "2.000000",
+        "runway_years": "0.416667",
+        "runway_share": "0.016667",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 92,
+        "segment": "HIGH",
+        "factors": {
+          "CashReserveMonths": 22,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 5
+        },
+        "warnings": [
+          "Installment without debt"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "L1",
+      "input": {
+        "monthlyIncome": 30000,
+        "monthlyExpenses": 20000,
+        "monthlyDebtPayment": 30000,
+        "totalDebt": 0,
+        "cashReserve": 100000,
+        "investmentAmount": 0,
+        "impatienceLevel": 3
+      },
+      "intermediates": {
+        "liquid": "100000.000000",
+        "expenses_eff": "20000.000000",
+        "outflow": "50000.000000",
+        "reserve_months": "2.000000",
+        "excess_liquid": "0.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "30000.000000",
+        "installment_ratio": "1.000000",
+        "savings_rate": "-0.666667",
+        "liquid_net_worth": "100000.000000",
+        "runway_years": "0.416667",
+        "runway_share": "0.016667",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 26,
+        "segment": "LOW",
+        "factors": {
+          "CashReserveMonths": 12,
+          "InstallmentToIncome": 0,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 1,
+          "Impatience": 3
+        },
+        "warnings": [
+          "Low cash reserve",
+          "High debt burden",
+          "Negative savings rate",
+          "Installment without debt"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "L2",
+      "input": {
+        "monthlyIncome": 30000,
+        "monthlyExpenses": 33000,
+        "monthlyDebtPayment": 0,
+        "totalDebt": 0,
+        "cashReserve": 11880000,
+        "investmentAmount": 0,
+        "impatienceLevel": 3
+      },
+      "intermediates": {
+        "liquid": "11880000.000000",
+        "expenses_eff": "33000.000000",
+        "outflow": "33000.000000",
+        "reserve_months": "360.000000",
+        "excess_liquid": "11682000.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "0.000000",
+        "installment_ratio": "0.000000",
+        "savings_rate": "-0.100000",
+        "liquid_net_worth": "11880000.000000",
+        "runway_years": "30.000000",
+        "runway_share": "1.000000",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 98,
+        "segment": "HIGH",
+        "factors": {
+          "CashReserveMonths": 30,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 3
+        },
+        "warnings": [],
+        "appliedRule": "WEALTH_RUNWAY"
+      }
+    },
+    {
+      "id": "G1a+",
+      "input": {
+        "monthlyIncome": 30000,
+        "monthlyExpenses": 6000000,
+        "monthlyDebtPayment": 1000000,
+        "totalDebt": 0,
+        "cashReserve": 0,
+        "investmentAmount": 10000000,
+        "impatienceLevel": 5
+      },
+      "intermediates": {
+        "liquid": "5000000.000000",
+        "expenses_eff": "6000000.000000",
+        "outflow": "7000000.000000",
+        "reserve_months": "0.714286",
+        "excess_liquid": "0.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "1000000.000000",
+        "installment_ratio": "33.333333",
+        "savings_rate": "-232.333333",
+        "liquid_net_worth": "5000000.000000",
+        "runway_years": "0.069444",
+        "runway_share": "0.002778",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 14,
+        "segment": "LOW",
+        "factors": {
+          "CashReserveMonths": 4,
+          "InstallmentToIncome": 0,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 0,
+          "Impatience": 0
+        },
+        "warnings": [
+          "Low cash reserve",
+          "High debt burden",
+          "Negative savings rate",
+          "High impatience",
+          "Installment without debt"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "G1c+",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 16000,
+        "monthlyDebtPayment": 4000,
+        "totalDebt": 100096000,
+        "cashReserve": 96000,
+        "investmentAmount": 0,
+        "impatienceLevel": 1
+      },
+      "intermediates": {
+        "liquid": "96000.000000",
+        "expenses_eff": "16000.000000",
+        "outflow": "20000.000000",
+        "reserve_months": "4.800000",
+        "excess_liquid": "0.000000",
+        "net_debt": "100096000.000000",
+        "net_debt_years": "208.533333",
+        "payment_eff": "3503360.000000",
+        "installment_ratio": "87.584000",
+        "savings_rate": "-86.984000",
+        "liquid_net_worth": "-100000000.000000",
+        "runway_years": "0.000000",
+        "runway_share": "0.000000",
+        "solvency_cap": "0.000000"
+      },
+      "expected": {
+        "score": 0,
+        "segment": "LOW",
+        "factors": {
+          "CashReserveMonths": 0,
+          "InstallmentToIncome": 0,
+          "NetDebtToIncome": 0,
+          "SavingsRate": 0,
+          "Impatience": 0
+        },
+        "warnings": [
+          "High debt burden",
+          "High total debt",
+          "Negative savings rate",
+          "Extreme total debt",
+          "Installment below interest"
+        ],
+        "appliedRule": "SOLVENCY_CAP"
+      }
+    },
+    {
+      "id": "G4+",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 16000,
+        "monthlyDebtPayment": 4000,
+        "totalDebt": 96000,
+        "cashReserve": 96000,
+        "investmentAmount": 0,
+        "impatienceLevel": 3
+      },
+      "intermediates": {
+        "liquid": "96000.000000",
+        "expenses_eff": "16000.000000",
+        "outflow": "20000.000000",
+        "reserve_months": "4.800000",
+        "excess_liquid": "0.000000",
+        "net_debt": "96000.000000",
+        "net_debt_years": "0.200000",
+        "payment_eff": "4000.000000",
+        "installment_ratio": "0.100000",
+        "savings_rate": "0.500000",
+        "liquid_net_worth": "0.000000",
+        "runway_years": "0.000000",
+        "runway_share": "0.000000",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 93,
+        "segment": "HIGH",
+        "factors": {
+          "CashReserveMonths": 25,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 3
+        },
+        "warnings": [],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "G6a+",
+      "input": {
+        "monthlyIncome": 10000,
+        "monthlyExpenses": 4001,
+        "monthlyDebtPayment": 4000,
+        "totalDebt": 0,
+        "cashReserve": 24000,
+        "investmentAmount": 0,
+        "impatienceLevel": 1
+      },
+      "intermediates": {
+        "liquid": "24000.000000",
+        "expenses_eff": "4001.000000",
+        "outflow": "8001.000000",
+        "reserve_months": "2.999625",
+        "excess_liquid": "0.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "4000.000000",
+        "installment_ratio": "0.400000",
+        "savings_rate": "0.199900",
+        "liquid_net_worth": "24000.000000",
+        "runway_years": "0.499875",
+        "runway_share": "0.019995",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 67,
+        "segment": "MEDIUM",
+        "factors": {
+          "CashReserveMonths": 18,
+          "InstallmentToIncome": 4,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 5
+        },
+        "warnings": [
+          "High debt burden",
+          "Installment without debt"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "G10a+",
+      "input": {
+        "monthlyIncome": 50000,
+        "monthlyExpenses": 0,
+        "monthlyDebtPayment": 0,
+        "totalDebt": 0,
+        "cashReserve": 1,
+        "investmentAmount": 0,
+        "impatienceLevel": 3
+      },
+      "intermediates": {
+        "liquid": "1.000000",
+        "expenses_eff": "5000.000000",
+        "outflow": "5000.000000",
+        "reserve_months": "0.000200",
+        "excess_liquid": "0.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "0.000000",
+        "installment_ratio": "0.000000",
+        "savings_rate": "0.900000",
+        "liquid_net_worth": "1.000000",
+        "runway_years": "0.000017",
+        "runway_share": "0.000001",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 68,
+        "segment": "MEDIUM",
+        "factors": {
+          "CashReserveMonths": 0,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 3
+        },
+        "warnings": [
+          "Low cash reserve",
+          "Expenses look too low"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "v3-reserve-3m",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 16000,
+        "monthlyDebtPayment": 2000,
+        "totalDebt": 10000,
+        "cashReserve": 54000,
+        "investmentAmount": 0,
+        "impatienceLevel": 2
+      },
+      "intermediates": {
+        "liquid": "54000.000000",
+        "expenses_eff": "16000.000000",
+        "outflow": "18000.000000",
+        "reserve_months": "3.000000",
+        "excess_liquid": "0.000000",
+        "net_debt": "10000.000000",
+        "net_debt_years": "0.020833",
+        "payment_eff": "2000.000000",
+        "installment_ratio": "0.050000",
+        "savings_rate": "0.550000",
+        "liquid_net_worth": "44000.000000",
+        "runway_years": "0.229167",
+        "runway_share": "0.009167",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 87,
+        "segment": "HIGH",
+        "factors": {
+          "CashReserveMonths": 18,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 4
+        },
+        "warnings": [],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "v3-reserve-3m+",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 16000,
+        "monthlyDebtPayment": 2000,
+        "totalDebt": 10000,
+        "cashReserve": 53999,
+        "investmentAmount": 0,
+        "impatienceLevel": 2
+      },
+      "intermediates": {
+        "liquid": "53999.000000",
+        "expenses_eff": "16000.000000",
+        "outflow": "18000.000000",
+        "reserve_months": "2.999944",
+        "excess_liquid": "0.000000",
+        "net_debt": "10000.000000",
+        "net_debt_years": "0.020833",
+        "payment_eff": "2000.000000",
+        "installment_ratio": "0.050000",
+        "savings_rate": "0.550000",
+        "liquid_net_worth": "43999.000000",
+        "runway_years": "0.229161",
+        "runway_share": "0.009166",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 87,
+        "segment": "HIGH",
+        "factors": {
+          "CashReserveMonths": 18,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 4
+        },
+        "warnings": [],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "installment-36pct",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 16000,
+        "monthlyDebtPayment": 14400,
+        "totalDebt": 288000,
+        "cashReserve": 64000,
+        "investmentAmount": 0,
+        "impatienceLevel": 2
+      },
+      "intermediates": {
+        "liquid": "64000.000000",
+        "expenses_eff": "16000.000000",
+        "outflow": "30400.000000",
+        "reserve_months": "2.105263",
+        "excess_liquid": "0.000000",
+        "net_debt": "288000.000000",
+        "net_debt_years": "0.600000",
+        "payment_eff": "14400.000000",
+        "installment_ratio": "0.360000",
+        "savings_rate": "0.240000",
+        "liquid_net_worth": "-224000.000000",
+        "runway_years": "0.000000",
+        "runway_share": "0.000000",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 61,
+        "segment": "MEDIUM",
+        "factors": {
+          "CashReserveMonths": 13,
+          "InstallmentToIncome": 5,
+          "NetDebtToIncome": 9,
+          "SavingsRate": 30,
+          "Impatience": 4
+        },
+        "warnings": [
+          "Low cash reserve",
+          "Elevated debt burden"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "installment-36pct+",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 16000,
+        "monthlyDebtPayment": 14401,
+        "totalDebt": 288000,
+        "cashReserve": 64000,
+        "investmentAmount": 0,
+        "impatienceLevel": 2
+      },
+      "intermediates": {
+        "liquid": "64000.000000",
+        "expenses_eff": "16000.000000",
+        "outflow": "30401.000000",
+        "reserve_months": "2.105194",
+        "excess_liquid": "0.000000",
+        "net_debt": "288000.000000",
+        "net_debt_years": "0.600000",
+        "payment_eff": "14401.000000",
+        "installment_ratio": "0.360025",
+        "savings_rate": "0.239975",
+        "liquid_net_worth": "-224000.000000",
+        "runway_years": "0.000000",
+        "runway_share": "0.000000",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 61,
+        "segment": "MEDIUM",
+        "factors": {
+          "CashReserveMonths": 13,
+          "InstallmentToIncome": 5,
+          "NetDebtToIncome": 9,
+          "SavingsRate": 30,
+          "Impatience": 4
+        },
+        "warnings": [
+          "Low cash reserve",
+          "High debt burden"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "v3-netdebt-5y",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 16000,
+        "monthlyDebtPayment": 12000,
+        "totalDebt": 2400000,
+        "cashReserve": 0,
+        "investmentAmount": 0,
+        "impatienceLevel": 2
+      },
+      "intermediates": {
+        "liquid": "0.000000",
+        "expenses_eff": "16000.000000",
+        "outflow": "28000.000000",
+        "reserve_months": "0.000000",
+        "excess_liquid": "0.000000",
+        "net_debt": "2400000.000000",
+        "net_debt_years": "5.000000",
+        "payment_eff": "84000.000000",
+        "installment_ratio": "2.100000",
+        "savings_rate": "-1.500000",
+        "liquid_net_worth": "-2400000.000000",
+        "runway_years": "0.000000",
+        "runway_share": "0.000000",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 4,
+        "segment": "LOW",
+        "factors": {
+          "CashReserveMonths": 0,
+          "InstallmentToIncome": 0,
+          "NetDebtToIncome": 0,
+          "SavingsRate": 0,
+          "Impatience": 4
+        },
+        "warnings": [
+          "Low cash reserve",
+          "High debt burden",
+          "High total debt",
+          "Negative savings rate",
+          "Installment below interest"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "v3-netdebt-5y+",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 16000,
+        "monthlyDebtPayment": 12000,
+        "totalDebt": 2400001,
+        "cashReserve": 0,
+        "investmentAmount": 0,
+        "impatienceLevel": 2
+      },
+      "intermediates": {
+        "liquid": "0.000000",
+        "expenses_eff": "16000.000000",
+        "outflow": "28000.000000",
+        "reserve_months": "0.000000",
+        "excess_liquid": "0.000000",
+        "net_debt": "2400001.000000",
+        "net_debt_years": "5.000002",
+        "payment_eff": "84000.035000",
+        "installment_ratio": "2.100001",
+        "savings_rate": "-1.500001",
+        "liquid_net_worth": "-2400001.000000",
+        "runway_years": "0.000000",
+        "runway_share": "0.000000",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 4,
+        "segment": "LOW",
+        "factors": {
+          "CashReserveMonths": 0,
+          "InstallmentToIncome": 0,
+          "NetDebtToIncome": 0,
+          "SavingsRate": 0,
+          "Impatience": 4
+        },
+        "warnings": [
+          "Low cash reserve",
+          "High debt burden",
+          "High total debt",
+          "Negative savings rate",
+          "Extreme total debt",
+          "Installment below interest"
+        ],
+        "appliedRule": "SOLVENCY_CAP"
+      }
+    },
+    {
+      "id": "v3-netdebt-15y",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 16000,
+        "monthlyDebtPayment": 12000,
+        "totalDebt": 7200000,
+        "cashReserve": 0,
+        "investmentAmount": 0,
+        "impatienceLevel": 2
+      },
+      "intermediates": {
+        "liquid": "0.000000",
+        "expenses_eff": "16000.000000",
+        "outflow": "28000.000000",
+        "reserve_months": "0.000000",
+        "excess_liquid": "0.000000",
+        "net_debt": "7200000.000000",
+        "net_debt_years": "15.000000",
+        "payment_eff": "252000.000000",
+        "installment_ratio": "6.300000",
+        "savings_rate": "-5.700000",
+        "liquid_net_worth": "-7200000.000000",
+        "runway_years": "0.000000",
+        "runway_share": "0.000000",
+        "solvency_cap": "0.000000"
+      },
+      "expected": {
+        "score": 0,
+        "segment": "LOW",
+        "factors": {
+          "CashReserveMonths": 0,
+          "InstallmentToIncome": 0,
+          "NetDebtToIncome": 0,
+          "SavingsRate": 0,
+          "Impatience": 0
+        },
+        "warnings": [
+          "Low cash reserve",
+          "High debt burden",
+          "High total debt",
+          "Negative savings rate",
+          "Extreme total debt",
+          "Installment below interest"
+        ],
+        "appliedRule": "SOLVENCY_CAP"
+      }
+    },
+    {
+      "id": "v3-netdebt-15y+",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 16000,
+        "monthlyDebtPayment": 12000,
+        "totalDebt": 7200001,
+        "cashReserve": 0,
+        "investmentAmount": 0,
+        "impatienceLevel": 2
+      },
+      "intermediates": {
+        "liquid": "0.000000",
+        "expenses_eff": "16000.000000",
+        "outflow": "28000.000000",
+        "reserve_months": "0.000000",
+        "excess_liquid": "0.000000",
+        "net_debt": "7200001.000000",
+        "net_debt_years": "15.000002",
+        "payment_eff": "252000.035000",
+        "installment_ratio": "6.300001",
+        "savings_rate": "-5.700001",
+        "liquid_net_worth": "-7200001.000000",
+        "runway_years": "0.000000",
+        "runway_share": "0.000000",
+        "solvency_cap": "0.000000"
+      },
+      "expected": {
+        "score": 0,
+        "segment": "LOW",
+        "factors": {
+          "CashReserveMonths": 0,
+          "InstallmentToIncome": 0,
+          "NetDebtToIncome": 0,
+          "SavingsRate": 0,
+          "Impatience": 0
+        },
+        "warnings": [
+          "Low cash reserve",
+          "High debt burden",
+          "High total debt",
+          "Negative savings rate",
+          "Extreme total debt",
+          "Installment below interest"
+        ],
+        "appliedRule": "SOLVENCY_CAP"
+      }
+    },
+    {
+      "id": "savings-0pct",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 38000,
+        "monthlyDebtPayment": 2000,
+        "totalDebt": 10000,
+        "cashReserve": 64000,
+        "investmentAmount": 0,
+        "impatienceLevel": 2
+      },
+      "intermediates": {
+        "liquid": "64000.000000",
+        "expenses_eff": "38000.000000",
+        "outflow": "40000.000000",
+        "reserve_months": "1.600000",
+        "excess_liquid": "0.000000",
+        "net_debt": "10000.000000",
+        "net_debt_years": "0.020833",
+        "payment_eff": "2000.000000",
+        "installment_ratio": "0.050000",
+        "savings_rate": "0.000000",
+        "liquid_net_worth": "54000.000000",
+        "runway_years": "0.118421",
+        "runway_share": "0.004737",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 55,
+        "segment": "MEDIUM",
+        "factors": {
+          "CashReserveMonths": 10,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 6,
+          "Impatience": 4
+        },
+        "warnings": [
+          "Low cash reserve",
+          "Low savings rate"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "savings-0pct+",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 38001,
+        "monthlyDebtPayment": 2000,
+        "totalDebt": 10000,
+        "cashReserve": 64000,
+        "investmentAmount": 0,
+        "impatienceLevel": 2
+      },
+      "intermediates": {
+        "liquid": "64000.000000",
+        "expenses_eff": "38001.000000",
+        "outflow": "40001.000000",
+        "reserve_months": "1.599960",
+        "excess_liquid": "0.000000",
+        "net_debt": "10000.000000",
+        "net_debt_years": "0.020833",
+        "payment_eff": "2000.000000",
+        "installment_ratio": "0.050000",
+        "savings_rate": "-0.000025",
+        "liquid_net_worth": "54000.000000",
+        "runway_years": "0.118418",
+        "runway_share": "0.004737",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 55,
+        "segment": "MEDIUM",
+        "factors": {
+          "CashReserveMonths": 10,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 6,
+          "Impatience": 4
+        },
+        "warnings": [
+          "Low cash reserve",
+          "Negative savings rate"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "expense-80pct",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 32000,
+        "monthlyDebtPayment": 2000,
+        "totalDebt": 10000,
+        "cashReserve": 64000,
+        "investmentAmount": 0,
+        "impatienceLevel": 2
+      },
+      "intermediates": {
+        "liquid": "64000.000000",
+        "expenses_eff": "32000.000000",
+        "outflow": "34000.000000",
+        "reserve_months": "1.882353",
+        "excess_liquid": "0.000000",
+        "net_debt": "10000.000000",
+        "net_debt_years": "0.020833",
+        "payment_eff": "2000.000000",
+        "installment_ratio": "0.050000",
+        "savings_rate": "0.150000",
+        "liquid_net_worth": "54000.000000",
+        "runway_years": "0.140625",
+        "runway_share": "0.005625",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 74,
+        "segment": "HIGH",
+        "factors": {
+          "CashReserveMonths": 11,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 24,
+          "Impatience": 4
+        },
+        "warnings": [
+          "Low cash reserve"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "expense-80pct+",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 32001,
+        "monthlyDebtPayment": 2000,
+        "totalDebt": 10000,
+        "cashReserve": 64000,
+        "investmentAmount": 0,
+        "impatienceLevel": 2
+      },
+      "intermediates": {
+        "liquid": "64000.000000",
+        "expenses_eff": "32001.000000",
+        "outflow": "34001.000000",
+        "reserve_months": "1.882298",
+        "excess_liquid": "0.000000",
+        "net_debt": "10000.000000",
+        "net_debt_years": "0.020833",
+        "payment_eff": "2000.000000",
+        "installment_ratio": "0.050000",
+        "savings_rate": "0.149975",
+        "liquid_net_worth": "54000.000000",
+        "runway_years": "0.140621",
+        "runway_share": "0.005625",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 74,
+        "segment": "HIGH",
+        "factors": {
+          "CashReserveMonths": 11,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 24,
+          "Impatience": 4
+        },
+        "warnings": [
+          "Low cash reserve"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "v3-expense-floor",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 4000,
+        "monthlyDebtPayment": 2000,
+        "totalDebt": 10000,
+        "cashReserve": 64000,
+        "investmentAmount": 0,
+        "impatienceLevel": 2
+      },
+      "intermediates": {
+        "liquid": "64000.000000",
+        "expenses_eff": "4000.000000",
+        "outflow": "6000.000000",
+        "reserve_months": "10.666667",
+        "excess_liquid": "28000.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "2000.000000",
+        "installment_ratio": "0.050000",
+        "savings_rate": "0.850000",
+        "liquid_net_worth": "54000.000000",
+        "runway_years": "1.125000",
+        "runway_share": "0.045000",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 99,
+        "segment": "HIGH",
+        "factors": {
+          "CashReserveMonths": 30,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 4
+        },
+        "warnings": [],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "v3-expense-floor+",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 3999,
+        "monthlyDebtPayment": 2000,
+        "totalDebt": 10000,
+        "cashReserve": 64000,
+        "investmentAmount": 0,
+        "impatienceLevel": 2
+      },
+      "intermediates": {
+        "liquid": "64000.000000",
+        "expenses_eff": "4000.000000",
+        "outflow": "6000.000000",
+        "reserve_months": "10.666667",
+        "excess_liquid": "28000.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "2000.000000",
+        "installment_ratio": "0.050000",
+        "savings_rate": "0.850000",
+        "liquid_net_worth": "54000.000000",
+        "runway_years": "1.125000",
+        "runway_share": "0.045000",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 99,
+        "segment": "HIGH",
+        "factors": {
+          "CashReserveMonths": 30,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 4
+        },
+        "warnings": [
+          "Expenses look too low"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "v3-interest-floor",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 16000,
+        "monthlyDebtPayment": 3500,
+        "totalDebt": 100000,
+        "cashReserve": 0,
+        "investmentAmount": 0,
+        "impatienceLevel": 2
+      },
+      "intermediates": {
+        "liquid": "0.000000",
+        "expenses_eff": "16000.000000",
+        "outflow": "19500.000000",
+        "reserve_months": "0.000000",
+        "excess_liquid": "0.000000",
+        "net_debt": "100000.000000",
+        "net_debt_years": "0.208333",
+        "payment_eff": "3500.000000",
+        "installment_ratio": "0.087500",
+        "savings_rate": "0.512500",
+        "liquid_net_worth": "-100000.000000",
+        "runway_years": "0.000000",
+        "runway_share": "0.000000",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 69,
+        "segment": "MEDIUM",
+        "factors": {
+          "CashReserveMonths": 0,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 4
+        },
+        "warnings": [
+          "Low cash reserve"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "v3-interest-floor+",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 16000,
+        "monthlyDebtPayment": 3499,
+        "totalDebt": 100000,
+        "cashReserve": 0,
+        "investmentAmount": 0,
+        "impatienceLevel": 2
+      },
+      "intermediates": {
+        "liquid": "0.000000",
+        "expenses_eff": "16000.000000",
+        "outflow": "19499.000000",
+        "reserve_months": "0.000000",
+        "excess_liquid": "0.000000",
+        "net_debt": "100000.000000",
+        "net_debt_years": "0.208333",
+        "payment_eff": "3500.000000",
+        "installment_ratio": "0.087500",
+        "savings_rate": "0.512500",
+        "liquid_net_worth": "-100000.000000",
+        "runway_years": "0.000000",
+        "runway_share": "0.000000",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 69,
+        "segment": "MEDIUM",
+        "factors": {
+          "CashReserveMonths": 0,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 4
+        },
+        "warnings": [
+          "Low cash reserve",
+          "Installment below interest"
+        ],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "v3-runway-25y",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 16000,
+        "monthlyDebtPayment": 2000,
+        "totalDebt": 10000,
+        "cashReserve": 4810000,
+        "investmentAmount": 0,
+        "impatienceLevel": 2
+      },
+      "intermediates": {
+        "liquid": "4810000.000000",
+        "expenses_eff": "16000.000000",
+        "outflow": "18000.000000",
+        "reserve_months": "267.222222",
+        "excess_liquid": "4702000.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "2000.000000",
+        "installment_ratio": "0.050000",
+        "savings_rate": "0.550000",
+        "liquid_net_worth": "4800000.000000",
+        "runway_years": "25.000000",
+        "runway_share": "1.000000",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 99,
+        "segment": "HIGH",
+        "factors": {
+          "CashReserveMonths": 30,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 4
+        },
+        "warnings": [],
+        "appliedRule": null
+      }
+    },
+    {
+      "id": "v3-runway-25y+",
+      "input": {
+        "monthlyIncome": 40000,
+        "monthlyExpenses": 16000,
+        "monthlyDebtPayment": 2000,
+        "totalDebt": 10000,
+        "cashReserve": 4809999,
+        "investmentAmount": 0,
+        "impatienceLevel": 2
+      },
+      "intermediates": {
+        "liquid": "4809999.000000",
+        "expenses_eff": "16000.000000",
+        "outflow": "18000.000000",
+        "reserve_months": "267.222167",
+        "excess_liquid": "4701999.000000",
+        "net_debt": "0.000000",
+        "net_debt_years": "0.000000",
+        "payment_eff": "2000.000000",
+        "installment_ratio": "0.050000",
+        "savings_rate": "0.550000",
+        "liquid_net_worth": "4799999.000000",
+        "runway_years": "24.999995",
+        "runway_share": "1.000000",
+        "solvency_cap": "1.000000"
+      },
+      "expected": {
+        "score": 99,
+        "segment": "HIGH",
+        "factors": {
+          "CashReserveMonths": 30,
+          "InstallmentToIncome": 25,
+          "NetDebtToIncome": 10,
+          "SavingsRate": 30,
+          "Impatience": 4
+        },
+        "warnings": [],
+        "appliedRule": null
+      }
+    }
+  ]
+}

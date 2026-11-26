@@ -57,6 +57,9 @@ ul.plain li { font-size: 13px; padding: 4px 0; border-top: 1px solid var(--line)
 .sev.WARNING { background: var(--warning); color: #0b0b0b; }
 .sev.INFO { background: var(--track); color: var(--ink); }
 .timeline { font-variant-numeric: tabular-nums; font-size: 13px; color: var(--ink-2); margin-top: 8px; }
+.timeline .hist { border-collapse: collapse; margin-top: 6px; width: 100%; }
+.timeline .hist th, .timeline .hist td { text-align: right; padding: 2px 6px; border-bottom: 1px solid var(--line, rgba(127,127,127,.25)); }
+.timeline .hist th:first-child, .timeline .hist td:first-child { text-align: left; }
 .tabs { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px; }
 .tabs button { border-radius: 999px; }
 .tabs button[aria-selected="true"] { background: var(--ink); color: var(--page); border-color: var(--ink); }
@@ -93,6 +96,7 @@ footer { padding: 4px 20px 20px; font-size: 12px; color: var(--muted); }
   <span class="badge" id="b-scoring">IQ kuralları: …</span>
   <span class="badge" id="b-ollama">Ollama: …</span>
   <span class="badge" id="b-examples"></span>
+  <span class="badge" id="b-history">Skor geçmişi: sayfa belleği</span>
   <span class="badge" id="b-cost">Claude harcaması (bu oturum): $0</span>
 </header>
 
@@ -117,7 +121,7 @@ footer { padding: 4px 20px 20px; font-size: 12px; color: var(--muted); }
         <button class="primary" id="btn-score">Skoru hesapla</button>
         <button id="btn-reset">Geçmişi sıfırla</button>
       </div>
-      <div class="hint">Her hesaplama skor geçmişine eklenir (trend açıklaması bunu kullanır). Skoru, üründeki C# kuralları hesaplar (BatchScorer).</div>
+      <div class="hint" id="score-hint">Her hesaplama skor geçmişine eklenir (trend açıklaması bunu kullanır). Skoru, üründeki C# kuralları hesaplar (BatchScorer).</div>
       <div class="error" id="score-error"></div>
     </section>
 
@@ -175,7 +179,9 @@ const REASONS = {
   WRONG_LANGUAGE: "Model başka alfabe kullandı", UNVERIFIED_NUMBERS: "Model veride olmayan sayı yazdı",
   BLOCKED_INPUT: "Enjeksiyon filtresi soruyu engelledi", UNSUPPORTED: "Desteklenmeyen konu: sabit cevap",
 };
-const state = { meta: null, task: "coach", timeline: [], profile: null, selected: new Set(), costUsd: 0 };
+// userId / history: only when the server runs with --iq-url (scores and history in the IQ service's SQL Server)
+const state = { meta: null, task: "coach", timeline: [], profile: null, selected: new Set(), costUsd: 0, userId: null, history: null };
+const newUserId = () => "playground-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 6);
 const fmt = n => Number(n).toLocaleString("tr-TR", { maximumFractionDigits: 2 });
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
@@ -210,6 +216,11 @@ async function init() {
   $("b-ollama").textContent = m.ollamaError ? "Ollama kapalı" : `Ollama: ${local} model`;
   if (m.ollamaError) { $("b-ollama").classList.add("warn"); $("b-ollama").title = m.ollamaError; }
   $("b-examples").textContent = m.promptExamples ? "İstemde örnek cevaplar: açık" : "İstemde örnek cevaplar: kapalı";
+  if (m.iqDb) {
+    $("b-history").textContent = "Skor geçmişi: SQL Server (iq_history)";
+    $("b-history").title = `Financial IQ servisi: ${m.iqDb.url}`;
+    $("score-hint").textContent = "Skoru çalışan Financial IQ servisi hesaplar ve SQL Server'a yazar (usp_SaveIqResult → iq_history). Koç, trend ve uyarılar son sonucu ve geçmişi oradan okur (fn_IqTrend). Hazır profil ya da sıfırlama yeni bir deneme kullanıcısı açar.";
+  }
 
   $("preset").innerHTML = m.presets.map(p => `<option value="${p.key}">${esc(p.label)}</option>`).join("") + `<option value="">Özel (elle girin)</option>`;
   $("preset").onchange = () => loadPreset($("preset").value);
@@ -219,7 +230,11 @@ async function init() {
   $("question-chips").onclick = e => { const b = e.target.closest("button"); if (b) $("question").value = b.dataset.q; };
   $("question").value = m.questions[0].text;
   $("btn-score").onclick = () => scoreProfiles([readProfile()], false);
-  $("btn-reset").onclick = () => { state.timeline = state.timeline.slice(-1); renderIq(); };
+  $("btn-reset").onclick = () => {
+    // iq_history is append-only: a reset in database mode is a new user with only the current profile
+    if (state.meta.iqDb) { if (state.profile) scoreProfiles([state.profile], true); return; }
+    state.timeline = state.timeline.slice(-1); renderIq();
+  };
   $("btn-run").onclick = runSelected;
   // a sensible first selection: the product's default model, and the template for contrast
   const first = m.models.find(x => x.name === "gemma3:4b") || m.models[0];
@@ -241,11 +256,13 @@ async function scoreProfiles(profiles, replace) {
   $("score-error").textContent = "";
   $("btn-score").disabled = true;
   try {
-    const { results } = await api("/api/score", { profiles });
+    if (state.meta.iqDb && (replace || !state.userId)) state.userId = newUserId();
+    const { results, history } = await api("/api/score", { profiles, userId: state.userId });
     state.timeline = replace ? results : [...state.timeline, ...results].slice(-50);
+    state.history = history || null;
     state.profile = profiles[profiles.length - 1];
     renderIq();
-    const { alerts } = await api("/api/run", { task: "warnings", profile: state.profile, timeline: state.timeline });
+    const { alerts } = await api("/api/run", { task: "warnings", profile: state.profile, timeline: state.timeline, userId: state.userId });
     $("alerts-panel").hidden = false;
     $("alerts").innerHTML = alerts.length ? alerts.map(a => `<li><span class="sev ${a.severity}">${{ CRITICAL: "KRİTİK", WARNING: "UYARI", INFO: "BİLGİ" }[a.severity] || a.severity}</span><span>${esc(a.message)}</span></li>`).join("") : "<li>Uyarı yok.</li>";
   } catch (e) { $("score-error").textContent = e.message; }
@@ -259,12 +276,27 @@ function renderIq() {
   $("iq-panel").hidden = false;
   $("iq-score").textContent = last.score;
   $("iq-seg").textContent = m.segments[last.segment] + " segment";
-  $("iq-rule").innerHTML = fb.appliedRule ? `<div class="rule"><b>Özel kural: ${esc(fb.appliedRule)}</b><br>${esc(m.rules[fb.appliedRule]?.meaning || "")}. Skoru faktörler değil bu kural belirledi.</div>` : "";
+  // a v2 rule (score 100 or 0) replaces the factors; a v3 label (score null) only names what shaped the points
+  const rule = fb.appliedRule ? m.rules[fb.appliedRule] : null;
+  const ruleNote = rule && rule.score === null ? "Skor yine faktörlerin toplamı; bu durum puanların hesaplanışını etkiledi." : "Skoru faktörler değil bu kural belirledi.";
+  $("iq-rule").innerHTML = fb.appliedRule ? `<div class="rule"><b>${rule && rule.score === null ? "Skoru etkileyen durum" : "Özel kural"}: ${esc(fb.appliedRule)}</b><br>${esc(rule?.meaning || "")}. ${ruleNote}</div>` : "";
   const factors = fb.factors || {};
-  $("iq-factors").innerHTML = Object.entries(m.factors).map(([k, f]) => {
+  // the factor table of the breakdown's own scoring version; its factorMaximums win when the IQ sends them
+  const table = (m.factorsByVersion || {})[fb.version || "v2"] || m.factors;
+  $("iq-factors").innerHTML = Object.entries(table).map(([k, base]) => {
+    const f = { label: base.label, max: (fb.factorMaximums || {})[k] ?? base.max };
     const v = factors[k] ?? 0, pct = Math.max(0, Math.min(100, v / f.max * 100));
     return `<div class="factor" title="${esc(f.label)}: ${v} / ${f.max}"><div class="top"><span>${esc(f.label)}</span><span>${v} / ${f.max}</span></div><div class="track"><div class="fill" style="width:${pct}%"></div></div></div>`;
   }).join("") + ((fb.warnings || []).length ? `<ul class="plain">${fb.warnings.map(w => `<li>${esc(m.warnings[w] || w)}</li>`).join("")}</ul>` : "");
+  if (state.history) {
+    // what fn_IqTrend returned: the same rows the trend explanation reads
+    const time = s => new Date(s).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    $("iq-timeline").innerHTML = `Skor geçmişi (SQL Server, ${esc(state.userId)}): ${state.history.length} kayıt`
+      + `<table class="hist"><tr><th>Saat</th><th>Skor</th><th>Değişim</th><th>3'lü ort.</th></tr>`
+      + state.history.map(h => `<tr><td>${time(h.calculatedAt)}</td><td>${h.score}</td><td>${h.scoreChange == null ? "–" : (h.scoreChange > 0 ? "+" : "") + h.scoreChange}</td><td>${fmt(h.movingAverage3)}</td></tr>`).join("")
+      + `</table>`;
+    return;
+  }
   $("iq-timeline").textContent = state.timeline.length > 1 ? "Skor geçmişi: " + state.timeline.map(t => t.score).join(" → ") : "Skor geçmişi: tek hesaplama";
 }
 
@@ -352,7 +384,7 @@ function renderResult(card, cfg, r) {
 async function runSelected() {
   const configs = selectedConfigs();
   const task = state.task, question = $("question").value;
-  const body = { task, question, profile: state.profile, timeline: state.timeline };
+  const body = { task, question, profile: state.profile, timeline: state.timeline, userId: state.userId };
   $("results").innerHTML = "";
   // local models run one after another on the server; the cards fill in as each one returns
   await Promise.all(configs.map(async cfg => {

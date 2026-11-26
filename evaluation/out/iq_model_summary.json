@@ -1,0 +1,3497 @@
+{
+ "rules": [
+  "VERY_HIGH_INCOME",
+  "VERY_HIGH_WEALTH",
+  "EXTREME_DEBT",
+  "SOLVENCY_CAP",
+  "WEALTH_RUNWAY"
+ ],
+ "factorKeys": {
+  "v2": [
+   "CashReserveMonths",
+   "DebtToIncomeRatio",
+   "SavingsRate",
+   "ExpenseRatio",
+   "Impatience"
+  ],
+  "v3": [
+   "CashReserveMonths",
+   "InstallmentToIncome",
+   "NetDebtToIncome",
+   "SavingsRate",
+   "Impatience"
+  ]
+ },
+ "factorMax": {
+  "v2": {
+   "CashReserveMonths": 25,
+   "DebtToIncomeRatio": 25,
+   "SavingsRate": 25,
+   "ExpenseRatio": 15,
+   "Impatience": 10
+  },
+  "v3": {
+   "CashReserveMonths": 30,
+   "InstallmentToIncome": 25,
+   "NetDebtToIncome": 10,
+   "SavingsRate": 30,
+   "Impatience": 5
+  }
+ },
+ "sobolN": 1024,
+ "sobol": {
+  "v2": {
+   "rows": [
+    {
+     "input": "monthlyIncome",
+     "S1": 0.08632177043978034,
+     "S1lo": 0.04966138421440813,
+     "S1hi": 0.12420147011565406,
+     "ST": 0.11722167972858438,
+     "STlo": 0.08780994537564156,
+     "SThi": 0.15328510387061198
+    },
+    {
+     "input": "monthlyExpenses",
+     "S1": 0.2712340849796551,
+     "S1lo": 0.21763457655894813,
+     "S1hi": 0.3234963923682899,
+     "ST": 0.34737269557308564,
+     "STlo": 0.31725660047261917,
+     "SThi": 0.37874492870572757
+    },
+    {
+     "input": "monthlyDebtPayment",
+     "S1": 0.018728731994057567,
+     "S1lo": -0.004346277040840188,
+     "S1hi": 0.037922828291720986,
+     "ST": 0.05260858301718644,
+     "STlo": 0.04366969116545786,
+     "SThi": 0.06255302252887772
+    },
+    {
+     "input": "totalDebt",
+     "S1": 0.3823614300954838,
+     "S1lo": 0.32897388585412957,
+     "S1hi": 0.437048370602981,
+     "ST": 0.40800747220580874,
+     "STlo": 0.37323902680275767,
+     "SThi": 0.4469480491866171
+    },
+    {
+     "input": "cashReserve",
+     "S1": 0.047823230580045964,
+     "S1lo": 0.02094314882486396,
+     "S1hi": 0.0733169568184038,
+     "ST": 0.11062856281093977,
+     "STlo": 0.0953758361243252,
+     "SThi": 0.1293994445179933
+    },
+    {
+     "input": "investmentAmount",
+     "S1": 0.06652988817443296,
+     "S1lo": 0.03932751096519091,
+     "S1hi": 0.10799148548463557,
+     "ST": 0.12866701116489665,
+     "STlo": 0.10064771418518383,
+     "SThi": 0.16087035911905764
+    },
+    {
+     "input": "impatienceLevel",
+     "S1": 0.01767239221038243,
+     "S1lo": 0.004593738465617359,
+     "S1hi": 0.03014541712151915,
+     "ST": 0.018561132262510487,
+     "STlo": 0.017013015285195072,
+     "SThi": 0.020080467901988964
+    }
+   ],
+   "variance": 709.0431954860687,
+   "mean": 60.32666015625,
+   "sumS1": 0.8906715284738381,
+   "warnings": {
+    "High impatience": 813,
+    "Low cash reserve": 705,
+    "High debt burden": 468,
+    "Negative savings rate": 600,
+    "Overspending relative to income": 649,
+    "High total debt": 74,
+    "Extreme total debt": 1
+   },
+   "rules": {
+    "None": 1919,
+    "VERY_HIGH_WEALTH": 57,
+    "VERY_HIGH_INCOME": 71,
+    "EXTREME_DEBT": 1
+   },
+   "segments": {
+    "HIGH": 786,
+    "MEDIUM": 715,
+    "LOW": 547
+   },
+   "factorShares": [
+    {
+     "factor": "CashReserveMonths",
+     "max": 25,
+     "mean": 16.32177734375,
+     "effective": 0.1992780475588657
+    },
+    {
+     "factor": "DebtToIncomeRatio",
+     "max": 25,
+     "mean": 17.0166015625,
+     "effective": 0.2703700575757325
+    },
+    {
+     "factor": "SavingsRate",
+     "max": 25,
+     "mean": 14.86083984375,
+     "effective": 0.3552302379909564
+    },
+    {
+     "factor": "ExpenseRatio",
+     "max": 15,
+     "mean": 6.94970703125,
+     "effective": 0.14045848881182432
+    },
+    {
+     "factor": "Impatience",
+     "max": 10,
+     "mean": 5.177734375,
+     "effective": 0.0346631680626211
+    }
+   ],
+   "evaluations": 9216
+  },
+  "v3": {
+   "rows": [
+    {
+     "input": "monthlyIncome",
+     "S1": 0.0,
+     "S1lo": 0.0,
+     "S1hi": 0.0,
+     "ST": 0.0,
+     "STlo": 0.0,
+     "SThi": 0.0
+    },
+    {
+     "input": "monthlyExpenses",
+     "S1": 0.13607154003351152,
+     "S1lo": 0.10013245001784399,
+     "S1hi": 0.17452285358193864,
+     "ST": 0.17752497775584866,
+     "STlo": 0.15659722482772875,
+     "SThi": 0.19579070204233395
+    },
+    {
+     "input": "monthlyDebtPayment",
+     "S1": 0.0018879956483288463,
+     "S1lo": -0.020455963172226123,
+     "S1hi": 0.022716195498531076,
+     "ST": 0.05263034902418654,
+     "STlo": 0.04176649802121474,
+     "SThi": 0.062689330797525
+    },
+    {
+     "input": "totalDebt",
+     "S1": 0.6081010987584679,
+     "S1lo": 0.5367346443006721,
+     "S1hi": 0.6889089127176996,
+     "ST": 0.6730109608312574,
+     "STlo": 0.6199420456427799,
+     "SThi": 0.7246300520725574
+    },
+    {
+     "input": "cashReserve",
+     "S1": 0.0630941625772471,
+     "S1lo": 0.035848276759858744,
+     "S1hi": 0.0915301987140583,
+     "ST": 0.1200713310830185,
+     "STlo": 0.10745315708639586,
+     "SThi": 0.13546772790935846
+    },
+    {
+     "input": "investmentAmount",
+     "S1": 0.06061442099611335,
+     "S1lo": 0.034694666135943845,
+     "S1hi": 0.08801342373947522,
+     "ST": 0.101678059401317,
+     "STlo": 0.0874639191072389,
+     "SThi": 0.11601162026206786
+    },
+    {
+     "input": "impatienceLevel",
+     "S1": 0.005642605124129422,
+     "S1lo": 0.00017079485109760696,
+     "S1hi": 0.011328589808514635,
+     "ST": 0.004268378075594166,
+     "STlo": 0.003905006296803788,
+     "SThi": 0.004613561447451761
+    }
+   ],
+   "variance": 802.4811551570892,
+   "mean": 66.54736328125,
+   "sumS1": 0.8754118231377981,
+   "warnings": {
+    "High impatience": 859,
+    "Low cash reserve": 790,
+    "Installment without debt": 91,
+    "High debt burden": 489,
+    "Elevated total debt": 156,
+    "Negative savings rate": 671,
+    "Installment below interest": 334,
+    "Low savings rate": 196,
+    "High total debt": 78,
+    "Extreme total debt": 66,
+    "Elevated debt burden": 161
+   },
+   "rules": {
+    "None": 1934,
+    "WEALTH_RUNWAY": 48,
+    "SOLVENCY_CAP": 66
+   },
+   "segments": {
+    "HIGH": 1063,
+    "LOW": 412,
+    "MEDIUM": 573
+   },
+   "factorShares": [
+    {
+     "factor": "CashReserveMonths",
+     "max": 30,
+     "mean": 19.29296875,
+     "effective": 0.2615226314848651
+    },
+    {
+     "factor": "InstallmentToIncome",
+     "max": 25,
+     "mean": 17.5859375,
+     "effective": 0.29157382759703493
+    },
+    {
+     "factor": "NetDebtToIncome",
+     "max": 10,
+     "mean": 8.998046875,
+     "effective": 0.05967283177607421
+    },
+    {
+     "factor": "SavingsRate",
+     "max": 30,
+     "mean": 18.18408203125,
+     "effective": 0.3788449579412159
+    },
+    {
+     "factor": "Impatience",
+     "max": 5,
+     "mean": 2.486328125,
+     "effective": 0.008385751200809853
+    }
+   ],
+   "evaluations": 9216
+  }
+ },
+ "cliffs": {
+  "v2": {
+   "profiles": 2048,
+   "hist": [
+    [
+     0,
+     1837
+    ],
+    [
+     4,
+     27
+    ],
+    [
+     5,
+     13
+    ],
+    [
+     6,
+     12
+    ],
+    [
+     7,
+     50
+    ],
+    [
+     8,
+     53
+    ],
+    [
+     10,
+     31
+    ],
+    [
+     12,
+     1
+    ],
+    [
+     14,
+     2
+    ],
+    [
+     15,
+     18
+    ],
+    [
+     17,
+     1
+    ],
+    [
+     18,
+     1
+    ],
+    [
+     29,
+     1
+    ],
+    [
+     95,
+     1
+    ]
+   ],
+   "atLeast": {
+    "1": 0.10302734375,
+    "5": 0.08984375,
+    "10": 0.02734375,
+    "20": 0.0009765625
+   },
+   "max": 95,
+   "perInput": {
+    "monthlyIncome": {
+     "share": 0.09619140625,
+     "tested": 2048,
+     "meanAbs": 8.515151515151516,
+     "maxAbs": 95
+    },
+    "monthlyExpenses": {
+     "share": 0.08154296875,
+     "tested": 2048,
+     "meanAbs": 7.803571428571429,
+     "maxAbs": 15
+    },
+    "monthlyDebtPayment": {
+     "share": 0.03459637561779242,
+     "tested": 1214,
+     "meanAbs": 8.380952380952381,
+     "maxAbs": 10
+    },
+    "totalDebt": {
+     "share": 0.0,
+     "tested": 1123,
+     "meanAbs": 0.0,
+     "maxAbs": 0
+    },
+    "cashReserve": {
+     "share": 0.006904487917146145,
+     "tested": 1738,
+     "meanAbs": 8.5,
+     "maxAbs": 10
+    },
+    "investmentAmount": {
+     "share": 0.002471169686985173,
+     "tested": 1214,
+     "meanAbs": 8.0,
+     "maxAbs": 10
+    },
+    "impatienceLevel": {
+     "share": 0.93701171875,
+     "tested": 2048,
+     "meanAbs": 2.4951298701298703,
+     "maxAbs": 3
+    }
+   },
+   "causes": [
+    {
+     "input": "monthlyIncome",
+     "dir": "−%1",
+     "change": "SavingsRate 8→0",
+     "count": 25,
+     "maxAbs": 8,
+     "label": "tasarruf 0"
+    },
+    {
+     "input": "monthlyExpenses",
+     "dir": "+%1",
+     "change": "SavingsRate 8→0",
+     "count": 22,
+     "maxAbs": 8,
+     "label": "tasarruf 0"
+    },
+    {
+     "input": "monthlyIncome",
+     "dir": "−%1",
+     "change": "SavingsRate 15→8",
+     "count": 21,
+     "maxAbs": 7,
+     "label": "tasarruf %10"
+    },
+    {
+     "input": "monthlyIncome",
+     "dir": "+%1",
+     "change": "SavingsRate 8→15",
+     "count": 20,
+     "maxAbs": 7,
+     "label": "tasarruf %10"
+    },
+    {
+     "input": "monthlyIncome",
+     "dir": "+%1",
+     "change": "SavingsRate 0→8",
+     "count": 18,
+     "maxAbs": 8,
+     "label": "tasarruf 0"
+    },
+    {
+     "input": "monthlyExpenses",
+     "dir": "−%1",
+     "change": "SavingsRate 8→15",
+     "count": 17,
+     "maxAbs": 7,
+     "label": "tasarruf %10"
+    },
+    {
+     "input": "monthlyIncome",
+     "dir": "−%1",
+     "change": "ExpenseRatio 9→5",
+     "count": 16,
+     "maxAbs": 4,
+     "label": "gider %60"
+    },
+    {
+     "input": "monthlyExpenses",
+     "dir": "+%1",
+     "change": "ExpenseRatio 9→5",
+     "count": 16,
+     "maxAbs": 4,
+     "label": "gider %60"
+    },
+    {
+     "input": "monthlyExpenses",
+     "dir": "−%1",
+     "change": "SavingsRate 0→8",
+     "count": 15,
+     "maxAbs": 8,
+     "label": "tasarruf 0"
+    },
+    {
+     "input": "monthlyExpenses",
+     "dir": "+%1",
+     "change": "SavingsRate 15→8",
+     "count": 13,
+     "maxAbs": 7,
+     "label": "tasarruf %10"
+    },
+    {
+     "input": "monthlyIncome",
+     "dir": "+%1",
+     "change": "ExpenseRatio 5→9",
+     "count": 12,
+     "maxAbs": 4,
+     "label": "gider %60"
+    },
+    {
+     "input": "monthlyExpenses",
+     "dir": "−%1",
+     "change": "ExpenseRatio 5→9",
+     "count": 12,
+     "maxAbs": 4,
+     "label": "gider %60"
+    },
+    {
+     "input": "monthlyIncome",
+     "dir": "−%1",
+     "change": "SavingsRate 25→15 + ExpenseRatio 5→0",
+     "count": 10,
+     "maxAbs": 15,
+     "label": "tasarruf %20 + gider %80"
+    },
+    {
+     "input": "monthlyExpenses",
+     "dir": "+%1",
+     "change": "SavingsRate 25→15 + ExpenseRatio 5→0",
+     "count": 10,
+     "maxAbs": 15,
+     "label": "tasarruf %20 + gider %80"
+    }
+   ],
+   "causeTotal": 423
+  },
+  "v3": {
+   "profiles": 2048,
+   "hist": [
+    [
+     0,
+     1211
+    ],
+    [
+     1,
+     686
+    ],
+    [
+     2,
+     149
+    ],
+    [
+     3,
+     2
+    ]
+   ],
+   "atLeast": {
+    "1": 0.40869140625,
+    "5": 0.0,
+    "10": 0.0,
+    "20": 0.0
+   },
+   "max": 3,
+   "perInput": {
+    "monthlyIncome": {
+     "share": 0.35009765625,
+     "tested": 2048,
+     "meanAbs": 1.0945829750644884,
+     "maxAbs": 2
+    },
+    "monthlyExpenses": {
+     "share": 0.33642578125,
+     "tested": 2048,
+     "meanAbs": 1.0709426627793974,
+     "maxAbs": 3
+    },
+    "monthlyDebtPayment": {
+     "share": 0.19522240527182866,
+     "tested": 1214,
+     "meanAbs": 1.0576923076923077,
+     "maxAbs": 2
+    },
+    "totalDebt": {
+     "share": 0.0943900267141585,
+     "tested": 1123,
+     "meanAbs": 1.0344827586206897,
+     "maxAbs": 2
+    },
+    "cashReserve": {
+     "share": 0.07077100115074798,
+     "tested": 1738,
+     "meanAbs": 1.0,
+     "maxAbs": 1
+    },
+    "investmentAmount": {
+     "share": 0.08401976935749589,
+     "tested": 1214,
+     "meanAbs": 1.0196078431372548,
+     "maxAbs": 2
+    },
+    "impatienceLevel": {
+     "share": 0.98193359375,
+     "tested": 2048,
+     "meanAbs": 1.2512422360248447,
+     "maxAbs": 2
+    }
+   },
+   "causes": [
+    {
+     "input": "monthlyExpenses",
+     "dir": "−%1",
+     "change": "SavingsRate 5→6",
+     "count": 25,
+     "maxAbs": 1,
+     "label": "?"
+    },
+    {
+     "input": "monthlyIncome",
+     "dir": "−%1",
+     "change": "SavingsRate 7→6",
+     "count": 24,
+     "maxAbs": 1,
+     "label": "?"
+    },
+    {
+     "input": "monthlyIncome",
+     "dir": "+%1",
+     "change": "SavingsRate 5→6",
+     "count": 24,
+     "maxAbs": 1,
+     "label": "?"
+    },
+    {
+     "input": "monthlyIncome",
+     "dir": "+%1",
+     "change": "SavingsRate 7→8",
+     "count": 22,
+     "maxAbs": 1,
+     "label": "?"
+    },
+    {
+     "input": "monthlyExpenses",
+     "dir": "−%1",
+     "change": "SavingsRate 7→8",
+     "count": 22,
+     "maxAbs": 1,
+     "label": "?"
+    },
+    {
+     "input": "monthlyIncome",
+     "dir": "−%1",
+     "change": "SavingsRate 5→4",
+     "count": 22,
+     "maxAbs": 1,
+     "label": "?"
+    },
+    {
+     "input": "monthlyIncome",
+     "dir": "−%1",
+     "change": "SavingsRate 22→21",
+     "count": 21,
+     "maxAbs": 1,
+     "label": "?"
+    },
+    {
+     "input": "monthlyIncome",
+     "dir": "+%1",
+     "change": "SavingsRate 18→19",
+     "count": 21,
+     "maxAbs": 1,
+     "label": "?"
+    },
+    {
+     "input": "monthlyExpenses",
+     "dir": "−%1",
+     "change": "SavingsRate 22→23",
+     "count": 21,
+     "maxAbs": 1,
+     "label": "?"
+    },
+    {
+     "input": "monthlyIncome",
+     "dir": "+%1",
+     "change": "SavingsRate 22→23",
+     "count": 20,
+     "maxAbs": 1,
+     "label": "?"
+    },
+    {
+     "input": "monthlyIncome",
+     "dir": "+%1",
+     "change": "SavingsRate 17→18",
+     "count": 20,
+     "maxAbs": 1,
+     "label": "?"
+    },
+    {
+     "input": "monthlyIncome",
+     "dir": "−%1",
+     "change": "SavingsRate 3→2",
+     "count": 20,
+     "maxAbs": 1,
+     "label": "?"
+    },
+    {
+     "input": "monthlyExpenses",
+     "dir": "−%1",
+     "change": "SavingsRate 18→19",
+     "count": 20,
+     "maxAbs": 1,
+     "label": "?"
+    },
+    {
+     "input": "monthlyIncome",
+     "dir": "+%1",
+     "change": "SavingsRate 14→15",
+     "count": 20,
+     "maxAbs": 1,
+     "label": "?"
+    }
+   ],
+   "causeTotal": 2793
+  }
+ },
+ "deps": {
+  "v2": {
+   "matrix": {
+    "monthlyIncome": {
+     "CashReserveMonths": 0.0,
+     "DebtToIncomeRatio": 0.5200356188780053,
+     "SavingsRate": 0.5672306322350846,
+     "ExpenseRatio": 0.7105966162065895,
+     "Impatience": 0.0,
+     "__rule": 0.023333333333333334,
+     "__score": 0.8475,
+     "__reach": 65,
+     "__touched": [
+      "DebtToIncomeRatio",
+      "SavingsRate",
+      "ExpenseRatio"
+     ]
+    },
+    "monthlyExpenses": {
+     "CashReserveMonths": 0.3503521126760563,
+     "DebtToIncomeRatio": 0.0,
+     "SavingsRate": 0.6056338028169014,
+     "ExpenseRatio": 0.7095070422535211,
+     "Impatience": 0.0,
+     "__rule": 0.0,
+     "__score": 0.7991666666666667,
+     "__reach": 65,
+     "__touched": [
+      "CashReserveMonths",
+      "SavingsRate",
+      "ExpenseRatio"
+     ]
+    },
+    "monthlyDebtPayment": {
+     "CashReserveMonths": 0.0,
+     "DebtToIncomeRatio": 0.7280163599182005,
+     "SavingsRate": 0.49079754601226994,
+     "ExpenseRatio": 0.0,
+     "Impatience": 0.0,
+     "__rule": 0.0,
+     "__score": 0.7618586640851888,
+     "__reach": 50,
+     "__touched": [
+      "DebtToIncomeRatio",
+      "SavingsRate"
+     ]
+    },
+    "totalDebt": {
+     "CashReserveMonths": 0.0,
+     "DebtToIncomeRatio": 0.06643757159221077,
+     "SavingsRate": 0.0,
+     "ExpenseRatio": 0.0,
+     "Impatience": 0.0,
+     "__rule": 0.005411255411255411,
+     "__score": 0.06818181818181818,
+     "__reach": 25,
+     "__touched": [
+      "DebtToIncomeRatio"
+     ]
+    },
+    "cashReserve": {
+     "CashReserveMonths": 0.2609942638623327,
+     "DebtToIncomeRatio": 0.008604206500956023,
+     "SavingsRate": 0.0,
+     "ExpenseRatio": 0.0,
+     "Impatience": 0.0,
+     "__rule": 0.005405405405405406,
+     "__score": 0.25765765765765763,
+     "__reach": 50,
+     "__touched": [
+      "CashReserveMonths",
+      "DebtToIncomeRatio"
+     ]
+    },
+    "investmentAmount": {
+     "CashReserveMonths": 0.2111111111111111,
+     "DebtToIncomeRatio": 0.013333333333333334,
+     "SavingsRate": 0.0,
+     "ExpenseRatio": 0.0,
+     "Impatience": 0.0,
+     "__rule": 0.009384775808133473,
+     "__score": 0.21376433785192908,
+     "__reach": 50,
+     "__touched": [
+      "CashReserveMonths",
+      "DebtToIncomeRatio"
+     ]
+    },
+    "impatienceLevel": {
+     "CashReserveMonths": 0.0,
+     "DebtToIncomeRatio": 0.0,
+     "SavingsRate": 0.0,
+     "ExpenseRatio": 0.0,
+     "Impatience": 1.0,
+     "__rule": 0.0,
+     "__score": 0.9466666666666667,
+     "__reach": 10,
+     "__touched": [
+      "Impatience"
+     ]
+    }
+   },
+   "probes": 7626,
+   "clean": 7192,
+   "base": 600
+  },
+  "v3": {
+   "matrix": {
+    "monthlyIncome": {
+     "CashReserveMonths": 0.0,
+     "InstallmentToIncome": 0.5925925925925926,
+     "NetDebtToIncome": 0.18604651162790697,
+     "SavingsRate": 0.6055124892334195,
+     "Impatience": 0.0,
+     "__rule": 0.025,
+     "__score": 0.815,
+     "__reach": 65,
+     "__touched": [
+      "InstallmentToIncome",
+      "NetDebtToIncome",
+      "SavingsRate"
+     ]
+    },
+    "monthlyExpenses": {
+     "CashReserveMonths": 0.5231560891938251,
+     "InstallmentToIncome": 0.14922813036020582,
+     "NetDebtToIncome": 0.03687821612349914,
+     "SavingsRate": 0.6809605488850772,
+     "Impatience": 0.0,
+     "__rule": 0.0225,
+     "__score": 0.8533333333333334,
+     "__reach": 95,
+     "__touched": [
+      "CashReserveMonths",
+      "InstallmentToIncome",
+      "NetDebtToIncome",
+      "SavingsRate"
+     ]
+    },
+    "monthlyDebtPayment": {
+     "CashReserveMonths": 0.4721115537848606,
+     "InstallmentToIncome": 0.7400398406374502,
+     "NetDebtToIncome": 0.025896414342629483,
+     "SavingsRate": 0.5328685258964143,
+     "Impatience": 0.0,
+     "__rule": 0.02032913843175218,
+     "__score": 0.8848015488867377,
+     "__reach": 95,
+     "__touched": [
+      "CashReserveMonths",
+      "InstallmentToIncome",
+      "NetDebtToIncome",
+      "SavingsRate"
+     ]
+    },
+    "totalDebt": {
+     "CashReserveMonths": 0.0,
+     "InstallmentToIncome": 0.21171171171171171,
+     "NetDebtToIncome": 0.23423423423423423,
+     "SavingsRate": 0.16554054054054054,
+     "Impatience": 0.0,
+     "__rule": 0.010822510822510822,
+     "__score": 0.3787878787878788,
+     "__reach": 65,
+     "__touched": [
+      "InstallmentToIncome",
+      "NetDebtToIncome",
+      "SavingsRate"
+     ]
+    },
+    "cashReserve": {
+     "CashReserveMonths": 0.538961038961039,
+     "InstallmentToIncome": 0.1150278293135436,
+     "NetDebtToIncome": 0.03525046382189239,
+     "SavingsRate": 0.10482374768089053,
+     "Impatience": 0.0,
+     "__rule": 0.00990990990990991,
+     "__score": 0.6549549549549549,
+     "__reach": 95,
+     "__touched": [
+      "CashReserveMonths",
+      "InstallmentToIncome",
+      "NetDebtToIncome",
+      "SavingsRate"
+     ]
+    },
+    "investmentAmount": {
+     "CashReserveMonths": 0.532258064516129,
+     "InstallmentToIncome": 0.1053763440860215,
+     "NetDebtToIncome": 0.03225806451612903,
+     "SavingsRate": 0.1086021505376344,
+     "Impatience": 0.0,
+     "__rule": 0.011470281543274244,
+     "__score": 0.656934306569343,
+     "__reach": 95,
+     "__touched": [
+      "CashReserveMonths",
+      "InstallmentToIncome",
+      "NetDebtToIncome",
+      "SavingsRate"
+     ]
+    },
+    "impatienceLevel": {
+     "CashReserveMonths": 0.0,
+     "InstallmentToIncome": 0.0,
+     "NetDebtToIncome": 0.0,
+     "SavingsRate": 0.0,
+     "Impatience": 1.0,
+     "__rule": 0.0,
+     "__score": 0.9775,
+     "__reach": 5,
+     "__touched": [
+      "Impatience"
+     ]
+    }
+   },
+   "probes": 7626,
+   "clean": 7393,
+   "base": 600
+  }
+ },
+ "params": {
+  "rows": [
+   {
+    "group": "Ara değişken",
+    "name": "Yatırımın rezerve sayılan payı",
+    "value": "0,5",
+    "meaning": "rezerv = nakit + 0,5 × yatırım; net borçta yatırımın tamamı sayılır",
+    "level": "kısmi",
+    "source": "Basel III LCR likidite iskontosu benzetmesi",
+    "factor": "CashReserveMonths",
+    "checks": {
+     "v2": {
+      "before": 90,
+      "after": 83,
+      "fBefore": 15,
+      "fAfter": 8,
+      "ruleBefore": null,
+      "ruleAfter": null
+     },
+     "v3": {
+      "before": 85,
+      "after": 85,
+      "fBefore": 15,
+      "fAfter": 15,
+      "ruleBefore": null,
+      "ruleAfter": null
+     }
+    }
+   },
+   {
+    "group": "Acil durum fonu (25)",
+    "name": "Rezerv ≥ 6 ay",
+    "value": "25 puan",
+    "meaning": "rezervin aylık gidere oranı",
+    "level": "kısmi",
+    "source": "6 aylık fon önerisi (kısmi dayanak)",
+    "factor": "CashReserveMonths",
+    "checks": {
+     "v2": {
+      "before": 100,
+      "after": 90,
+      "fBefore": 25,
+      "fAfter": 15,
+      "ruleBefore": null,
+      "ruleAfter": null
+     },
+     "v3": {
+      "before": 97,
+      "after": 97,
+      "fBefore": 27,
+      "fAfter": 27,
+      "ruleBefore": null,
+      "ruleAfter": null
+     }
+    }
+   },
+   {
+    "group": "Acil durum fonu (25)",
+    "name": "Rezerv ≥ 3 ay",
+    "value": "15 puan",
+    "meaning": "",
+    "level": "güçlü",
+    "source": "Greninger ve ark. 1996 (156 uzmanlı Delphi): 3 aylık fon",
+    "factor": "CashReserveMonths",
+    "checks": {
+     "v2": {
+      "before": 90,
+      "after": 83,
+      "fBefore": 15,
+      "fAfter": 8,
+      "ruleBefore": null,
+      "ruleAfter": null
+     },
+     "v3": {
+      "before": 85,
+      "after": 85,
+      "fBefore": 15,
+      "fAfter": 15,
+      "ruleBefore": null,
+      "ruleAfter": null
+     }
+    }
+   },
+   {
+    "group": "Acil durum fonu (25)",
+    "name": "Rezerv ≥ 1 ay",
+    "value": "8 puan",
+    "meaning": "altı 0 puan",
+    "level": "dayanaksız",
+    "source": "dayanak bulunamadı",
+    "factor": "CashReserveMonths",
+    "checks": {
+     "v2": {
+      "before": 83,
+      "after": 75,
+      "fBefore": 8,
+      "fAfter": 0,
+      "ruleBefore": null,
+      "ruleAfter": null
+     },
+     "v3": {
+      "before": 75,
+      "after": 75,
+      "fBefore": 5,
+      "fAfter": 5,
+      "ruleBefore": null,
+      "ruleAfter": null
+     }
+    }
+   },
+   {
+    "group": "Borç yükü (25)",
+    "name": "Taksit / gelir ≤ %10",
+    "value": "25 puan",
+    "meaning": "faktör = iki ölçünün kötüsü (taksit ve net borç)",
+    "level": "güçlü",
+    "source": "Greninger ve ark. 1996",
+    "factor": "DebtToIncomeRatio",
+    "checks": {
+     "v2": {
+      "before": 100,
+      "after": 90,
+      "fBefore": 25,
+      "fAfter": 15,
+      "ruleBefore": null,
+      "ruleAfter": null
+     },
+     "v3": {
+      "before": 100,
+      "after": 100,
+      "fBefore": null,
+      "fAfter": null,
+      "ruleBefore": null,
+      "ruleAfter": null
+     }
+    }
+   },
+   {
+    "group": "Borç yükü (25)",
+    "name": "Taksit / gelir ≤ %20",
+    "value": "15 puan",
+    "meaning": "",
+    "level": "güçlü",
+    "source": "Greninger ve ark. 1996",
+    "factor": "DebtToIncomeRatio",
+    "checks": {
+     "v2": {
+      "before": 90,
+      "after": 83,
+      "fBefore": 15,
+      "fAfter": 8,
+      "ruleBefore": null,
+      "ruleAfter": null
+     },
+     "v3": {
+      "before": 90,
+      "after": 90,
+      "fBefore": null,
+      "fAfter": null,
+      "ruleBefore": null,
+      "ruleAfter": null
+     }
+    }
+   },
+   {
+    "group": "Borç yükü (25)",
+    "name": "Taksit / gelir ≤ %36",
+    "value": "8 puan",
+    "meaning": "eşik değeri",
+    "level": "kısmi",
+    "source": "28/36 kuralı (Fannie Mae)",
+    "factor": "DebtToIncomeRatio",
+    "checks": {
+     "v2": {
+      "before": 83,
+      "after": 75,
+      "fBefore": 8,
+      "fAfter": 0,
+      "ruleBefore": null,
+      "ruleAfter": null
+     },
+     "v3": {
+      "before": 74,
+      "after": 74,
+      "fBefore": null,
+      "fAfter": null,
+      "ruleBefore": null,
+      "ruleAfter": null
+     }
+    }
+   },
+   {
+    "group": "Borç yükü (25)",
+    "name": "Taksit / gelir > %36",
+    "value": "0 puan + uyarı",
+    "meaning": "“High debt burden”: kırılgan bant",
+    "level": "güçlü",
+    "source": "Greninger ve ark. 1996: %36 üstü kırılgan",
+    "factor": "DebtToIncomeRatio",
+    "checks": {
+     "v2": {
+      "before": 83,
+      "after": 75,
+      "fBefore": 8,
+      "fAfter": 0,
+      "ruleBefore": null,
+      "ruleAfter": null
+     },
+     "v3": {
+      "before": 74,
+      "after": 74,
+      "fBefore": null,
+      "fAfter": null,
+      "ruleBefore": null,
+      "ruleAfter": null
+     }
+    }
+   },
+   {
+    "group": "Borç yükü (25)",
+    "name": "Net borç ≤ 0,5 yıllık gelir",
+    "value": "25 puan",
+    "meaning": "net borç = borç − nakit − yatırım",
+    "level": "dayanaksız",
+    "source": "dayanak bulunamadı",
+    "factor": "DebtToIncomeRatio",
+    "checks": {
+     "v2": {
+      "before": 100,
+      "after": 90,
+      "fBefore": 25,
+      "fAfter": 15,
+      "ruleBefore": null,
+      "ruleAfter": null
+     },
+     "v3": {
+      "before": 84,
+      "after": 84,
+      "fBefore": null,
+      "fAfter": null,
+      "ruleBefore": null,
+      "ruleAfter": null
+     }
+    }
+   },
+   {
+    "group": "Borç yükü (25)",
+    "name": "Net borç ≤ 1 yıllık gelir",
+    "value": "15 puan",
+    "meaning": "",
+    "level": "dayanaksız",
+    "source": "dayanak bulunamadı",
+    "factor": "DebtToIncomeRatio",
+    "checks": {
+     "v2": {
+      "before": 90,
+      "after": 83,
+      "fBefore": 15,
+      "fAfter": 8,
+      "ruleBefore": null,
+      "ruleAfter": null
+     },
+     "v3": {
+      "before": 71,
+      "after": 71,
+      "fBefore": null,
+      "fAfter": null,
+      "ruleBefore": null,
+      "ruleAfter": null
+     }
+    }
+   },
+   {
+    "group": "Borç yükü (25)",
+    "name": "Net borç ≤ 3 yıllık gelir",
+    "value": "8 puan",
+    "meaning": "üstü 0 + “High total debt”",
+    "level": "dayanaksız",
+    "source": "dayanak bulunamadı",
+    "factor": "DebtToIncomeRatio",
+    "checks": {
+     "v2": {
+      "before": 83,
+      "after": 75,
+      "fBefore": 8,
+      "fAfter": 0,
+      "ruleBefore": null,
+      "ruleAfter": null
+     },
+     "v3": {
+      "before": 37,
+      "after": 37,
+      "fBefore": null,
+      "fAfter": null,
+      "ruleBefore": null,
+      "ruleAfter": null
+     }
+    }
+   },
+   {
+    "group": "Tasarruf (25)",
+    "name": "Tasarruf oranı ≥ %20",
+    "value": "25 puan",
+    "meaning": "(gelir − gider − taksit) / gelir",
+    "level": "kısmi",
+    "source": "50/30/20 kuralı",
+    "factor": "SavingsRate",
+    "checks": {
+     "v2": {
+      "before": 75,
+      "after": 65,
+      "fBefore": 25,
+      "fAfter": 15,
+      "ruleBefore": null,
+      "ruleAfter": null
+     },
+     "v3": {
+      "before": 67,
+      "after": 67,
+      "fBefore": 30,
+      "fAfter": 30,
+      "ruleBefore": null,
+      "ruleAfter": null
+     }
+    }
+   },
+   {
+    "group": "Tasarruf (25)",
+    "name": "Tasarruf oranı ≥ %10",
+    "value": "15 puan",
+    "meaning": "",
+    "level": "güçlü",
+    "source": "Greninger ve ark. 1996",
+    "factor": "SavingsRate",
+    "checks": {
+     "v2": {
+      "before": 65,
+      "after": 58,
+      "fBefore": 15,
+      "fAfter": 8,
+      "ruleBefore": null,
+      "ruleAfter": null
+     },
+     "v3": {
+      "before": 53,
+      "after": 53,
+      "fBefore": 18,
+      "fAfter": 18,
+      "ruleBefore": null,
+      "ruleAfter": null
+     }
+    }
+   },
+   {
+    "group": "Tasarruf (25)",
+    "name": "Tasarruf oranı ≥ 0",
+    "value": "8 puan",
+    "meaning": "altı 0 + “Negative savings rate”",
+    "level": "dayanaksız",
+    "source": "dayanak bulunamadı",
+    "factor": "SavingsRate",
+    "checks": {
+     "v2": {
+      "before": 58,
+      "after": 50,
+      "fBefore": 8,
+      "fAfter": 0,
+      "ruleBefore": null,
+      "ruleAfter": null
+     },
+     "v3": {
+      "before": 40,
+      "after": 40,
+      "fBefore": 6,
+      "fAfter": 6,
+      "ruleBefore": null,
+      "ruleAfter": null
+     }
+    }
+   },
+   {
+    "group": "Gider oranı (15)",
+    "name": "Gider / gelir ≤ %40",
+    "value": "15 puan",
+    "meaning": "",
+    "level": "dayanaksız",
+    "source": "dayanak bulunamadı",
+    "factor": "ExpenseRatio",
+    "checks": {
+     "v2": {
+      "before": 100,
+      "after": 94,
+      "fBefore": 15,
+      "fAfter": 9,
+      "ruleBefore": null,
+      "ruleAfter": null
+     },
+     "v3": {
+      "before": 100,
+      "after": 100,
+      "fBefore": null,
+      "fAfter": null,
+      "ruleBefore": null,
+      "ruleAfter": null
+     }
+    }
+   },
+   {
+    "group": "Gider oranı (15)",
+    "name": "Gider / gelir ≤ %60",
+    "value": "9 puan",
+    "meaning": "",
+    "level": "dayanaksız",
+    "source": "dayanak bulunamadı",
+    "factor": "ExpenseRatio",
+    "checks": {
+     "v2": {
+      "before": 84,
+      "after": 80,
+      "fBefore": 9,
+      "fAfter": 5,
+      "ruleBefore": null,
+      "ruleAfter": null
+     },
+     "v3": {
+      "before": 94,
+      "after": 94,
+      "fBefore": null,
+      "fAfter": null,
+      "ruleBefore": null,
+      "ruleAfter": null
+     }
+    }
+   },
+   {
+    "group": "Gider oranı (15)",
+    "name": "Gider / gelir ≤ %80",
+    "value": "5 puan",
+    "meaning": "üstü 0 + “Overspending…”",
+    "level": "kısmi",
+    "source": "kısmi dayanak",
+    "factor": "ExpenseRatio",
+    "checks": {
+     "v2": {
+      "before": 70,
+      "after": 65,
+      "fBefore": 5,
+      "fAfter": 0,
+      "ruleBefore": null,
+      "ruleAfter": null
+     },
+     "v3": {
+      "before": 84,
+      "after": 84,
+      "fBefore": null,
+      "fAfter": null,
+      "ruleBefore": null,
+      "ruleAfter": null
+     }
+    }
+   },
+   {
+    "group": "Kural",
+    "name": "VERY_HIGH_INCOME",
+    "value": "gelir ≥ 1.000.000 ve net borç ≤ 1 yıllık gelir → 100",
+    "meaning": "1. öncelik",
+    "level": "dayanaksız",
+    "source": "incelenen literatürde emsali yok",
+    "factor": null,
+    "checks": {
+     "v2": {
+      "before": 100,
+      "after": 33,
+      "fBefore": null,
+      "fAfter": null,
+      "ruleBefore": "VERY_HIGH_INCOME",
+      "ruleAfter": null
+     },
+     "v3": {
+      "before": 53,
+      "after": 53,
+      "fBefore": null,
+      "fAfter": null,
+      "ruleBefore": null,
+      "ruleAfter": null
+     }
+    }
+   },
+   {
+    "group": "Kural",
+    "name": "VERY_HIGH_INCOME borç sınırı",
+    "value": "net borç ≤ 12 × aylık gelir",
+    "meaning": "",
+    "level": "dayanaksız",
+    "source": "incelenen literatürde emsali yok",
+    "factor": null,
+    "checks": {
+     "v2": {
+      "before": 100,
+      "after": 23,
+      "fBefore": null,
+      "fAfter": null,
+      "ruleBefore": "VERY_HIGH_INCOME",
+      "ruleAfter": null
+     },
+     "v3": {
+      "before": 9,
+      "after": 9,
+      "fBefore": null,
+      "fAfter": null,
+      "ruleBefore": null,
+      "ruleAfter": null
+     }
+    }
+   },
+   {
+    "group": "Kural",
+    "name": "VERY_HIGH_WEALTH",
+    "value": "net servet ≥ 10.000.000 → 100",
+    "meaning": "2. öncelik",
+    "level": "dayanaksız",
+    "source": "incelenen literatürde emsali yok",
+    "factor": null,
+    "checks": {
+     "v2": {
+      "before": 100,
+      "after": 58,
+      "fBefore": null,
+      "fAfter": null,
+      "ruleBefore": "VERY_HIGH_WEALTH",
+      "ruleAfter": null
+     },
+     "v3": {
+      "before": 84,
+      "after": 84,
+      "fBefore": null,
+      "fAfter": null,
+      "ruleBefore": "WEALTH_RUNWAY",
+      "ruleAfter": "WEALTH_RUNWAY"
+     }
+    }
+   },
+   {
+    "group": "Kural",
+    "name": "EXTREME_DEBT",
+    "value": "net borç ≥ 100.000.000 (gelir < 1.000.000) → 0",
+    "meaning": "3. öncelik",
+    "level": "dayanaksız",
+    "source": "incelenen literatürde emsali yok",
+    "factor": null,
+    "checks": {
+     "v2": {
+      "before": 0,
+      "after": 75,
+      "fBefore": null,
+      "fAfter": null,
+      "ruleBefore": "EXTREME_DEBT",
+      "ruleAfter": null
+     },
+     "v3": {
+      "before": 0,
+      "after": 0,
+      "fBefore": null,
+      "fAfter": null,
+      "ruleBefore": "SOLVENCY_CAP",
+      "ruleAfter": "SOLVENCY_CAP"
+     }
+    }
+   }
+  ],
+  "v3rows": [
+   {
+    "group": "Acil durum fonu (30)",
+    "name": "Rezerv 0 ay",
+    "value": "pay 0",
+    "level": "yargı",
+    "source": "alt uç",
+    "factor": "CashReserveMonths",
+    "got": {
+     "v2": {
+      "values": [
+       0
+      ],
+      "what": "Acil durum fonu",
+      "max": 25,
+      "rules": [
+       null
+      ],
+      "warnings": [
+       [
+        "Low cash reserve"
+       ]
+      ]
+     },
+     "v3": {
+      "values": [
+       0
+      ],
+      "what": "Acil durum fonu",
+      "max": 30,
+      "rules": [
+       null
+      ],
+      "warnings": [
+       [
+        "Low cash reserve",
+        "Installment without debt"
+       ]
+      ]
+     }
+    }
+   },
+   {
+    "group": "Acil durum fonu (30)",
+    "name": "Rezerv 3 ay (uyarı çizgisi)",
+    "value": "pay 0,6",
+    "level": "güçlü",
+    "source": "Greninger ve ark. 1996",
+    "factor": "CashReserveMonths",
+    "got": {
+     "v2": {
+      "values": [
+       15
+      ],
+      "what": "Acil durum fonu",
+      "max": 25,
+      "rules": [
+       null
+      ],
+      "warnings": [
+       []
+      ]
+     },
+     "v3": {
+      "values": [
+       18
+      ],
+      "what": "Acil durum fonu",
+      "max": 30,
+      "rules": [
+       null
+      ],
+      "warnings": [
+       [
+        "Installment without debt"
+       ]
+      ]
+     }
+    }
+   },
+   {
+    "group": "Acil durum fonu (30)",
+    "name": "Rezerv 6 ay",
+    "value": "pay 1",
+    "level": "kısmi",
+    "source": "6 aylık fon önerisi",
+    "factor": "CashReserveMonths",
+    "got": {
+     "v2": {
+      "values": [
+       25
+      ],
+      "what": "Acil durum fonu",
+      "max": 25,
+      "rules": [
+       null
+      ],
+      "warnings": [
+       []
+      ]
+     },
+     "v3": {
+      "values": [
+       30
+      ],
+      "what": "Acil durum fonu",
+      "max": 30,
+      "rules": [
+       null
+      ],
+      "warnings": [
+       [
+        "Installment without debt"
+       ]
+      ]
+     }
+    }
+   },
+   {
+    "group": "Taksit oranı (25)",
+    "name": "Taksit / gelir %10",
+    "value": "pay 1",
+    "level": "güçlü",
+    "source": "Greninger ve ark. 1996",
+    "factor": "InstallmentToIncome",
+    "got": {
+     "v2": {
+      "values": [
+       75
+      ],
+      "what": "skor",
+      "max": 100,
+      "rules": [
+       null
+      ],
+      "warnings": [
+       [
+        "Low cash reserve"
+       ]
+      ]
+     },
+     "v3": {
+      "values": [
+       25
+      ],
+      "what": "Taksit oranı",
+      "max": 25,
+      "rules": [
+       null
+      ],
+      "warnings": [
+       [
+        "Low cash reserve",
+        "Installment without debt"
+       ]
+      ]
+     }
+    }
+   },
+   {
+    "group": "Taksit oranı (25)",
+    "name": "Taksit / gelir %20",
+    "value": "pay 0,6",
+    "level": "güçlü",
+    "source": "Greninger ve ark. 1996",
+    "factor": "InstallmentToIncome",
+    "got": {
+     "v2": {
+      "values": [
+       65
+      ],
+      "what": "skor",
+      "max": 100,
+      "rules": [
+       null
+      ],
+      "warnings": [
+       [
+        "Low cash reserve"
+       ]
+      ]
+     },
+     "v3": {
+      "values": [
+       15
+      ],
+      "what": "Taksit oranı",
+      "max": 25,
+      "rules": [
+       null
+      ],
+      "warnings": [
+       [
+        "Low cash reserve",
+        "Installment without debt"
+       ]
+      ]
+     }
+    }
+   },
+   {
+    "group": "Taksit oranı (25)",
+    "name": "Taksit / gelir %36",
+    "value": "pay 0,2",
+    "level": "güçlü",
+    "source": "Greninger: %36 üstü kırılgan; 28/36 kuralı (kısmi)",
+    "factor": "InstallmentToIncome",
+    "got": {
+     "v2": {
+      "values": [
+       58
+      ],
+      "what": "skor",
+      "max": 100,
+      "rules": [
+       null
+      ],
+      "warnings": [
+       [
+        "Low cash reserve"
+       ]
+      ]
+     },
+     "v3": {
+      "values": [
+       5
+      ],
+      "what": "Taksit oranı",
+      "max": 25,
+      "rules": [
+       null
+      ],
+      "warnings": [
+       [
+        "Low cash reserve",
+        "Elevated debt burden",
+        "Installment without debt"
+       ]
+      ]
+     }
+    }
+   },
+   {
+    "group": "Taksit oranı (25)",
+    "name": "Taksit / gelir %50",
+    "value": "pay 0",
+    "level": "yargı",
+    "source": "alt uç",
+    "factor": "InstallmentToIncome",
+    "got": {
+     "v2": {
+      "values": [
+       50
+      ],
+      "what": "skor",
+      "max": 100,
+      "rules": [
+       null
+      ],
+      "warnings": [
+       [
+        "Low cash reserve",
+        "High debt burden"
+       ]
+      ]
+     },
+     "v3": {
+      "values": [
+       0
+      ],
+      "what": "Taksit oranı",
+      "max": 25,
+      "rules": [
+       null
+      ],
+      "warnings": [
+       [
+        "Low cash reserve",
+        "High debt burden",
+        "Installment without debt"
+       ]
+      ]
+     }
+    }
+   },
+   {
+    "group": "Net borç (10)",
+    "name": "Net borç 0,5 / 1 / 3 yıllık gelir",
+    "value": "pay 1 / 0,6 / 0,2",
+    "level": "dayanaksız",
+    "source": "v2'nin eşikleri",
+    "factor": "NetDebtToIncome",
+    "got": {
+     "v2": {
+      "values": [
+       100,
+       90,
+       83
+      ],
+      "what": "skor",
+      "max": 100,
+      "rules": [
+       null,
+       null,
+       null
+      ],
+      "warnings": [
+       [],
+       [],
+       []
+      ]
+     },
+     "v3": {
+      "values": [
+       10,
+       6,
+       2
+      ],
+      "what": "Net borç",
+      "max": 10,
+      "rules": [
+       null,
+       null,
+       null
+      ],
+      "warnings": [
+       [
+        "Elevated debt burden",
+        "Installment below interest"
+       ],
+       [
+        "High debt burden",
+        "Installment below interest"
+       ],
+       [
+        "High debt burden",
+        "Elevated total debt",
+        "Negative savings rate",
+        "Installment below interest"
+       ]
+      ]
+     }
+    }
+   },
+   {
+    "group": "Net borç (10)",
+    "name": "Net borç 5 yıllık gelir",
+    "value": "pay 0",
+    "level": "yargı",
+    "source": "alt uç",
+    "factor": "NetDebtToIncome",
+    "got": {
+     "v2": {
+      "values": [
+       75
+      ],
+      "what": "skor",
+      "max": 100,
+      "rules": [
+       null
+      ],
+      "warnings": [
+       [
+        "High total debt"
+       ]
+      ]
+     },
+     "v3": {
+      "values": [
+       0
+      ],
+      "what": "Net borç",
+      "max": 10,
+      "rules": [
+       null
+      ],
+      "warnings": [
+       [
+        "High debt burden",
+        "High total debt",
+        "Negative savings rate",
+        "Installment below interest"
+       ]
+      ]
+     }
+    }
+   },
+   {
+    "group": "Tasarruf (30)",
+    "name": "Tasarruf %20",
+    "value": "pay 1",
+    "level": "kısmi",
+    "source": "50/30/20 kuralı",
+    "factor": "SavingsRate",
+    "got": {
+     "v2": {
+      "values": [
+       25
+      ],
+      "what": "Tasarruf",
+      "max": 25,
+      "rules": [
+       null
+      ],
+      "warnings": [
+       [
+        "Low cash reserve",
+        "High debt burden"
+       ]
+      ]
+     },
+     "v3": {
+      "values": [
+       30
+      ],
+      "what": "Tasarruf",
+      "max": 30,
+      "rules": [
+       null
+      ],
+      "warnings": [
+       [
+        "Low cash reserve",
+        "High debt burden",
+        "Installment without debt"
+       ]
+      ]
+     }
+    }
+   },
+   {
+    "group": "Tasarruf (30)",
+    "name": "Tasarruf %10 (uyarı çizgisi)",
+    "value": "pay 0,6",
+    "level": "güçlü",
+    "source": "Greninger ve ark. 1996",
+    "factor": "SavingsRate",
+    "got": {
+     "v2": {
+      "values": [
+       15
+      ],
+      "what": "Tasarruf",
+      "max": 25,
+      "rules": [
+       null
+      ],
+      "warnings": [
+       [
+        "Low cash reserve",
+        "High debt burden"
+       ]
+      ]
+     },
+     "v3": {
+      "values": [
+       18
+      ],
+      "what": "Tasarruf",
+      "max": 30,
+      "rules": [
+       null
+      ],
+      "warnings": [
+       [
+        "Low cash reserve",
+        "High debt burden",
+        "Installment without debt"
+       ]
+      ]
+     }
+    }
+   },
+   {
+    "group": "Tasarruf (30)",
+    "name": "Tasarruf 0 / −%10",
+    "value": "pay 0,2 / 0",
+    "level": "yargı",
+    "source": "alt uç",
+    "factor": "SavingsRate",
+    "got": {
+     "v2": {
+      "values": [
+       8,
+       0
+      ],
+      "what": "Tasarruf",
+      "max": 25,
+      "rules": [
+       null,
+       null
+      ],
+      "warnings": [
+       [
+        "Low cash reserve",
+        "High debt burden"
+       ],
+       [
+        "Low cash reserve",
+        "High debt burden",
+        "Negative savings rate"
+       ]
+      ]
+     },
+     "v3": {
+      "values": [
+       6,
+       0
+      ],
+      "what": "Tasarruf",
+      "max": 30,
+      "rules": [
+       null,
+       null
+      ],
+      "warnings": [
+       [
+        "Low cash reserve",
+        "High debt burden",
+        "Low savings rate",
+        "Installment without debt"
+       ],
+       [
+        "Low cash reserve",
+        "High debt burden",
+        "Negative savings rate",
+        "Installment without debt"
+       ]
+      ]
+     }
+    }
+   },
+   {
+    "group": "Sabırsızlık (5)",
+    "name": "Sabırsızlık 1 … 5",
+    "value": "pay 1 / 0,8 / 0,6 / 0,2 / 0",
+    "level": "dayanaksız",
+    "source": "tek maddelik öz-beyan; öz-algı göstergesi",
+    "factor": "Impatience",
+    "got": {
+     "v2": {
+      "values": [
+       10,
+       8,
+       5,
+       2,
+       0
+      ],
+      "what": "Sabırsızlık",
+      "max": 10,
+      "rules": [
+       null,
+       null,
+       null,
+       null,
+       null
+      ],
+      "warnings": [
+       [],
+       [],
+       [],
+       [
+        "High impatience"
+       ],
+       [
+        "High impatience"
+       ]
+      ]
+     },
+     "v3": {
+      "values": [
+       5,
+       4,
+       3,
+       1,
+       0
+      ],
+      "what": "Sabırsızlık",
+      "max": 5,
+      "rules": [
+       null,
+       null,
+       null,
+       null,
+       null
+      ],
+      "warnings": [
+       [
+        "Installment without debt"
+       ],
+       [
+        "Installment without debt"
+       ],
+       [
+        "Installment without debt"
+       ],
+       [
+        "High impatience",
+        "Installment without debt"
+       ],
+       [
+        "High impatience",
+        "Installment without debt"
+       ]
+      ]
+     }
+    }
+   },
+   {
+    "group": "Ara değişken",
+    "name": "Likit pay: yatırımın yarısı",
+    "value": "0,5",
+    "level": "kısmi",
+    "source": "Basel III LCR 2B kesintisi",
+    "factor": "CashReserveMonths",
+    "got": {
+     "v2": {
+      "values": [
+       15,
+       15
+      ],
+      "what": "Acil durum fonu",
+      "max": 25,
+      "rules": [
+       null,
+       null
+      ],
+      "warnings": [
+       [],
+       []
+      ]
+     },
+     "v3": {
+      "values": [
+       18,
+       18
+      ],
+      "what": "Acil durum fonu",
+      "max": 30,
+      "rules": [
+       null,
+       null
+      ],
+      "warnings": [
+       [
+        "Installment without debt"
+       ],
+       [
+        "Installment without debt"
+       ]
+      ]
+     }
+    }
+   },
+   {
+    "group": "Ara değişken",
+    "name": "Yalnız fon hedefinin (6 ay) üstü borçtan düşer: borç 1,8 Mn, hedef üstü likit 0 / 0,6 / 1,2 Mn",
+    "value": "6 ay",
+    "level": "kısmi",
+    "source": "6 aylık fon önerisi",
+    "factor": "NetDebtToIncome",
+    "got": {
+     "v2": {
+      "values": [
+       83,
+       90,
+       100
+      ],
+      "what": "skor",
+      "max": 100,
+      "rules": [
+       null,
+       null,
+       null
+      ],
+      "warnings": [
+       [],
+       [],
+       []
+      ]
+     },
+     "v3": {
+      "values": [
+       5,
+       6,
+       10
+      ],
+      "what": "Net borç",
+      "max": 10,
+      "rules": [
+       null,
+       null,
+       null
+      ],
+      "warnings": [
+       [
+        "High debt burden",
+        "Elevated total debt",
+        "Low savings rate",
+        "Installment below interest"
+       ],
+       [
+        "High debt burden",
+        "Installment below interest"
+       ],
+       [
+        "Elevated debt burden",
+        "Installment below interest"
+       ]
+      ]
+     }
+    }
+   },
+   {
+    "group": "Ara değişken",
+    "name": "Faiz tabanı: taksit en az net borcun %3,5'i",
+    "value": "%3,5 / ay",
+    "level": "yargı",
+    "source": "IQ servisindeki DebtPayoffRules varsayımı",
+    "factor": "InstallmentToIncome",
+    "got": {
+     "v2": {
+      "values": [
+       90,
+       75
+      ],
+      "what": "skor",
+      "max": 100,
+      "rules": [
+       null,
+       null
+      ],
+      "warnings": [
+       [],
+       [
+        "High debt burden"
+       ]
+      ]
+     },
+     "v3": {
+      "values": [
+       3,
+       3
+      ],
+      "what": "Taksit oranı",
+      "max": 25,
+      "rules": [
+       null,
+       null
+      ],
+      "warnings": [
+       [
+        "High debt burden",
+        "Installment below interest"
+       ],
+       [
+        "High debt burden"
+       ]
+      ]
+     }
+    }
+   },
+   {
+    "group": "Ara değişken",
+    "name": "Gider tabanı: gelirin %10'u",
+    "value": "%10",
+    "level": "yargı",
+    "source": "gider 0 oyununu kapatır",
+    "factor": null,
+    "got": {
+     "v2": {
+      "values": [
+       100,
+       100
+      ],
+      "what": "skor",
+      "max": 100,
+      "rules": [
+       null,
+       null
+      ],
+      "warnings": [
+       [],
+       []
+      ]
+     },
+     "v3": {
+      "values": [
+       100,
+       100
+      ],
+      "what": "skor",
+      "max": 100,
+      "rules": [
+       null,
+       null
+      ],
+      "warnings": [
+       [
+        "Expenses look too low",
+        "Installment without debt"
+       ],
+       [
+        "Installment without debt"
+       ]
+      ]
+     }
+    }
+   },
+   {
+    "group": "Tavan ve pist",
+    "name": "Ödeme gücü tavanı κ: net borç 5 / 10 / 15 yıllık gelir",
+    "value": "κ 1 / 0,5 / 0",
+    "level": "yargı",
+    "source": "%36 ile faizsiz geri ödeme 14 / 42 yıl",
+    "factor": null,
+    "got": {
+     "v2": {
+      "values": [
+       75,
+       75,
+       75
+      ],
+      "what": "skor",
+      "max": 100,
+      "rules": [
+       null,
+       null,
+       null
+      ],
+      "warnings": [
+       [
+        "High total debt"
+       ],
+       [
+        "High total debt"
+       ],
+       [
+        "High total debt"
+       ]
+      ]
+     },
+     "v3": {
+      "values": [
+       35,
+       18,
+       0
+      ],
+      "what": "skor",
+      "max": 100,
+      "rules": [
+       null,
+       "SOLVENCY_CAP",
+       "SOLVENCY_CAP"
+      ],
+      "warnings": [
+       [
+        "High debt burden",
+        "High total debt",
+        "Negative savings rate",
+        "Installment below interest"
+       ],
+       [
+        "High debt burden",
+        "High total debt",
+        "Negative savings rate",
+        "Extreme total debt",
+        "Installment below interest"
+       ],
+       [
+        "High debt burden",
+        "High total debt",
+        "Negative savings rate",
+        "Extreme total debt",
+        "Installment below interest"
+       ]
+      ]
+     }
+    }
+   },
+   {
+    "group": "Tavan ve pist",
+    "name": "Servet pisti λ: likit net servet 0,5 / 12,5 / 25 yıllık gider",
+    "value": "λ 0,02 / 0,5 / 1",
+    "level": "kısmi",
+    "source": "%4 kuralı (Bengen 1994, ABD verisi)",
+    "factor": "SavingsRate",
+    "got": {
+     "v2": {
+      "values": [
+       8,
+       25,
+       25
+      ],
+      "what": "Tasarruf",
+      "max": 25,
+      "rules": [
+       null,
+       "VERY_HIGH_WEALTH",
+       "VERY_HIGH_WEALTH"
+      ],
+      "warnings": [
+       [
+        "Overspending relative to income"
+       ],
+       [],
+       []
+      ]
+     },
+     "v3": {
+      "values": [
+       12,
+       15,
+       30
+      ],
+      "what": "Tasarruf",
+      "max": 30,
+      "rules": [
+       null,
+       "WEALTH_RUNWAY",
+       "WEALTH_RUNWAY"
+      ],
+      "warnings": [
+       [
+        "Low savings rate"
+       ],
+       [
+        "Low savings rate"
+       ],
+       []
+      ]
+     }
+    }
+   }
+  ],
+  "impatience": {
+   "v2": [
+    10,
+    8,
+    5,
+    2,
+    0
+   ],
+   "v3": [
+    5,
+    4,
+    3,
+    1,
+    0
+   ]
+  },
+  "segments": {
+   "v2": {
+    "LOW": [
+     0,
+     40
+    ],
+    "MEDIUM": [
+     41,
+     70
+    ],
+    "HIGH": [
+     71,
+     100
+    ]
+   },
+   "v3": {
+    "LOW": [
+     0,
+     40
+    ],
+    "HIGH": [
+     71,
+     100
+    ],
+    "MEDIUM": [
+     41,
+     70
+    ]
+   }
+  },
+  "maxima": {
+   "v2": {
+    "CashReserveMonths": 25,
+    "DebtToIncomeRatio": 25,
+    "SavingsRate": 25,
+    "ExpenseRatio": 15,
+    "Impatience": 10
+   },
+   "v3": {
+    "CashReserveMonths": 30,
+    "InstallmentToIncome": 25,
+    "NetDebtToIncome": 10,
+    "SavingsRate": 30,
+    "Impatience": 5
+   }
+  }
+ },
+ "witnesses": [
+  {
+   "title": "Gider 1 TL artınca üç eşik birden geçiliyor (rezerv 6 ay, tasarruf %20, gider %40)",
+   "input": "monthlyExpenses",
+   "before": 40000,
+   "after": 40001,
+   "ruleDriven": false,
+   "profile": {
+    "monthlyIncome": 100000,
+    "monthlyExpenses": 40000,
+    "monthlyDebtPayment": 40000,
+    "totalDebt": 0,
+    "cashReserve": 240000,
+    "investmentAmount": 0,
+    "impatienceLevel": 1
+   },
+   "results": {
+    "v2": {
+     "before": 75,
+     "after": 49,
+     "delta": -26,
+     "ruleBefore": null,
+     "ruleAfter": null
+    },
+    "v3": {
+     "before": 67,
+     "after": 67,
+     "delta": 0,
+     "ruleBefore": null,
+     "ruleAfter": null
+    }
+   }
+  },
+  {
+   "title": "Gelir 1 TL düşünce üç eşik birden (tasarruf %20, net borç 0,5 yıl, gider %80)",
+   "input": "monthlyIncome",
+   "before": 100000,
+   "after": 99999,
+   "ruleDriven": false,
+   "profile": {
+    "monthlyIncome": 100000,
+    "monthlyExpenses": 80000,
+    "monthlyDebtPayment": 0,
+    "totalDebt": 1400000,
+    "cashReserve": 800000,
+    "investmentAmount": 0,
+    "impatienceLevel": 1
+   },
+   "results": {
+    "v2": {
+     "before": 90,
+     "after": 65,
+     "delta": -25,
+     "ruleBefore": null,
+     "ruleAfter": null
+    },
+    "v3": {
+     "before": 46,
+     "after": 46,
+     "delta": 0,
+     "ruleBefore": null,
+     "ruleAfter": null
+    }
+   }
+  },
+  {
+   "title": "Nakit 1 TL azalınca iki faktör birden (rezerv 6 ay, net borç 0,5 yıl)",
+   "input": "cashReserve",
+   "before": 300000,
+   "after": 299999,
+   "ruleDriven": false,
+   "profile": {
+    "monthlyIncome": 100000,
+    "monthlyExpenses": 50000,
+    "monthlyDebtPayment": 5000,
+    "totalDebt": 900000,
+    "cashReserve": 300000,
+    "investmentAmount": 0,
+    "impatienceLevel": 1
+   },
+   "results": {
+    "v2": {
+     "before": 94,
+     "after": 74,
+     "delta": -20,
+     "ruleBefore": null,
+     "ruleAfter": null
+    },
+    "v3": {
+     "before": 77,
+     "after": 77,
+     "delta": 0,
+     "ruleBefore": null,
+     "ruleAfter": null
+    }
+   }
+  },
+  {
+   "title": "“Çok yüksek gelir” kişisi, gelir 1 TL düşük",
+   "input": "monthlyIncome",
+   "before": 1000000,
+   "after": 999999,
+   "ruleDriven": true,
+   "profile": {
+    "monthlyIncome": 1000000,
+    "monthlyExpenses": 900000,
+    "monthlyDebtPayment": 0,
+    "totalDebt": 0,
+    "cashReserve": 0,
+    "investmentAmount": 0,
+    "impatienceLevel": 5
+   },
+   "results": {
+    "v2": {
+     "before": 100,
+     "after": 33,
+     "delta": -67,
+     "ruleBefore": "VERY_HIGH_INCOME",
+     "ruleAfter": null
+    },
+    "v3": {
+     "before": 53,
+     "after": 53,
+     "delta": 0,
+     "ruleBefore": null,
+     "ruleAfter": null
+    }
+   }
+  },
+  {
+   "title": "“Çok yüksek servet” kişisi, yatırım 1 TL düşük",
+   "input": "investmentAmount",
+   "before": 9000000,
+   "after": 8999999,
+   "ruleDriven": true,
+   "profile": {
+    "monthlyIncome": 30000,
+    "monthlyExpenses": 29000,
+    "monthlyDebtPayment": 0,
+    "totalDebt": 1000000,
+    "cashReserve": 2000000,
+    "investmentAmount": 9000000,
+    "impatienceLevel": 5
+   },
+   "results": {
+    "v2": {
+     "before": 100,
+     "after": 58,
+     "delta": -42,
+     "ruleBefore": "VERY_HIGH_WEALTH",
+     "ruleAfter": null
+    },
+    "v3": {
+     "before": 84,
+     "after": 84,
+     "delta": 0,
+     "ruleBefore": "WEALTH_RUNWAY",
+     "ruleAfter": "WEALTH_RUNWAY"
+    }
+   }
+  },
+  {
+   "title": "Güçlü oranlar, net borç tam 100.000.000 (borç 1 TL fazla)",
+   "input": "totalDebt",
+   "before": 110095999,
+   "after": 110096000,
+   "ruleDriven": true,
+   "profile": {
+    "monthlyIncome": 40000,
+    "monthlyExpenses": 16000,
+    "monthlyDebtPayment": 4000,
+    "totalDebt": 110095999,
+    "cashReserve": 96000,
+    "investmentAmount": 10000000,
+    "impatienceLevel": 1
+   },
+   "results": {
+    "v2": {
+     "before": 75,
+     "after": 0,
+     "delta": -75,
+     "ruleBefore": null,
+     "ruleAfter": "EXTREME_DEBT"
+    },
+    "v3": {
+     "before": 0,
+     "after": 0,
+     "delta": 0,
+     "ruleBefore": "SOLVENCY_CAP",
+     "ruleAfter": "SOLVENCY_CAP"
+    }
+   }
+  },
+  {
+   "title": "Kuramsal üst sınır: skoru 0 olan profil, gelir 1 TL artınca 100",
+   "input": "monthlyIncome",
+   "before": 999999,
+   "after": 1000000,
+   "ruleDriven": true,
+   "profile": {
+    "monthlyIncome": 999999,
+    "monthlyExpenses": 2000000,
+    "monthlyDebtPayment": 400000,
+    "totalDebt": 0,
+    "cashReserve": 0,
+    "investmentAmount": 0,
+    "impatienceLevel": 5
+   },
+   "results": {
+    "v2": {
+     "before": 0,
+     "after": 100,
+     "delta": 100,
+     "ruleBefore": null,
+     "ruleAfter": "VERY_HIGH_INCOME"
+    },
+    "v3": {
+     "before": 14,
+     "after": 14,
+     "delta": 0,
+     "ruleBefore": null,
+     "ruleAfter": null
+    }
+   }
+  }
+ ],
+ "cheapest": {
+  "v2": {
+   "low": {
+    "base": 8,
+    "target": 18,
+    "rows": {
+     "monthlyIncome": {
+      "status": "ok",
+      "value": 32000,
+      "delta": 2000,
+      "rel": 0.06666666666666667,
+      "score": 21,
+      "rule": null,
+      "incomeMonths": 0.06666666666666667
+     },
+     "monthlyExpenses": {
+      "status": "ok",
+      "value": 23000,
+      "delta": -2000,
+      "rel": -0.08,
+      "score": 21,
+      "rule": null,
+      "incomeMonths": 0.06666666666666667
+     },
+     "monthlyDebtPayment": {
+      "status": "ok",
+      "value": 5000,
+      "delta": -2000,
+      "rel": -0.2857142857142857,
+      "score": 23,
+      "rule": null,
+      "incomeMonths": 0.06666666666666667
+     },
+     "totalDebt": {
+      "status": "none"
+     },
+     "cashReserve": {
+      "status": "ok",
+      "value": 70000,
+      "delta": 67000,
+      "rel": 22.333333333333332,
+      "score": 23,
+      "rule": null,
+      "incomeMonths": 2.2333333333333334
+     },
+     "investmentAmount": {
+      "status": "ok",
+      "value": 144000,
+      "delta": 134000,
+      "rel": 13.4,
+      "score": 23,
+      "rule": null,
+      "incomeMonths": 4.466666666666667
+     },
+     "impatienceLevel": {
+      "status": "ok",
+      "value": 1,
+      "delta": -4,
+      "rel": -0.8,
+      "score": 18,
+      "rule": null,
+      "incomeMonths": null
+     }
+    },
+    "best": "monthlyIncome"
+   },
+   "medium": {
+    "base": 62,
+    "target": 72,
+    "rows": {
+     "monthlyIncome": {
+      "status": "ok",
+      "value": 80000,
+      "delta": 30000,
+      "rel": 0.6,
+      "score": 78,
+      "rule": null,
+      "incomeMonths": 0.6
+     },
+     "monthlyExpenses": {
+      "status": "ok",
+      "value": 20000,
+      "delta": -10000,
+      "rel": -0.3333333333333333,
+      "score": 75,
+      "rule": null,
+      "incomeMonths": 0.2
+     },
+     "monthlyDebtPayment": {
+      "status": "ok",
+      "value": 5000,
+      "delta": -3000,
+      "rel": -0.375,
+      "score": 72,
+      "rule": null,
+      "incomeMonths": 0.06
+     },
+     "totalDebt": {
+      "status": "zero"
+     },
+     "cashReserve": {
+      "status": "ok",
+      "value": 180000,
+      "delta": 120000,
+      "rel": 2.0,
+      "score": 79,
+      "rule": null,
+      "incomeMonths": 2.4
+     },
+     "investmentAmount": {
+      "status": "ok",
+      "value": 240000,
+      "delta": 240000,
+      "rel": null,
+      "score": 79,
+      "rule": null,
+      "incomeMonths": 4.8
+     },
+     "impatienceLevel": {
+      "status": "none"
+     }
+    },
+    "best": "monthlyExpenses"
+   },
+   "high": {
+    "base": 88,
+    "target": 98,
+    "rows": {
+     "monthlyIncome": {
+      "status": "none"
+     },
+     "monthlyExpenses": {
+      "status": "ok",
+      "value": 5000,
+      "delta": -3000,
+      "rel": -0.375,
+      "score": 98,
+      "rule": null,
+      "incomeMonths": 0.15
+     },
+     "monthlyDebtPayment": {
+      "status": "none"
+     },
+     "totalDebt": {
+      "status": "zero"
+     },
+     "cashReserve": {
+      "status": "ok",
+      "value": 48000,
+      "delta": 18000,
+      "rel": 0.6,
+      "score": 98,
+      "rule": null,
+      "incomeMonths": 0.9
+     },
+     "investmentAmount": {
+      "status": "ok",
+      "value": 36000,
+      "delta": 36000,
+      "rel": null,
+      "score": 98,
+      "rule": null,
+      "incomeMonths": 1.8
+     },
+     "impatienceLevel": {
+      "status": "none"
+     }
+    },
+    "best": "monthlyExpenses"
+   },
+   "highdebt": {
+    "base": 63,
+    "target": 73,
+    "rows": {
+     "monthlyIncome": {
+      "status": "ok",
+      "value": 162500,
+      "delta": 122500,
+      "rel": 3.0625,
+      "score": 78,
+      "rule": null,
+      "incomeMonths": 3.0625
+     },
+     "monthlyExpenses": {
+      "status": "ok",
+      "value": 8333,
+      "delta": -7667,
+      "rel": -0.4791875,
+      "score": 73,
+      "rule": null,
+      "incomeMonths": 0.191675
+     },
+     "monthlyDebtPayment": {
+      "status": "none"
+     },
+     "totalDebt": {
+      "status": "ok",
+      "value": 530000,
+      "delta": -1470000,
+      "rel": -0.735,
+      "score": 78,
+      "rule": null,
+      "incomeMonths": 36.75
+     },
+     "cashReserve": {
+      "status": "ok",
+      "value": 96000,
+      "delta": 46000,
+      "rel": 0.92,
+      "score": 73,
+      "rule": null,
+      "incomeMonths": 1.15
+     },
+     "investmentAmount": {
+      "status": "ok",
+      "value": 92000,
+      "delta": 92000,
+      "rel": null,
+      "score": 73,
+      "rule": null,
+      "incomeMonths": 2.3
+     },
+     "impatienceLevel": {
+      "status": "none"
+     }
+    },
+    "best": "monthlyExpenses"
+   },
+   "richincome": {
+    "base": 100,
+    "target": 110,
+    "rows": {
+     "monthlyIncome": {
+      "status": "max"
+     },
+     "monthlyExpenses": {
+      "status": "max"
+     },
+     "monthlyDebtPayment": {
+      "status": "max"
+     },
+     "totalDebt": {
+      "status": "max"
+     },
+     "cashReserve": {
+      "status": "max"
+     },
+     "investmentAmount": {
+      "status": "max"
+     },
+     "impatienceLevel": {
+      "status": "max"
+     }
+    },
+    "best": null
+   },
+   "richwealth": {
+    "base": 100,
+    "target": 110,
+    "rows": {
+     "monthlyIncome": {
+      "status": "max"
+     },
+     "monthlyExpenses": {
+      "status": "max"
+     },
+     "monthlyDebtPayment": {
+      "status": "max"
+     },
+     "totalDebt": {
+      "status": "max"
+     },
+     "cashReserve": {
+      "status": "max"
+     },
+     "investmentAmount": {
+      "status": "max"
+     },
+     "impatienceLevel": {
+      "status": "max"
+     }
+    },
+    "best": null
+   },
+   "extremedebt": {
+    "base": 0,
+    "target": 10,
+    "rows": {
+     "monthlyIncome": {
+      "status": "none"
+     },
+     "monthlyExpenses": {
+      "status": "none"
+     },
+     "monthlyDebtPayment": {
+      "status": "none"
+     },
+     "totalDebt": {
+      "status": "ok",
+      "value": 110095999,
+      "delta": -9904001,
+      "rel": -0.08253334166666666,
+      "score": 75,
+      "rule": null,
+      "incomeMonths": 247.600025
+     },
+     "cashReserve": {
+      "status": "ok",
+      "value": 10000001,
+      "delta": 9904001,
+      "rel": 103.16667708333334,
+      "score": 75,
+      "rule": null,
+      "incomeMonths": 247.600025
+     },
+     "investmentAmount": {
+      "status": "ok",
+      "value": 19904001,
+      "delta": 9904001,
+      "rel": 0.9904001,
+      "score": 75,
+      "rule": null,
+      "incomeMonths": 247.600025
+     },
+     "impatienceLevel": {
+      "status": "lowest"
+     }
+    },
+    "best": "totalDebt"
+   },
+   "trend": {
+    "base": 92,
+    "target": 102,
+    "rows": {
+     "monthlyIncome": {
+      "status": "max"
+     },
+     "monthlyExpenses": {
+      "status": "max"
+     },
+     "monthlyDebtPayment": {
+      "status": "max"
+     },
+     "totalDebt": {
+      "status": "max"
+     },
+     "cashReserve": {
+      "status": "max"
+     },
+     "investmentAmount": {
+      "status": "max"
+     },
+     "impatienceLevel": {
+      "status": "max"
+     }
+    },
+    "best": null
+   }
+  },
+  "v3": {
+   "low": {
+    "base": 27,
+    "target": 37,
+    "rows": {
+     "monthlyIncome": {
+      "status": "ok",
+      "value": 33247,
+      "delta": 3247,
+      "rel": 0.10823333333333333,
+      "score": 37,
+      "rule": null,
+      "incomeMonths": 0.10823333333333333
+     },
+     "monthlyExpenses": {
+      "status": "ok",
+      "value": 21625,
+      "delta": -3375,
+      "rel": -0.135,
+      "score": 37,
+      "rule": null,
+      "incomeMonths": 0.1125
+     },
+     "monthlyDebtPayment": {
+      "status": "ok",
+      "value": 4950,
+      "delta": -2050,
+      "rel": -0.29285714285714287,
+      "score": 37,
+      "rule": null,
+      "incomeMonths": 0.06833333333333333
+     },
+     "totalDebt": {
+      "status": "none"
+     },
+     "cashReserve": {
+      "status": "ok",
+      "value": 56334,
+      "delta": 53334,
+      "rel": 17.778,
+      "score": 37,
+      "rule": null,
+      "incomeMonths": 1.7778
+     },
+     "investmentAmount": {
+      "status": "ok",
+      "value": 116667,
+      "delta": 106667,
+      "rel": 10.6667,
+      "score": 37,
+      "rule": null,
+      "incomeMonths": 3.5555666666666665
+     },
+     "impatienceLevel": {
+      "status": "none"
+     }
+    },
+    "best": "monthlyIncome"
+   },
+   "medium": {
+    "base": 71,
+    "target": 81,
+    "rows": {
+     "monthlyIncome": {
+      "status": "none"
+     },
+     "monthlyExpenses": {
+      "status": "ok",
+      "value": 11200,
+      "delta": -18800,
+      "rel": -0.6266666666666667,
+      "score": 81,
+      "rule": null,
+      "incomeMonths": 0.376
+     },
+     "monthlyDebtPayment": {
+      "status": "none"
+     },
+     "totalDebt": {
+      "status": "zero"
+     },
+     "cashReserve": {
+      "status": "ok",
+      "value": 118750,
+      "delta": 58750,
+      "rel": 0.9791666666666666,
+      "score": 81,
+      "rule": null,
+      "incomeMonths": 1.175
+     },
+     "investmentAmount": {
+      "status": "ok",
+      "value": 117500,
+      "delta": 117500,
+      "rel": null,
+      "score": 81,
+      "rule": null,
+      "incomeMonths": 2.35
+     },
+     "impatienceLevel": {
+      "status": "none"
+     }
+    },
+    "best": "monthlyExpenses"
+   },
+   "high": {
+    "base": 87,
+    "target": 97,
+    "rows": {
+     "monthlyIncome": {
+      "status": "none"
+     },
+     "monthlyExpenses": {
+      "status": "ok",
+      "value": 3581,
+      "delta": -4419,
+      "rel": -0.552375,
+      "score": 97,
+      "rule": null,
+      "incomeMonths": 0.22095
+     },
+     "monthlyDebtPayment": {
+      "status": "none"
+     },
+     "totalDebt": {
+      "status": "zero"
+     },
+     "cashReserve": {
+      "status": "ok",
+      "value": 53750,
+      "delta": 23750,
+      "rel": 0.7916666666666666,
+      "score": 97,
+      "rule": null,
+      "incomeMonths": 1.1875
+     },
+     "investmentAmount": {
+      "status": "ok",
+      "value": 47500,
+      "delta": 47500,
+      "rel": null,
+      "score": 97,
+      "rule": null,
+      "incomeMonths": 2.375
+     },
+     "impatienceLevel": {
+      "status": "none"
+     }
+    },
+    "best": "monthlyExpenses"
+   },
+   "highdebt": {
+    "base": 22,
+    "target": 32,
+    "rows": {
+     "monthlyIncome": {
+      "status": "ok",
+      "value": 86360,
+      "delta": 46360,
+      "rel": 1.159,
+      "score": 32,
+      "rule": null,
+      "incomeMonths": 1.159
+     },
+     "monthlyExpenses": {
+      "status": "ok",
+      "value": 7756,
+      "delta": -8244,
+      "rel": -0.51525,
+      "score": 32,
+      "rule": null,
+      "incomeMonths": 0.2061
+     },
+     "monthlyDebtPayment": {
+      "status": "none"
+     },
+     "totalDebt": {
+      "status": "ok",
+      "value": 695238,
+      "delta": -1304762,
+      "rel": -0.652381,
+      "score": 32,
+      "rule": null,
+      "incomeMonths": 32.61905
+     },
+     "cashReserve": {
+      "status": "ok",
+      "value": 92250,
+      "delta": 42250,
+      "rel": 0.845,
+      "score": 32,
+      "rule": null,
+      "incomeMonths": 1.05625
+     },
+     "investmentAmount": {
+      "status": "ok",
+      "value": 84500,
+      "delta": 84500,
+      "rel": null,
+      "score": 32,
+      "rule": null,
+      "incomeMonths": 2.1125
+     },
+     "impatienceLevel": {
+      "status": "none"
+     }
+    },
+    "best": "monthlyExpenses"
+   },
+   "richincome": {
+    "base": 53,
+    "target": 63,
+    "rows": {
+     "monthlyIncome": {
+      "status": "ok",
+      "value": 1096447,
+      "delta": 96447,
+      "rel": 0.096447,
+      "score": 63,
+      "rule": null,
+      "incomeMonths": 0.096447
+     },
+     "monthlyExpenses": {
+      "status": "ok",
+      "value": 820833,
+      "delta": -79167,
+      "rel": -0.08796333333333334,
+      "score": 63,
+      "rule": null,
+      "incomeMonths": 0.079167
+     },
+     "monthlyDebtPayment": {
+      "status": "zero"
+     },
+     "totalDebt": {
+      "status": "zero"
+     },
+     "cashReserve": {
+      "status": "ok",
+      "value": 1425000,
+      "delta": 1425000,
+      "rel": null,
+      "score": 63,
+      "rule": null,
+      "incomeMonths": 1.425
+     },
+     "investmentAmount": {
+      "status": "ok",
+      "value": 2850000,
+      "delta": 2850000,
+      "rel": null,
+      "score": 63,
+      "rule": null,
+      "incomeMonths": 2.85
+     },
+     "impatienceLevel": {
+      "status": "none"
+     }
+    },
+    "best": "monthlyExpenses"
+   },
+   "richwealth": {
+    "base": 84,
+    "target": 94,
+    "rows": {
+     "monthlyIncome": {
+      "status": "ok",
+      "value": 35693,
+      "delta": 5693,
+      "rel": 0.18976666666666667,
+      "score": 94,
+      "rule": null,
+      "incomeMonths": 0.18976666666666667
+     },
+     "monthlyExpenses": {
+      "status": "ok",
+      "value": 24375,
+      "delta": -4625,
+      "rel": -0.15948275862068967,
+      "score": 94,
+      "rule": null,
+      "incomeMonths": 0.15416666666666667
+     },
+     "monthlyDebtPayment": {
+      "status": "zero"
+     },
+     "totalDebt": {
+      "status": "none"
+     },
+     "cashReserve": {
+      "status": "ok",
+      "value": 4765000,
+      "delta": 2765000,
+      "rel": 1.3825,
+      "score": 94,
+      "rule": "WEALTH_RUNWAY",
+      "incomeMonths": 92.16666666666667
+     },
+     "investmentAmount": {
+      "status": "ok",
+      "value": 14530000,
+      "delta": 5530000,
+      "rel": 0.6144444444444445,
+      "score": 94,
+      "rule": "WEALTH_RUNWAY",
+      "incomeMonths": 184.33333333333334
+     },
+     "impatienceLevel": {
+      "status": "none"
+     }
+    },
+    "best": "monthlyExpenses"
+   },
+   "extremedebt": {
+    "base": 0,
+    "target": 10,
+    "rows": {
+     "monthlyIncome": {
+      "status": "ok",
+      "value": 790427,
+      "delta": 750427,
+      "rel": 18.760675,
+      "score": 10,
+      "rule": "SOLVENCY_CAP",
+      "incomeMonths": 18.760675
+     },
+     "monthlyExpenses": {
+      "status": "none"
+     },
+     "monthlyDebtPayment": {
+      "status": "none"
+     },
+     "totalDebt": {
+      "status": "ok",
+      "value": 10815998,
+      "delta": -109184002,
+      "rel": -0.9098666833333333,
+      "score": 10,
+      "rule": "SOLVENCY_CAP",
+      "incomeMonths": 2729.60005
+     },
+     "cashReserve": {
+      "status": "none"
+     },
+     "investmentAmount": {
+      "status": "none"
+     },
+     "impatienceLevel": {
+      "status": "lowest"
+     }
+    },
+    "best": "totalDebt"
+   },
+   "trend": {
+    "base": 97,
+    "target": 107,
+    "rows": {
+     "monthlyIncome": {
+      "status": "max"
+     },
+     "monthlyExpenses": {
+      "status": "max"
+     },
+     "monthlyDebtPayment": {
+      "status": "max"
+     },
+     "totalDebt": {
+      "status": "max"
+     },
+     "cashReserve": {
+      "status": "max"
+     },
+     "investmentAmount": {
+      "status": "max"
+     },
+     "impatienceLevel": {
+      "status": "max"
+     }
+    },
+    "best": null
+   }
+  }
+ },
+ "flow": {
+  "v2": {
+   "scorer": "v2",
+   "issues": [],
+   "notes": []
+  },
+  "v3": {
+   "scorer": "v3",
+   "issues": [],
+   "notes": [
+    "Aylık gelir → Acil durum fonu"
+   ]
+  }
+ },
+ "parameters": {
+  "seed": 42,
+  "sobolN": 1024,
+  "bootstrap": 300,
+  "scorers": {
+   "v2": "evaluation/out/scorer-v2/FinancialIQ.BatchScorer.dll",
+   "v3": "services/financial-iq-service/src/FinancialIQ.BatchScorer/bin/Release/net10.0/FinancialIQ.BatchScorer.dll"
+  },
+  "scored": {
+   "v2": 106646,
+   "v3": 104727
+  },
+  "processes": {
+   "v2": 3,
+   "v3": 3
+  }
+ }
+}

@@ -1,116 +1,46 @@
-import { useState, type ChangeEvent, type FormEvent } from "react";
-import "./App.css";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { AuthProvider } from "./auth/AuthContext";
+import RequireAuth from "./auth/RequireAuth";
+import Layout from "./components/Layout";
+import { ROUTES } from "./lib/routes";
+import AssistantPage from "./pages/AssistantPage";
+import DashboardPage from "./pages/DashboardPage";
+import LoginPage from "./pages/LoginPage";
+import NotFoundPage from "./pages/NotFoundPage";
+import PortfolioPage from "./pages/PortfolioPage";
+import ProfilePage from "./pages/ProfilePage";
+import RegisterPage from "./pages/RegisterPage";
+import SignalsPage from "./pages/SignalsPage";
 
-import FinancialProfileForm from "./components/FinancialProfileForm";
-import ScoreCard from "./components/ScoreCard";
-
-import { saveAndCalculateFinancialScore } from "./api/financeApi";
-import { explainFinancialScore } from "./api/explainApi";
-
-import type {
-  FinancialProfileFormData,
-  FinancialScoreResult,
-} from "./types/finance";
-
-function App() {
-  const [form, setForm] = useState<FinancialProfileFormData>({
-    userId: "",
-    monthlyIncome: "",
-    monthlyExpenses: "",
-    monthlyDebtPayment: "",
-    totalDebt: "",
-    cashReserve: "",
-    investmentAmount: "",
-    impatienceLevel: "3",
-  });
-
-  const [result, setResult] = useState<FinancialScoreResult | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const [explanation, setExplanation] = useState<string | null>(null);
-  const [explanationDisclaimer, setExplanationDisclaimer] = useState<string | null>(null);
-  const [explainLoading, setExplainLoading] = useState(false);
-  const [explainError, setExplainError] = useState("");
-
-  const handleChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = event.target;
-
-    setForm((previousForm) => ({
-      ...previousForm,
-      [name]: value,
-    } as FinancialProfileFormData));
-  };
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    setLoading(true);
-    setError("");
-    setExplanation(null);
-    setExplanationDisclaimer(null);
-    setExplainError("");
-
-    try {
-      const calculatedResult = await saveAndCalculateFinancialScore(form.userId, form);
-      setResult(calculatedResult);
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Something went wrong while calculating the financial score."
-      );
-      setResult(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleExplain = async () => {
-    if (!result) return;
-
-    setExplainLoading(true);
-    setExplainError("");
-
-    try {
-      const explainResult = await explainFinancialScore(result.score, result.segment, result.factorBreakdown);
-      setExplanation(explainResult.explanation);
-      setExplanationDisclaimer(explainResult.disclaimer);
-    } catch {
-      setExplainError("Something went wrong while explaining the financial score.");
-    } finally {
-      setExplainLoading(false);
-    }
-  };
-
+// Flow: giriş -> profil -> IQ (panel) -> AI açıklaması -> portföy -> 4.4 (piyasa). Every page except /giris and
+// /kayit needs a session; RequireAuth sends the user to /giris otherwise.
+export function AppRoutes() {
   return (
-    <div className="app">
-      <header className="app-header">
-        <h1>AInvest Mock</h1>
-        <p>Financial Readiness Score Prototype</p>
-      </header>
-
-      <FinancialProfileForm
-        form={form}
-        loading={loading}
-        onChange={handleChange}
-        onSubmit={handleSubmit}
-      />
-
-      {error && <p className="error-message">{error}</p>}
-
-      <ScoreCard
-        result={result}
-        explanation={explanation}
-        explanationDisclaimer={explanationDisclaimer}
-        explainLoading={explainLoading}
-        explainError={explainError}
-        onExplain={handleExplain}
-      />
-    </div>
+    <Routes>
+      <Route path={ROUTES.login} element={<LoginPage />} />
+      <Route path={ROUTES.register} element={<RegisterPage />} />
+      <Route element={<RequireAuth />}>
+        <Route element={<Layout />}>
+          {/* the dashboard links to the profile when there is no score yet */}
+          <Route index element={<Navigate to={ROUTES.dashboard} replace />} />
+          <Route path={ROUTES.dashboard} element={<DashboardPage />} />
+          <Route path={ROUTES.profile} element={<ProfilePage />} />
+          <Route path={ROUTES.assistant} element={<AssistantPage />} />
+          <Route path={ROUTES.portfolio} element={<PortfolioPage />} />
+          <Route path={ROUTES.signals} element={<SignalsPage />} />
+        </Route>
+      </Route>
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}

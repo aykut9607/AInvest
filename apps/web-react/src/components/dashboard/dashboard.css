@@ -1,0 +1,535 @@
+/* Dashboard (/panel). Values from tokens.css only; phone first, no horizontal page scroll at 360px. */
+
+/* ---- layout ------------------------------------------------------------------------------------------------- */
+
+.dash-grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+
+@media (min-width: 960px) {
+  .dash-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+  .dash-span {
+    grid-column: 1 / -1;
+  }
+}
+
+/* previous result held at reduced opacity while a new one loads (no layout jump) */
+.is-refreshing {
+  opacity: 0.55;
+  transition: opacity var(--transition-fast);
+}
+
+.dash-toggle[aria-pressed="true"] {
+  --btn-bg: var(--color-primary-soft);
+  --btn-fg: var(--color-primary-ink);
+  --btn-border: var(--color-primary);
+}
+
+.dash-calm {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-good-bg);
+}
+
+.dash-calm-icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  color: var(--color-good-ink);
+}
+
+.dash-calm-title {
+  font-weight: var(--weight-semibold);
+}
+
+/* ---- score ---------------------------------------------------------------------------------------------------- */
+
+.score-card-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4) var(--space-6);
+}
+
+.score-card-details {
+  flex: 1 1 200px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.score-ring {
+  position: relative;
+  width: 168px;
+  height: 168px;
+  flex-shrink: 0;
+}
+
+.score-ring svg {
+  display: block;
+}
+
+.score-ring-track {
+  stroke: var(--color-surface-sunken);
+}
+
+.score-ring-arc {
+  stroke: var(--segment-medium);
+}
+.score-ring[data-segment="LOW"] .score-ring-arc {
+  stroke: var(--segment-low);
+}
+.score-ring[data-segment="HIGH"] .score-ring-arc {
+  stroke: var(--segment-high);
+}
+
+.score-ring-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* the page's single hero figure: same sans, proportional figures */
+.score-ring-value {
+  font-size: var(--text-hero);
+  font-weight: var(--weight-semibold);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+.score-ring-max {
+  margin-top: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.rule-card-title {
+  font-weight: var(--weight-semibold);
+}
+
+/* ---- factor bars (meter list) --------------------------------------------------------------------------------- */
+
+.factor-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.factor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.factor-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.factor-label {
+  font-weight: var(--weight-medium);
+  min-width: 0;
+}
+
+.factor-points {
+  flex-shrink: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* the fill carries the level; the track is a lighter step of the same hue so the level reads across the bar */
+.factor-track {
+  --factor-color: var(--color-critical);
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--factor-color) 20%, var(--color-surface));
+  overflow: hidden;
+}
+.factor-track[data-tone="good"] {
+  --factor-color: var(--color-good);
+}
+.factor-track[data-tone="warning"] {
+  --factor-color: var(--color-warning);
+}
+
+.factor-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--factor-color);
+}
+
+.factor-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+}
+
+.factor-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.factor-legend-item::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-critical);
+}
+.factor-legend-item[data-tone="good"]::before {
+  background: var(--color-good);
+}
+.factor-legend-item[data-tone="warning"]::before {
+  background: var(--color-warning);
+}
+
+/* ---- alerts --------------------------------------------------------------------------------------------------- */
+
+.alert-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.alert-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.alert-item:first-child {
+  padding-top: 0;
+}
+
+.alert-item:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.alert-item .badge {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.alert-item p {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.alert-bullet {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  margin-top: 8px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+}
+
+/* ---- charts --------------------------------------------------------------------------------------------------- */
+
+.chart-figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.chart {
+  width: 100%;
+  min-width: 0;
+}
+
+.chart-plot {
+  position: relative;
+  border-radius: var(--radius-sm);
+  touch-action: pan-y;
+  cursor: crosshair;
+}
+
+.chart-plot:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* drawn in real pixels; until the first measurement CSS scales the fallback size down to the container */
+.chart-svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  overflow: hidden;
+}
+
+.chart-band {
+  fill-opacity: 0.08;
+}
+.chart-band-low {
+  fill: var(--segment-low);
+}
+.chart-band-medium {
+  fill: var(--segment-medium);
+}
+.chart-band-high {
+  fill: var(--segment-high);
+}
+
+/* the status hues are brighter on the dark surface: a lighter wash keeps the bands in the background */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .chart-band {
+    fill-opacity: 0.07;
+  }
+}
+:root[data-theme="dark"] .chart-band {
+  fill-opacity: 0.07;
+}
+
+.chart-band-label {
+  fill: var(--chart-label-strong);
+  font-size: 11px;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.02em;
+}
+
+.chart-grid,
+.chart-axis,
+.chart-crosshair {
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+.chart-grid {
+  stroke: var(--chart-grid);
+}
+.chart-axis {
+  stroke: var(--chart-axis);
+}
+.chart-crosshair {
+  stroke: var(--chart-label);
+}
+
+.chart-tick {
+  fill: var(--chart-label);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-line {
+  fill: none;
+  stroke: var(--chart-1);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.chart-area {
+  fill: var(--chart-1);
+  fill-opacity: 0.1;
+  stroke: none;
+}
+
+.chart-marker {
+  fill: var(--chart-1);
+  stroke: var(--chart-ring);
+  stroke-width: 2;
+}
+
+.chart-end-label {
+  fill: var(--color-text);
+  font-size: 13px;
+  font-weight: var(--weight-semibold);
+}
+
+.chart-tooltip {
+  position: absolute;
+  z-index: 2;
+  width: max-content;
+  max-width: calc(50% - 16px);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  font-size: var(--text-xs);
+  line-height: var(--leading-snug);
+  color: var(--color-text-secondary);
+  pointer-events: none;
+  overflow-wrap: anywhere;
+}
+
+.chart-tooltip[data-side="right"] {
+  transform: translateX(12px);
+}
+.chart-tooltip[data-side="left"] {
+  transform: translateX(calc(-100% - 12px));
+}
+
+.chart-tooltip-title {
+  color: var(--color-text-muted);
+}
+
+.chart-tooltip-value {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-1) 6px;
+  margin-top: 2px;
+}
+
+.chart-tooltip-value strong {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+}
+
+.chart-key-line {
+  align-self: center;
+  width: 12px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--chart-1);
+}
+
+.chart-tooltip-rows {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 0 var(--space-3);
+  margin: var(--space-1) 0 0;
+}
+
+.chart-tooltip-rows dd {
+  margin: 0;
+  text-align: right;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.chart-band-key {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+}
+
+.chart-band-key li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-secondary);
+}
+
+.chart-band-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--segment-medium) 35%, var(--color-surface));
+}
+.chart-band-swatch.chart-band-low {
+  background: color-mix(in srgb, var(--segment-low) 35%, var(--color-surface));
+}
+.chart-band-swatch.chart-band-high {
+  background: color-mix(in srgb, var(--segment-high) 35%, var(--color-surface));
+}
+
+.trend-explain {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+/* ---- debt payoff ---------------------------------------------------------------------------------------------- */
+
+.debt-rate-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-2) var(--space-3);
+}
+
+.debt-rate-form .field {
+  flex: 0 1 220px;
+}
+
+/* lines the button up with the input, under the field label */
+.debt-rate-form > .btn {
+  margin-top: calc(var(--text-sm) * var(--leading-normal) + var(--space-1));
+}
+
+.stat-row {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.stat {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  min-width: 0;
+}
+
+.stat-label {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.stat-value {
+  margin-top: var(--space-1);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+/* one line per cell: the wrapper scrolls sideways on a phone instead of wrapping dates and amounts */
+.dash-table th,
+.dash-table td {
+  white-space: nowrap;
+}
+
+.debt-table-wrap {
+  max-height: 360px;
+  overflow: auto;
+}
+
+.debt-table-wrap th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}

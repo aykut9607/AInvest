@@ -1,0 +1,1981 @@
+{
+ "parameters": {
+  "n": 2000,
+  "stress": 100,
+  "seed": 42,
+  "scorer": "services/financial-iq-service/src/FinancialIQ.BatchScorer/bin/Release/net10.0/FinancialIQ.BatchScorer.dll",
+  "scorerVersion": "v3",
+  "profilesScored": 63026,
+  "v3Variants": {
+   "v3a": {
+    "CashReserveMonths": 25,
+    "DebtToIncomeRatio": 25,
+    "SavingsRate": 25,
+    "ExpenseRatio": 15,
+    "Impatience": 10
+   },
+   "v3b": {
+    "CashReserveMonths": 25,
+    "InstallmentToIncome": 20,
+    "NetDebtToIncome": 20,
+    "SavingsRate": 25,
+    "Impatience": 10
+   },
+   "v3a-i5": {
+    "CashReserveMonths": 30,
+    "DebtToIncomeRatio": 25,
+    "SavingsRate": 25,
+    "ExpenseRatio": 15,
+    "Impatience": 5
+   },
+   "v3b-i5": {
+    "CashReserveMonths": 30,
+    "InstallmentToIncome": 20,
+    "NetDebtToIncome": 20,
+    "SavingsRate": 25,
+    "Impatience": 5
+   },
+   "v3c": {
+    "CashReserveMonths": 30,
+    "InstallmentToIncome": 20,
+    "NetDebtToIncome": 10,
+    "SavingsRate": 30,
+    "Impatience": 10
+   },
+   "v3c-i5": {
+    "CashReserveMonths": 30,
+    "InstallmentToIncome": 25,
+    "NetDebtToIncome": 10,
+    "SavingsRate": 30,
+    "Impatience": 5
+   }
+  },
+  "v2Column": "frozen: iq_v3_v2_frozen.json (24 Nov 2026, pre-port BatchScorer)"
+ },
+ "calibration": [
+  {
+   "key": "cannotCoverUnexpected",
+   "label": "Beklenmedik bir harcamayı karşılayamayanlar",
+   "turkey": 0.251,
+   "synthetic": 0.3245,
+   "unit": "share",
+   "fit": "yakın"
+  },
+  {
+   "key": "lastsOver2MonthsCash",
+   "label": "Gelir kesilirse 2 aydan uzun idare edebilenler (yalnız nakit)",
+   "turkey": 0.223,
+   "synthetic": 0.2245,
+   "unit": "share",
+   "fit": "yakın"
+  },
+  {
+   "key": "lastsOver2MonthsAll",
+   "label": "Gelir kesilirse 2 aydan uzun idare edebilenler (nakit + yatırım)",
+   "turkey": 0.223,
+   "synthetic": 0.4215,
+   "unit": "share",
+   "fit": "yakın"
+  },
+  {
+   "key": "saved",
+   "label": "Son yılda tasarruf edenler",
+   "turkey": 0.412,
+   "synthetic": 0.455,
+   "unit": "share",
+   "fit": "kaba"
+  },
+  {
+   "key": "hasInstallment",
+   "label": "Borç ya da taksit ödemesi olanlar",
+   "turkey": 0.564,
+   "synthetic": 0.5535,
+   "unit": "share",
+   "fit": "yakın"
+  },
+  {
+   "key": "hasDebt",
+   "label": "Son yılda borçlananlar",
+   "turkey": 0.647,
+   "synthetic": 0.6425,
+   "unit": "share",
+   "fit": "kaba"
+  },
+  {
+   "key": "debtPerDebtor",
+   "label": "Borçlu başına ortalama borç",
+   "turkey": 156000,
+   "synthetic": 149181.0117,
+   "unit": "tl",
+   "fit": "yakın"
+  },
+  {
+   "key": "incomeBottom20",
+   "label": "Gelirin en alt %20'ye düşen payı",
+   "turkey": 0.064,
+   "synthetic": 0.056,
+   "unit": "share",
+   "fit": "yakın"
+  },
+  {
+   "key": "incomeTop20",
+   "label": "Gelirin en üst %20'ye düşen payı",
+   "turkey": 0.48,
+   "synthetic": 0.4571,
+   "unit": "share",
+   "fit": "yakın"
+  },
+  {
+   "key": "s80s20",
+   "label": "En üst %20 / en alt %20 gelir payı oranı",
+   "turkey": 7.5,
+   "synthetic": 8.1703,
+   "unit": "ratio",
+   "fit": "yakın"
+  },
+  {
+   "key": "savingRate",
+   "label": "Hanehalkı tasarruf oranı",
+   "turkey": 0.143,
+   "synthetic": 0.104,
+   "unit": "share",
+   "fit": "kaba"
+  },
+  {
+   "key": "incomeGradient",
+   "label": "Karşılayamayanlar: düşük gelirli / diğerleri",
+   "turkey": 3.9662162162162162,
+   "synthetic": 3.9632,
+   "unit": "ratio",
+   "fit": "kaba"
+  }
+ ],
+ "segments": {
+  "v2": {
+   "standard (41/71)": {
+    "HIGH": 0.104,
+    "LOW": 0.519,
+    "MEDIUM": 0.377
+   },
+   "finhealth (40/80)": {
+    "coping (40-79)": 0.463,
+    "healthy (>=80)": 0.027,
+    "vulnerable (<40)": 0.51
+   },
+   "meanScore": 42.3
+  },
+  "v3a": {
+   "standard (41/71)": {
+    "HIGH": 0.152,
+    "LOW": 0.466,
+    "MEDIUM": 0.383
+   },
+   "finhealth (40/80)": {
+    "coping (40-79)": 0.501,
+    "healthy (>=80)": 0.06,
+    "vulnerable (<40)": 0.439
+   },
+   "meanScore": 46.9
+  },
+  "v3b": {
+   "standard (41/71)": {
+    "HIGH": 0.291,
+    "LOW": 0.101,
+    "MEDIUM": 0.608
+   },
+   "finhealth (40/80)": {
+    "coping (40-79)": 0.762,
+    "healthy (>=80)": 0.155,
+    "vulnerable (<40)": 0.082
+   },
+   "meanScore": 59.8
+  },
+  "v3c": {
+   "standard (41/71)": {
+    "HIGH": 0.235,
+    "LOW": 0.294,
+    "MEDIUM": 0.47
+   },
+   "finhealth (40/80)": {
+    "coping (40-79)": 0.625,
+    "healthy (>=80)": 0.113,
+    "vulnerable (<40)": 0.263
+   },
+   "meanScore": 53.5
+  },
+  "v3a-i5": {
+   "standard (41/71)": {
+    "HIGH": 0.142,
+    "LOW": 0.482,
+    "MEDIUM": 0.376
+   },
+   "finhealth (40/80)": {
+    "coping (40-79)": 0.471,
+    "healthy (>=80)": 0.064,
+    "vulnerable (<40)": 0.466
+   },
+   "meanScore": 46.0
+  },
+  "v3b-i5": {
+   "standard (41/71)": {
+    "HIGH": 0.287,
+    "LOW": 0.119,
+    "MEDIUM": 0.593
+   },
+   "finhealth (40/80)": {
+    "coping (40-79)": 0.749,
+    "healthy (>=80)": 0.15,
+    "vulnerable (<40)": 0.102
+   },
+   "meanScore": 59.0
+  },
+  "v3c-i5": {
+   "standard (41/71)": {
+    "HIGH": 0.263,
+    "LOW": 0.249,
+    "MEDIUM": 0.488
+   },
+   "finhealth (40/80)": {
+    "coping (40-79)": 0.633,
+    "healthy (>=80)": 0.142,
+    "vulnerable (<40)": 0.224
+   },
+   "meanScore": 55.1
+  }
+ },
+ "v3Diagnostics": {
+  "excessLiquidOffsetsDebt": 0.023,
+  "expenseFloorBinds": 0.0,
+  "interestFloorBinds": 0.1705,
+  "netDebtShareFull": 0.9385,
+  "runwayShareAboveZero": 0.559,
+  "solvencyCapBelowOne": 0.0,
+  "v3aNetDebtPartBinds": 0.0
+ },
+ "fragilityTargets": {
+  "lastsOver2Months (Findex 2025)": 0.223,
+  "cannotCoverUnexpected (Eurostat 2025)": 0.251
+ },
+ "rankCorrelation": {
+  "v2~v3a": 0.9593,
+  "v2~v3b": 0.9527,
+  "v2~v3c": 0.9525,
+  "v2~v3a-i5": 0.9512,
+  "v2~v3c-i5": 0.9479,
+  "v2 ExpenseRatio~SavingsRate points": 0.7642,
+  "v3a~v3b": 0.9943,
+  "v3a~v3c": 0.9945,
+  "v3a~v3a-i5": 0.993,
+  "v3b~v3b-i5": 0.9913,
+  "v3c~v3c-i5": 0.9935,
+  "v3a ExpenseRatio~SavingsRate points": 0.872
+ },
+ "jumpAndMonotonicity": {
+  "v2": {
+   "jump1pct": {
+    "checked": 22505,
+    "max": 100,
+    "p99": 8,
+    "p999": 25,
+    "mean": 0.291,
+    "maxPerInput": {
+     "monthlyIncome": 100,
+     "monthlyExpenses": 26,
+     "monthlyDebtPayment": 20,
+     "totalDebt": 75,
+     "cashReserve": 100,
+     "investmentAmount": 100
+    },
+    "worst": {
+     "userId": "G1a",
+     "input": "cashReserve",
+     "change": "+1",
+     "before": 0,
+     "after": 100,
+     "absDelta": 100
+    }
+   },
+   "monotonicity": {
+    "checked": 48789,
+    "violations": 0,
+    "perChange": {
+     "cashReserve adverse": {
+      "checked": 3778,
+      "violations": 0
+     },
+     "cashReserve favourable": {
+      "checked": 4310,
+      "violations": 0
+     },
+     "impatienceLevel adverse": {
+      "checked": 1867,
+      "violations": 0
+     },
+     "impatienceLevel favourable": {
+      "checked": 1908,
+      "violations": 0
+     },
+     "investmentAmount adverse": {
+      "checked": 1526,
+      "violations": 0
+     },
+     "investmentAmount favourable": {
+      "checked": 4312,
+      "violations": 0
+     },
+     "monthlyDebtPayment adverse": {
+      "checked": 4311,
+      "violations": 0
+     },
+     "monthlyDebtPayment favourable": {
+      "checked": 2427,
+      "violations": 0
+     },
+     "monthlyExpenses adverse": {
+      "checked": 4311,
+      "violations": 0
+     },
+     "monthlyExpenses favourable": {
+      "checked": 4307,
+      "violations": 0
+     },
+     "monthlyIncome adverse": {
+      "checked": 4312,
+      "violations": 0
+     },
+     "monthlyIncome favourable": {
+      "checked": 4312,
+      "violations": 0
+     },
+     "totalDebt adverse": {
+      "checked": 4312,
+      "violations": 0
+     },
+     "totalDebt favourable": {
+      "checked": 2796,
+      "violations": 0
+     }
+    },
+    "allViolationsFlaggedExpensesTooLow": null,
+    "examples": []
+   }
+  },
+  "v3a": {
+   "jump1pct": {
+    "checked": 22524,
+    "max": 4,
+    "p99": 2,
+    "p999": 2,
+    "mean": 0.196,
+    "maxPerInput": {
+     "monthlyIncome": 3,
+     "monthlyExpenses": 3,
+     "monthlyDebtPayment": 2,
+     "totalDebt": 2,
+     "cashReserve": 2,
+     "investmentAmount": 4
+    },
+    "worst": {
+     "userId": "G10b",
+     "input": "investmentAmount",
+     "change": "+1",
+     "before": 93,
+     "after": 97,
+     "absDelta": 4
+    }
+   },
+   "monotonicity": {
+    "checked": 48831,
+    "violations": 0,
+    "perChange": {
+     "cashReserve adverse": {
+      "checked": 3782,
+      "violations": 0
+     },
+     "cashReserve favourable": {
+      "checked": 4314,
+      "violations": 0
+     },
+     "impatienceLevel adverse": {
+      "checked": 1869,
+      "violations": 0
+     },
+     "impatienceLevel favourable": {
+      "checked": 1910,
+      "violations": 0
+     },
+     "investmentAmount adverse": {
+      "checked": 1526,
+      "violations": 0
+     },
+     "investmentAmount favourable": {
+      "checked": 4316,
+      "violations": 0
+     },
+     "monthlyDebtPayment adverse": {
+      "checked": 4315,
+      "violations": 0
+     },
+     "monthlyDebtPayment favourable": {
+      "checked": 2429,
+      "violations": 0
+     },
+     "monthlyExpenses adverse": {
+      "checked": 4315,
+      "violations": 0
+     },
+     "monthlyExpenses favourable": {
+      "checked": 4311,
+      "violations": 0
+     },
+     "monthlyIncome adverse": {
+      "checked": 4316,
+      "violations": 0
+     },
+     "monthlyIncome favourable": {
+      "checked": 4316,
+      "violations": 0
+     },
+     "totalDebt adverse": {
+      "checked": 4316,
+      "violations": 0
+     },
+     "totalDebt favourable": {
+      "checked": 2796,
+      "violations": 0
+     }
+    },
+    "allViolationsFlaggedExpensesTooLow": null,
+    "examples": []
+   }
+  },
+  "v3b": {
+   "jump1pct": {
+    "checked": 22524,
+    "max": 4,
+    "p99": 1,
+    "p999": 2,
+    "mean": 0.161,
+    "maxPerInput": {
+     "monthlyIncome": 3,
+     "monthlyExpenses": 2,
+     "monthlyDebtPayment": 3,
+     "totalDebt": 2,
+     "cashReserve": 1,
+     "investmentAmount": 4
+    },
+    "worst": {
+     "userId": "G10b",
+     "input": "investmentAmount",
+     "change": "+1",
+     "before": 93,
+     "after": 97,
+     "absDelta": 4
+    }
+   },
+   "monotonicity": {
+    "checked": 48831,
+    "violations": 0,
+    "perChange": {
+     "cashReserve adverse": {
+      "checked": 3782,
+      "violations": 0
+     },
+     "cashReserve favourable": {
+      "checked": 4314,
+      "violations": 0
+     },
+     "impatienceLevel adverse": {
+      "checked": 1869,
+      "violations": 0
+     },
+     "impatienceLevel favourable": {
+      "checked": 1910,
+      "violations": 0
+     },
+     "investmentAmount adverse": {
+      "checked": 1526,
+      "violations": 0
+     },
+     "investmentAmount favourable": {
+      "checked": 4316,
+      "violations": 0
+     },
+     "monthlyDebtPayment adverse": {
+      "checked": 4315,
+      "violations": 0
+     },
+     "monthlyDebtPayment favourable": {
+      "checked": 2429,
+      "violations": 0
+     },
+     "monthlyExpenses adverse": {
+      "checked": 4315,
+      "violations": 0
+     },
+     "monthlyExpenses favourable": {
+      "checked": 4311,
+      "violations": 0
+     },
+     "monthlyIncome adverse": {
+      "checked": 4316,
+      "violations": 0
+     },
+     "monthlyIncome favourable": {
+      "checked": 4316,
+      "violations": 0
+     },
+     "totalDebt adverse": {
+      "checked": 4316,
+      "violations": 0
+     },
+     "totalDebt favourable": {
+      "checked": 2796,
+      "violations": 0
+     }
+    },
+    "allViolationsFlaggedExpensesTooLow": null,
+    "examples": []
+   }
+  },
+  "v3c": {
+   "jump1pct": {
+    "checked": 22524,
+    "max": 4,
+    "p99": 2,
+    "p999": 2,
+    "mean": 0.187,
+    "maxPerInput": {
+     "monthlyIncome": 3,
+     "monthlyExpenses": 3,
+     "monthlyDebtPayment": 2,
+     "totalDebt": 2,
+     "cashReserve": 1,
+     "investmentAmount": 4
+    },
+    "worst": {
+     "userId": "G10b",
+     "input": "investmentAmount",
+     "change": "+1",
+     "before": 92,
+     "after": 96,
+     "absDelta": 4
+    }
+   },
+   "monotonicity": {
+    "checked": 48831,
+    "violations": 0,
+    "perChange": {
+     "cashReserve adverse": {
+      "checked": 3782,
+      "violations": 0
+     },
+     "cashReserve favourable": {
+      "checked": 4314,
+      "violations": 0
+     },
+     "impatienceLevel adverse": {
+      "checked": 1869,
+      "violations": 0
+     },
+     "impatienceLevel favourable": {
+      "checked": 1910,
+      "violations": 0
+     },
+     "investmentAmount adverse": {
+      "checked": 1526,
+      "violations": 0
+     },
+     "investmentAmount favourable": {
+      "checked": 4316,
+      "violations": 0
+     },
+     "monthlyDebtPayment adverse": {
+      "checked": 4315,
+      "violations": 0
+     },
+     "monthlyDebtPayment favourable": {
+      "checked": 2429,
+      "violations": 0
+     },
+     "monthlyExpenses adverse": {
+      "checked": 4315,
+      "violations": 0
+     },
+     "monthlyExpenses favourable": {
+      "checked": 4311,
+      "violations": 0
+     },
+     "monthlyIncome adverse": {
+      "checked": 4316,
+      "violations": 0
+     },
+     "monthlyIncome favourable": {
+      "checked": 4316,
+      "violations": 0
+     },
+     "totalDebt adverse": {
+      "checked": 4316,
+      "violations": 0
+     },
+     "totalDebt favourable": {
+      "checked": 2796,
+      "violations": 0
+     }
+    },
+    "allViolationsFlaggedExpensesTooLow": null,
+    "examples": []
+   }
+  },
+  "v3a-i5": {
+   "jump1pct": {
+    "checked": 22524,
+    "max": 4,
+    "p99": 2,
+    "p999": 3,
+    "mean": 0.2,
+    "maxPerInput": {
+     "monthlyIncome": 3,
+     "monthlyExpenses": 3,
+     "monthlyDebtPayment": 2,
+     "totalDebt": 2,
+     "cashReserve": 2,
+     "investmentAmount": 4
+    },
+    "worst": {
+     "userId": "G10b",
+     "input": "investmentAmount",
+     "change": "+1",
+     "before": 92,
+     "after": 96,
+     "absDelta": 4
+    }
+   },
+   "monotonicity": {
+    "checked": 48831,
+    "violations": 0,
+    "perChange": {
+     "cashReserve adverse": {
+      "checked": 3782,
+      "violations": 0
+     },
+     "cashReserve favourable": {
+      "checked": 4314,
+      "violations": 0
+     },
+     "impatienceLevel adverse": {
+      "checked": 1869,
+      "violations": 0
+     },
+     "impatienceLevel favourable": {
+      "checked": 1910,
+      "violations": 0
+     },
+     "investmentAmount adverse": {
+      "checked": 1526,
+      "violations": 0
+     },
+     "investmentAmount favourable": {
+      "checked": 4316,
+      "violations": 0
+     },
+     "monthlyDebtPayment adverse": {
+      "checked": 4315,
+      "violations": 0
+     },
+     "monthlyDebtPayment favourable": {
+      "checked": 2429,
+      "violations": 0
+     },
+     "monthlyExpenses adverse": {
+      "checked": 4315,
+      "violations": 0
+     },
+     "monthlyExpenses favourable": {
+      "checked": 4311,
+      "violations": 0
+     },
+     "monthlyIncome adverse": {
+      "checked": 4316,
+      "violations": 0
+     },
+     "monthlyIncome favourable": {
+      "checked": 4316,
+      "violations": 0
+     },
+     "totalDebt adverse": {
+      "checked": 4316,
+      "violations": 0
+     },
+     "totalDebt favourable": {
+      "checked": 2796,
+      "violations": 0
+     }
+    },
+    "allViolationsFlaggedExpensesTooLow": null,
+    "examples": []
+   }
+  },
+  "v3b-i5": {
+   "jump1pct": {
+    "checked": 22524,
+    "max": 4,
+    "p99": 1,
+    "p999": 2,
+    "mean": 0.165,
+    "maxPerInput": {
+     "monthlyIncome": 3,
+     "monthlyExpenses": 2,
+     "monthlyDebtPayment": 2,
+     "totalDebt": 2,
+     "cashReserve": 1,
+     "investmentAmount": 4
+    },
+    "worst": {
+     "userId": "G10b",
+     "input": "investmentAmount",
+     "change": "+1",
+     "before": 92,
+     "after": 96,
+     "absDelta": 4
+    }
+   },
+   "monotonicity": {
+    "checked": 48831,
+    "violations": 0,
+    "perChange": {
+     "cashReserve adverse": {
+      "checked": 3782,
+      "violations": 0
+     },
+     "cashReserve favourable": {
+      "checked": 4314,
+      "violations": 0
+     },
+     "impatienceLevel adverse": {
+      "checked": 1869,
+      "violations": 0
+     },
+     "impatienceLevel favourable": {
+      "checked": 1910,
+      "violations": 0
+     },
+     "investmentAmount adverse": {
+      "checked": 1526,
+      "violations": 0
+     },
+     "investmentAmount favourable": {
+      "checked": 4316,
+      "violations": 0
+     },
+     "monthlyDebtPayment adverse": {
+      "checked": 4315,
+      "violations": 0
+     },
+     "monthlyDebtPayment favourable": {
+      "checked": 2429,
+      "violations": 0
+     },
+     "monthlyExpenses adverse": {
+      "checked": 4315,
+      "violations": 0
+     },
+     "monthlyExpenses favourable": {
+      "checked": 4311,
+      "violations": 0
+     },
+     "monthlyIncome adverse": {
+      "checked": 4316,
+      "violations": 0
+     },
+     "monthlyIncome favourable": {
+      "checked": 4316,
+      "violations": 0
+     },
+     "totalDebt adverse": {
+      "checked": 4316,
+      "violations": 0
+     },
+     "totalDebt favourable": {
+      "checked": 2796,
+      "violations": 0
+     }
+    },
+    "allViolationsFlaggedExpensesTooLow": null,
+    "examples": []
+   }
+  },
+  "v3c-i5": {
+   "jump1pct": {
+    "checked": 22524,
+    "max": 4,
+    "p99": 2,
+    "p999": 2,
+    "mean": 0.189,
+    "maxPerInput": {
+     "monthlyIncome": 3,
+     "monthlyExpenses": 3,
+     "monthlyDebtPayment": 2,
+     "totalDebt": 2,
+     "cashReserve": 1,
+     "investmentAmount": 4
+    },
+    "worst": {
+     "userId": "G10b",
+     "input": "investmentAmount",
+     "change": "+1",
+     "before": 92,
+     "after": 96,
+     "absDelta": 4
+    }
+   },
+   "monotonicity": {
+    "checked": 48831,
+    "violations": 0,
+    "perChange": {
+     "cashReserve adverse": {
+      "checked": 3782,
+      "violations": 0
+     },
+     "cashReserve favourable": {
+      "checked": 4314,
+      "violations": 0
+     },
+     "impatienceLevel adverse": {
+      "checked": 1869,
+      "violations": 0
+     },
+     "impatienceLevel favourable": {
+      "checked": 1910,
+      "violations": 0
+     },
+     "investmentAmount adverse": {
+      "checked": 1526,
+      "violations": 0
+     },
+     "investmentAmount favourable": {
+      "checked": 4316,
+      "violations": 0
+     },
+     "monthlyDebtPayment adverse": {
+      "checked": 4315,
+      "violations": 0
+     },
+     "monthlyDebtPayment favourable": {
+      "checked": 2429,
+      "violations": 0
+     },
+     "monthlyExpenses adverse": {
+      "checked": 4315,
+      "violations": 0
+     },
+     "monthlyExpenses favourable": {
+      "checked": 4311,
+      "violations": 0
+     },
+     "monthlyIncome adverse": {
+      "checked": 4316,
+      "violations": 0
+     },
+     "monthlyIncome favourable": {
+      "checked": 4316,
+      "violations": 0
+     },
+     "totalDebt adverse": {
+      "checked": 4316,
+      "violations": 0
+     },
+     "totalDebt favourable": {
+      "checked": 2796,
+      "violations": 0
+     }
+    },
+    "allViolationsFlaggedExpensesTooLow": null,
+    "examples": []
+   }
+  }
+ },
+ "gaming": {
+  "v2": {
+   "impatience5to1": {
+    "mean": 10.0,
+    "p90": 10,
+    "max": 10,
+    "min": 10
+   },
+   "borrowCashSamePayment": {
+    "mean": 9.19,
+    "p90": 15,
+    "max": 15,
+    "min": 0
+   },
+   "borrowCashWithPayment": {
+    "mean": -5.37,
+    "p90": 7,
+    "max": 15,
+    "min": -32
+   },
+   "underreportExpenses10": {
+    "mean": 4.64,
+    "p90": 13,
+    "max": 25,
+    "min": 0
+   }
+  },
+  "v3a": {
+   "impatience5to1": {
+    "mean": 10.0,
+    "p90": 10,
+    "max": 10,
+    "min": 10
+   },
+   "borrowCashSamePayment": {
+    "mean": 6.26,
+    "p90": 11,
+    "max": 15,
+    "min": -7
+   },
+   "borrowCashWithPayment": {
+    "mean": -4.66,
+    "p90": 3,
+    "max": 12,
+    "min": -26
+   },
+   "underreportExpenses10": {
+    "mean": 5.07,
+    "p90": 11,
+    "max": 14,
+    "min": 0
+   }
+  },
+  "v3b": {
+   "impatience5to1": {
+    "mean": 10.0,
+    "p90": 10,
+    "max": 10,
+    "min": 10
+   },
+   "borrowCashSamePayment": {
+    "mean": 6.4,
+    "p90": 12,
+    "max": 15,
+    "min": -6
+   },
+   "borrowCashWithPayment": {
+    "mean": -3.15,
+    "p90": 4,
+    "max": 12,
+    "min": -24
+   },
+   "underreportExpenses10": {
+    "mean": 3.94,
+    "p90": 10,
+    "max": 12,
+    "min": 0
+   }
+  },
+  "v3c": {
+   "impatience5to1": {
+    "mean": 10.0,
+    "p90": 10,
+    "max": 10,
+    "min": 10
+   },
+   "borrowCashSamePayment": {
+    "mean": 8.4,
+    "p90": 14,
+    "max": 18,
+    "min": -5
+   },
+   "borrowCashWithPayment": {
+    "mean": -1.99,
+    "p90": 6,
+    "max": 14,
+    "min": -27
+   },
+   "underreportExpenses10": {
+    "mean": 4.74,
+    "p90": 12,
+    "max": 14,
+    "min": 0
+   }
+  },
+  "v3a-i5": {
+   "impatience5to1": {
+    "mean": 5.0,
+    "p90": 5,
+    "max": 5,
+    "min": 5
+   },
+   "borrowCashSamePayment": {
+    "mean": 8.42,
+    "p90": 14,
+    "max": 18,
+    "min": -5
+   },
+   "borrowCashWithPayment": {
+    "mean": -2.91,
+    "p90": 5,
+    "max": 14,
+    "min": -26
+   },
+   "underreportExpenses10": {
+    "mean": 5.22,
+    "p90": 11,
+    "max": 15,
+    "min": 0
+   }
+  },
+  "v3b-i5": {
+   "impatience5to1": {
+    "mean": 5.0,
+    "p90": 5,
+    "max": 5,
+    "min": 5
+   },
+   "borrowCashSamePayment": {
+    "mean": 8.56,
+    "p90": 14,
+    "max": 18,
+    "min": -3
+   },
+   "borrowCashWithPayment": {
+    "mean": -1.41,
+    "p90": 6,
+    "max": 14,
+    "min": -24
+   },
+   "underreportExpenses10": {
+    "mean": 4.09,
+    "p90": 10,
+    "max": 13,
+    "min": 0
+   }
+  },
+  "v3c-i5": {
+   "impatience5to1": {
+    "mean": 5.0,
+    "p90": 5,
+    "max": 5,
+    "min": 5
+   },
+   "borrowCashSamePayment": {
+    "mean": 7.86,
+    "p90": 14,
+    "max": 18,
+    "min": -7
+   },
+   "borrowCashWithPayment": {
+    "mean": -3.9,
+    "p90": 4,
+    "max": 14,
+    "min": -29
+   },
+   "underreportExpenses10": {
+    "mean": 4.74,
+    "p90": 12,
+    "max": 14,
+    "min": 0
+   }
+  }
+ },
+ "warnings": {
+  "v2": {
+   "lowestScoreNoWarnings": 41,
+   "lowestScoreNoFactorWarnings": 41,
+   "maxFactorPointsLostWithoutWarning": {
+    "CashReserveMonths": 10,
+    "DebtToIncomeRatio": 17,
+    "SavingsRate": 17,
+    "ExpenseRatio": 10,
+    "Impatience": 5
+   },
+   "maxFactorPointsLostWithoutWarningExample": {
+    "DebtToIncomeRatio": "core-00005",
+    "Impatience": "core-00002",
+    "SavingsRate": "core-00006",
+    "CashReserveMonths": "core-00004",
+    "ExpenseRatio": "core-00010"
+   }
+  },
+  "v3a": {
+   "lowestScoreNoWarnings": 72,
+   "lowestScoreNoFactorWarnings": 72,
+   "maxFactorPointsLostWithoutWarning": {
+    "CashReserveMonths": 10,
+    "DebtToIncomeRatio": 10,
+    "SavingsRate": 10,
+    "ExpenseRatio": 6,
+    "Impatience": 4
+   },
+   "maxFactorPointsLostWithoutWarningExample": {
+    "DebtToIncomeRatio": "core-00017",
+    "Impatience": "core-00002",
+    "SavingsRate": "core-00011",
+    "CashReserveMonths": "core-00085",
+    "ExpenseRatio": "core-00010"
+   }
+  },
+  "v3b": {
+   "lowestScoreNoWarnings": 69,
+   "lowestScoreNoFactorWarnings": 69,
+   "maxFactorPointsLostWithoutWarning": {
+    "CashReserveMonths": 10,
+    "InstallmentToIncome": 8,
+    "NetDebtToIncome": 8,
+    "SavingsRate": 10,
+    "Impatience": 4
+   },
+   "maxFactorPointsLostWithoutWarningExample": {
+    "InstallmentToIncome": "core-00017",
+    "Impatience": "core-00002",
+    "SavingsRate": "core-00011",
+    "CashReserveMonths": "core-00085",
+    "NetDebtToIncome": "core-00904"
+   }
+  },
+  "v3c": {
+   "lowestScoreNoWarnings": 67,
+   "lowestScoreNoFactorWarnings": 67,
+   "maxFactorPointsLostWithoutWarning": {
+    "CashReserveMonths": 12,
+    "InstallmentToIncome": 8,
+    "NetDebtToIncome": 4,
+    "SavingsRate": 12,
+    "Impatience": 4
+   },
+   "maxFactorPointsLostWithoutWarningExample": {
+    "InstallmentToIncome": "core-00017",
+    "Impatience": "core-00002",
+    "SavingsRate": "core-00011",
+    "CashReserveMonths": "core-00085",
+    "NetDebtToIncome": "core-00096"
+   }
+  },
+  "v3a-i5": {
+   "lowestScoreNoWarnings": 73,
+   "lowestScoreNoFactorWarnings": 73,
+   "maxFactorPointsLostWithoutWarning": {
+    "CashReserveMonths": 12,
+    "DebtToIncomeRatio": 10,
+    "SavingsRate": 10,
+    "ExpenseRatio": 6,
+    "Impatience": 2
+   },
+   "maxFactorPointsLostWithoutWarningExample": {
+    "DebtToIncomeRatio": "core-00017",
+    "Impatience": "core-00002",
+    "SavingsRate": "core-00011",
+    "CashReserveMonths": "core-00085",
+    "ExpenseRatio": "core-00010"
+   }
+  },
+  "v3b-i5": {
+   "lowestScoreNoWarnings": 69,
+   "lowestScoreNoFactorWarnings": 69,
+   "maxFactorPointsLostWithoutWarning": {
+    "CashReserveMonths": 12,
+    "InstallmentToIncome": 8,
+    "NetDebtToIncome": 8,
+    "SavingsRate": 10,
+    "Impatience": 2
+   },
+   "maxFactorPointsLostWithoutWarningExample": {
+    "InstallmentToIncome": "core-00017",
+    "Impatience": "core-00002",
+    "SavingsRate": "core-00011",
+    "CashReserveMonths": "core-00085",
+    "NetDebtToIncome": "core-00904"
+   }
+  },
+  "v3c-i5": {
+   "lowestScoreNoWarnings": 67,
+   "lowestScoreNoFactorWarnings": 67,
+   "maxFactorPointsLostWithoutWarning": {
+    "CashReserveMonths": 12,
+    "InstallmentToIncome": 10,
+    "NetDebtToIncome": 4,
+    "SavingsRate": 12,
+    "Impatience": 2
+   },
+   "maxFactorPointsLostWithoutWarningExample": {
+    "InstallmentToIncome": "core-00017",
+    "Impatience": "core-00002",
+    "SavingsRate": "core-00011",
+    "CashReserveMonths": "core-00085",
+    "NetDebtToIncome": "core-00096"
+   }
+  }
+ },
+ "appliedRules": {
+  "v2": {
+   "core:None": 2000,
+   "demo:EXTREME_DEBT": 1,
+   "demo:None": 8,
+   "demo:VERY_HIGH_INCOME": 1,
+   "demo:VERY_HIGH_WEALTH": 1,
+   "extreme_debt:EXTREME_DEBT": 6,
+   "extreme_debt:None": 19,
+   "hidden_debt:None": 25,
+   "rich_income:None": 7,
+   "rich_income:VERY_HIGH_INCOME": 15,
+   "rich_income:VERY_HIGH_WEALTH": 3,
+   "wealthy:None": 15,
+   "wealthy:VERY_HIGH_WEALTH": 10
+  },
+  "v3a": {
+   "core:None": 2000,
+   "demo:None": 9,
+   "demo:SOLVENCY_CAP": 1,
+   "demo:WEALTH_RUNWAY": 1,
+   "extreme_debt:SOLVENCY_CAP": 25,
+   "hidden_debt:None": 14,
+   "hidden_debt:SOLVENCY_CAP": 11,
+   "rich_income:None": 25,
+   "wealthy:None": 5,
+   "wealthy:WEALTH_RUNWAY": 20
+  },
+  "v3b": {
+   "core:None": 2000,
+   "demo:None": 9,
+   "demo:SOLVENCY_CAP": 1,
+   "demo:WEALTH_RUNWAY": 1,
+   "extreme_debt:SOLVENCY_CAP": 25,
+   "hidden_debt:None": 14,
+   "hidden_debt:SOLVENCY_CAP": 11,
+   "rich_income:None": 25,
+   "wealthy:None": 14,
+   "wealthy:WEALTH_RUNWAY": 11
+  },
+  "v3c": {
+   "core:None": 2000,
+   "demo:None": 9,
+   "demo:SOLVENCY_CAP": 1,
+   "demo:WEALTH_RUNWAY": 1,
+   "extreme_debt:SOLVENCY_CAP": 25,
+   "hidden_debt:None": 14,
+   "hidden_debt:SOLVENCY_CAP": 11,
+   "rich_income:None": 25,
+   "wealthy:None": 14,
+   "wealthy:WEALTH_RUNWAY": 11
+  },
+  "v3a-i5": {
+   "core:None": 2000,
+   "demo:None": 9,
+   "demo:SOLVENCY_CAP": 1,
+   "demo:WEALTH_RUNWAY": 1,
+   "extreme_debt:SOLVENCY_CAP": 25,
+   "hidden_debt:None": 14,
+   "hidden_debt:SOLVENCY_CAP": 11,
+   "rich_income:None": 25,
+   "wealthy:None": 5,
+   "wealthy:WEALTH_RUNWAY": 20
+  },
+  "v3b-i5": {
+   "core:None": 2000,
+   "demo:None": 9,
+   "demo:SOLVENCY_CAP": 1,
+   "demo:WEALTH_RUNWAY": 1,
+   "extreme_debt:SOLVENCY_CAP": 25,
+   "hidden_debt:None": 14,
+   "hidden_debt:SOLVENCY_CAP": 11,
+   "rich_income:None": 25,
+   "wealthy:None": 14,
+   "wealthy:WEALTH_RUNWAY": 11
+  },
+  "v3c-i5": {
+   "core:None": 2000,
+   "demo:None": 9,
+   "demo:SOLVENCY_CAP": 1,
+   "demo:WEALTH_RUNWAY": 1,
+   "extreme_debt:SOLVENCY_CAP": 25,
+   "hidden_debt:None": 14,
+   "hidden_debt:SOLVENCY_CAP": 11,
+   "rich_income:None": 25,
+   "wealthy:None": 14,
+   "wealthy:WEALTH_RUNWAY": 11
+  }
+ },
+ "demos": [
+  {
+   "userId": "demo-low",
+   "v3a": "19 LOW",
+   "v3b": "33 LOW",
+   "v3c": "24 LOW",
+   "v3a-i5": "20 LOW",
+   "v3b-i5": "34 LOW",
+   "v3c-i5": "27 LOW",
+   "v2": "8 LOW"
+  },
+  {
+   "userId": "demo-medium",
+   "v3a": "67 MEDIUM",
+   "v3b": "74 HIGH",
+   "v3c": "70 MEDIUM",
+   "v3a-i5": "65 MEDIUM",
+   "v3b-i5": "72 HIGH",
+   "v3c-i5": "71 HIGH",
+   "v2": "62 MEDIUM"
+  },
+  {
+   "userId": "demo-high",
+   "v3a": "88 HIGH",
+   "v3b": "88 HIGH",
+   "v3c": "86 HIGH",
+   "v3a-i5": "87 HIGH",
+   "v3b-i5": "87 HIGH",
+   "v3c-i5": "87 HIGH",
+   "v2": "88 HIGH"
+  },
+  {
+   "userId": "demo-highdebt",
+   "v3a": "37 LOW",
+   "v3b": "24 LOW",
+   "v3c": "26 LOW",
+   "v3a-i5": "36 LOW",
+   "v3b-i5": "23 LOW",
+   "v3c-i5": "22 LOW",
+   "v2": "63 MEDIUM"
+  },
+  {
+   "userId": "demo-richincome",
+   "v3a": "42 MEDIUM",
+   "v3b": "55 MEDIUM",
+   "v3c": "48 MEDIUM",
+   "v3a-i5": "42 MEDIUM",
+   "v3b-i5": "55 MEDIUM",
+   "v3c-i5": "53 MEDIUM",
+   "v2": "100 HIGH VERY_HIGH_INCOME"
+  },
+  {
+   "userId": "demo-richwealth",
+   "v3a": "75 HIGH WEALTH_RUNWAY",
+   "v3b": "81 HIGH WEALTH_RUNWAY",
+   "v3c": "79 HIGH WEALTH_RUNWAY",
+   "v3a-i5": "80 HIGH WEALTH_RUNWAY",
+   "v3b-i5": "86 HIGH WEALTH_RUNWAY",
+   "v3c-i5": "84 HIGH WEALTH_RUNWAY",
+   "v2": "100 HIGH VERY_HIGH_WEALTH"
+  },
+  {
+   "userId": "demo-extremedebt",
+   "v3a": "0 LOW SOLVENCY_CAP",
+   "v3b": "0 LOW SOLVENCY_CAP",
+   "v3c": "0 LOW SOLVENCY_CAP",
+   "v3a-i5": "0 LOW SOLVENCY_CAP",
+   "v3b-i5": "0 LOW SOLVENCY_CAP",
+   "v3c-i5": "0 LOW SOLVENCY_CAP",
+   "v2": "0 LOW EXTREME_DEBT"
+  },
+  {
+   "userId": "demo-trend-1",
+   "v3a": "19 LOW",
+   "v3b": "33 LOW",
+   "v3c": "24 LOW",
+   "v3a-i5": "20 LOW",
+   "v3b-i5": "34 LOW",
+   "v3c-i5": "27 LOW",
+   "v2": "8 LOW"
+  },
+  {
+   "userId": "demo-trend-2",
+   "v3a": "44 MEDIUM",
+   "v3b": "56 MEDIUM",
+   "v3c": "49 MEDIUM",
+   "v3a-i5": "43 MEDIUM",
+   "v3b-i5": "55 MEDIUM",
+   "v3c-i5": "51 MEDIUM",
+   "v2": "37 LOW"
+  },
+  {
+   "userId": "demo-trend-3",
+   "v3a": "74 HIGH",
+   "v3b": "80 HIGH",
+   "v3c": "77 HIGH",
+   "v3a-i5": "73 HIGH",
+   "v3b-i5": "79 HIGH",
+   "v3c-i5": "79 HIGH",
+   "v2": "62 MEDIUM"
+  },
+  {
+   "userId": "demo-trend-4",
+   "v3a": "94 HIGH",
+   "v3b": "97 HIGH",
+   "v3c": "96 HIGH",
+   "v3a-i5": "94 HIGH",
+   "v3b-i5": "97 HIGH",
+   "v3c-i5": "97 HIGH",
+   "v2": "92 HIGH"
+  }
+ ],
+ "regressionProbes": [
+  {
+   "id": "G1a",
+   "finding": "investment +1 crosses VERY_HIGH_WEALTH",
+   "v3a": "4->4",
+   "v3b": "24->24",
+   "v3c": "14->14",
+   "v3a-i5": "4->4",
+   "v3b-i5": "24->24",
+   "v3c-i5": "14->14",
+   "v2": "0->100"
+  },
+  {
+   "id": "G1b",
+   "finding": "income +1 crosses VERY_HIGH_INCOME",
+   "v3a": "0->0",
+   "v3b": "20->20",
+   "v3c": "10->10",
+   "v3a-i5": "0->0",
+   "v3b-i5": "20->20",
+   "v3c-i5": "10->10",
+   "v2": "0->100"
+  },
+  {
+   "id": "G1c",
+   "finding": "debt +1 crosses EXTREME_DEBT",
+   "v3a": "0->0",
+   "v3b": "0->0",
+   "v3c": "0->0",
+   "v3a-i5": "0->0",
+   "v3b-i5": "0->0",
+   "v3c-i5": "0->0",
+   "v2": "75->0"
+  },
+  {
+   "id": "G1d",
+   "finding": "income +1 leaves EXTREME_DEBT",
+   "v3a": "0->0",
+   "v3b": "0->0",
+   "v3c": "0->0",
+   "v3a-i5": "0->0",
+   "v3b-i5": "0->0",
+   "v3c-i5": "0->0",
+   "v2": "0->75"
+  },
+  {
+   "id": "G2a",
+   "finding": "VERY_HIGH_INCOME ignores a deficit (expenses 2x income)",
+   "v3a": "31",
+   "v3b": "46",
+   "v3c": "36",
+   "v3a-i5": "28",
+   "v3b-i5": "43",
+   "v3c-i5": "38",
+   "v2": "100"
+  },
+  {
+   "id": "G2b",
+   "finding": "VERY_HIGH_WEALTH ignores 6M/month expenses",
+   "v3a": "39",
+   "v3b": "54",
+   "v3c": "46",
+   "v3a-i5": "38",
+   "v3b-i5": "53",
+   "v3c-i5": "48",
+   "v2": "100"
+  },
+  {
+   "id": "G3",
+   "finding": "debt penalty capped at 25 (net debt ~104 years of income)",
+   "v3a": "0",
+   "v3b": "0",
+   "v3c": "0",
+   "v3a-i5": "0",
+   "v3b-i5": "0",
+   "v3c-i5": "0",
+   "v2": "75"
+  },
+  {
+   "id": "G4",
+   "finding": "borrow 96k and hold it as cash",
+   "v3a": "71->92",
+   "v3b": "71->92",
+   "v3c": "66->91",
+   "v3a-i5": "68->93",
+   "v3b-i5": "68->93",
+   "v3c-i5": "68->93",
+   "v2": "70->95"
+  },
+  {
+   "id": "G5a",
+   "finding": "impatience 5 -> 1 (self-report)",
+   "v3a": "61->71",
+   "v3b": "68->78",
+   "v3c": "64->74",
+   "v3a-i5": "62->67",
+   "v3b-i5": "69->74",
+   "v3c-i5": "68->73",
+   "v2": "57->67"
+  },
+  {
+   "id": "G5b",
+   "finding": "expenses 0 and 0.01 cash",
+   "v3a": "75",
+   "v3b": "75",
+   "v3c": "70",
+   "v3a-i5": "70",
+   "v3b-i5": "70",
+   "v3c-i5": "70",
+   "v2": "100"
+  },
+  {
+   "id": "G6a",
+   "finding": "expenses +1 at the 3-month and 40 % steps",
+   "v3a": "69->69",
+   "v3b": "73->73",
+   "v3c": "71->71",
+   "v3a-i5": "67->67",
+   "v3b-i5": "71->71",
+   "v3c-i5": "67->67",
+   "v2": "75->49"
+  },
+  {
+   "id": "G6b",
+   "finding": "installment +1 at the 10 % and 20 % steps",
+   "v3a": "91->91",
+   "v3b": "100->100",
+   "v3c": "100->100",
+   "v3a-i5": "91->91",
+   "v3b-i5": "100->100",
+   "v3c-i5": "100->100",
+   "v2": "90->70"
+  },
+  {
+   "id": "G8",
+   "finding": "installment missing from the reserve denominator",
+   "v3a": "65",
+   "v3b": "69",
+   "v3c": "66",
+   "v3a-i5": "64",
+   "v3b-i5": "68",
+   "v3c-i5": "64",
+   "v2": "78"
+  },
+  {
+   "id": "G9a",
+   "finding": "installment below 3.5 %/month interest",
+   "v3a": "98",
+   "v3b": "98",
+   "v3c": "98",
+   "v3a-i5": "99",
+   "v3b-i5": "99",
+   "v3c-i5": "99",
+   "v2": "98"
+  },
+  {
+   "id": "G9b",
+   "finding": "installment with zero debt (demo seed)",
+   "v3a": "67",
+   "v3b": "74",
+   "v3c": "70",
+   "v3a-i5": "65",
+   "v3b-i5": "72",
+   "v3c-i5": "71",
+   "v2": "62"
+  },
+  {
+   "id": "G10a",
+   "finding": "expenses 0 and cash 0, then cash +1",
+   "v3a": "71->71",
+   "v3b": "71->71",
+   "v3c": "66->66",
+   "v3a-i5": "68->68",
+   "v3b-i5": "68->68",
+   "v3c-i5": "68->68",
+   "v2": "70->95"
+  },
+  {
+   "id": "G10b",
+   "finding": "tiny amounts (income 1)",
+   "v3a": "93",
+   "v3b": "93",
+   "v3c": "92",
+   "v3a-i5": "92",
+   "v3b-i5": "92",
+   "v3c-i5": "92",
+   "v2": "90"
+  },
+  {
+   "id": "L1",
+   "finding": "2 months of cash, negative savings: runway lift without the label",
+   "v3a": "23",
+   "v3b": "36",
+   "v3c": "29",
+   "v3a-i5": "22",
+   "v3b-i5": "35",
+   "v3c-i5": "26",
+   "v2": null
+  },
+  {
+   "id": "L2",
+   "finding": "30 years of runway, negative savings: WEALTH_RUNWAY",
+   "v3a": "96",
+   "v3b": "96",
+   "v3c": "96",
+   "v3a-i5": "98",
+   "v3b-i5": "98",
+   "v3c-i5": "98",
+   "v2": null
+  }
+ ],
+ "thresholdProbes": {
+  "maxAbsJump": {
+   "v3a": 1,
+   "v3b": 1,
+   "v3c": 0,
+   "v3a-i5": 1,
+   "v3b-i5": 1,
+   "v3c-i5": 0,
+   "v2": 75
+  },
+  "rows": [
+   {
+    "id": "v2-reserve-1m",
+    "v3a": 0,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 0,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": -8
+   },
+   {
+    "id": "v2-reserve-3m",
+    "v3a": 0,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 0,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": -7
+   },
+   {
+    "id": "v2-reserve-6m",
+    "v3a": 0,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 0,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": -10
+   },
+   {
+    "id": "v3-reserve-3m",
+    "v3a": 0,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 0,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": 0
+   },
+   {
+    "id": "v3-reserve-6m",
+    "v3a": 0,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 0,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": 0
+   },
+   {
+    "id": "installment-10pct",
+    "v3a": 0,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 0,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": -10
+   },
+   {
+    "id": "installment-20pct",
+    "v3a": 0,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 0,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": -7
+   },
+   {
+    "id": "installment-36pct",
+    "v3a": 0,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 0,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": -8
+   },
+   {
+    "id": "installment-50pct",
+    "v3a": 0,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 0,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": -7
+   },
+   {
+    "id": "v2-netdebt-0.5y",
+    "v3a": 0,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 0,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": 0
+   },
+   {
+    "id": "v2-netdebt-1y",
+    "v3a": 0,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 0,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": 0
+   },
+   {
+    "id": "v2-netdebt-3y",
+    "v3a": 0,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 0,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": -8
+   },
+   {
+    "id": "v3-netdebt-5y",
+    "v3a": 0,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 0,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": 0
+   },
+   {
+    "id": "v3-netdebt-15y",
+    "v3a": 0,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 0,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": 0
+   },
+   {
+    "id": "savings-20pct",
+    "v3a": -1,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": -1,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": -10
+   },
+   {
+    "id": "savings-10pct",
+    "v3a": 0,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 0,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": -7
+   },
+   {
+    "id": "savings-0pct",
+    "v3a": 0,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 0,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": -8
+   },
+   {
+    "id": "savings--10pct",
+    "v3a": 0,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 0,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": 0
+   },
+   {
+    "id": "expense-40pct",
+    "v3a": 0,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 0,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": -6
+   },
+   {
+    "id": "expense-60pct",
+    "v3a": 0,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 0,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": -4
+   },
+   {
+    "id": "expense-80pct",
+    "v3a": 0,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 0,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": -5
+   },
+   {
+    "id": "expense-100pct",
+    "v3a": -1,
+    "v3b": -1,
+    "v3c": 0,
+    "v3a-i5": -1,
+    "v3b-i5": -1,
+    "v3c-i5": 0,
+    "v2": 0
+   },
+   {
+    "id": "v3-expense-floor",
+    "v3a": 0,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 0,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": 0
+   },
+   {
+    "id": "v3-interest-floor",
+    "v3a": 0,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 0,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": 0
+   },
+   {
+    "id": "v3-runway-25y",
+    "v3a": 0,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 0,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": 0
+   },
+   {
+    "id": "v2-very-high-income",
+    "v3a": 1,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 1,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": 67
+   },
+   {
+    "id": "v2-very-high-wealth",
+    "v3a": 0,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 0,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": 42
+   },
+   {
+    "id": "v2-extreme-debt",
+    "v3a": 0,
+    "v3b": 0,
+    "v3c": 0,
+    "v3a-i5": 0,
+    "v3b-i5": 0,
+    "v3c-i5": 0,
+    "v2": -75
+   }
+  ]
+ },
+ "csharpPortCheck": {
+  "variant": "v3c-i5",
+  "profiles": 63026,
+  "notScoredByCsharp": 0,
+  "mismatches": {
+   "score": 0,
+   "segment": 0,
+   "factors": 0,
+   "warnings": 0,
+   "appliedRule": 702
+  },
+  "examples": {
+   "appliedRule": [
+    {
+     "userId": "core-00059",
+     "csharp": "WEALTH_RUNWAY",
+     "python": null
+    },
+    {
+     "userId": "core-00221",
+     "csharp": "WEALTH_RUNWAY",
+     "python": null
+    },
+    {
+     "userId": "core-00293",
+     "csharp": "WEALTH_RUNWAY",
+     "python": null
+    },
+    {
+     "userId": "core-00454",
+     "csharp": "WEALTH_RUNWAY",
+     "python": null
+    },
+    {
+     "userId": "core-00468",
+     "csharp": "WEALTH_RUNWAY",
+     "python": null
+    },
+    {
+     "userId": "core-00619",
+     "csharp": "WEALTH_RUNWAY",
+     "python": null
+    },
+    {
+     "userId": "core-00749",
+     "csharp": "WEALTH_RUNWAY",
+     "python": null
+    },
+    {
+     "userId": "core-01052",
+     "csharp": "WEALTH_RUNWAY",
+     "python": null
+    },
+    {
+     "userId": "core-01296",
+     "csharp": "WEALTH_RUNWAY",
+     "python": null
+    },
+    {
+     "userId": "core-01472",
+     "csharp": "WEALTH_RUNWAY",
+     "python": null
+    }
+   ]
+  }
+ }
+}
