@@ -90,6 +90,7 @@ def test_the_ceiling_never_rises_above_the_segment_and_the_rich_keep_theirs():
     assert al.risk_ceiling("MEDIUM", None, profile(monthlyIncome=0, monthlyExpenses=0, monthlyDebtPayment=0))[0] == "LOW"
     retiree = profile(monthlyIncome=0, monthlyExpenses=15000, monthlyDebtPayment=0, totalDebt=0, cashReserve=1000000, investmentAmount=5000000)
     assert al.risk_ceiling("HIGH", None, retiree, "WEALTH_FLOOR") == ("HIGH", ())          # IQ v2.1 raised the score by the wealth itself
+    assert al.risk_ceiling("HIGH", "WEALTH_RUNWAY", retiree) == ("HIGH", ())          # IQ v3: the wealth lifted the score
     assert al.risk_ceiling("HIGH", None, retiree)[0] == "LOW"
     earner = profile(monthlyIncome=999999, monthlyExpenses=990000, cashReserve=0, investmentAmount=0)
     assert al.investable(99, None, earner, "INCOME_FLOOR").share_percent == 69 and al.investable(99, None, earner).share_percent == 0

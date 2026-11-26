@@ -14,7 +14,9 @@ from services.baskets import (
     SAFE_ASSETS,
 )
 
-FULL_SCORE_RULES = ("VERY_HIGH_INCOME", "VERY_HIGH_WEALTH")
+# v2: a rule set the score to 100. v3 (26 Nov): WEALTH_RUNWAY = the liquid net worth covers enough years of expenses to lift the score;
+# for the reserve and surplus gates it means the same thing (a retiree living from his wealth has no salary, but no risk from it either)
+FULL_SCORE_RULES = ("VERY_HIGH_INCOME", "VERY_HIGH_WEALTH", "WEALTH_RUNWAY")
 FLOORS = ("WEALTH_FLOOR", "INCOME_FLOOR")          # IQ v2.1: the score was raised by the wealth or the income itself
 RESERVE_MONTHS = 3
 INVESTMENT_IN_RESERVE = 0.5

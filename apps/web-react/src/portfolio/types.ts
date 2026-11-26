@@ -75,7 +75,14 @@ export interface Explanation {
 export interface IqResult {
   score: number;
   segment: Level;
-  factorBreakdown: { version?: string; factors: Record<string, number>; warnings: string[]; appliedRule?: string | null; adjustment?: { rule: string; fromFactors: number; score: number } | null } | null;
+  factorBreakdown: {
+    version?: string;
+    factors: Record<string, number>;
+    factorMaximums?: Record<string, number>;          // v3: sent by the IQ service, so any version draws its bars without a table here
+    warnings: string[];
+    appliedRule?: string | null;
+    adjustment?: { rule: string; fromFactors: number; score: number } | null;
+  } | null;
   createdAt: string;
   updatedAt: string | null;
   resultVersion?: number;

@@ -8,27 +8,39 @@ const TONE: Record<Level, "good" | "warn" | "bad"> = { HIGH: "good", MEDIUM: "wa
 const COLOR: Record<Level, string> = { HIGH: "var(--good)", MEDIUM: "var(--warn)", LOW: "var(--bad)" };
 const SUMMARY: Record<Level, string> = { HIGH: "Finansal durumun güçlü.", MEDIUM: "Finansal durumun dengeli, bazı alanlar güçlendirilmeli.", LOW: "Finansal durumun kırılgan; önce temeli güçlendir." };
 
-// maximum points per factor and scoring version; a factor this screen does not know is shown with its points only
-const FACTOR: Record<string, { label: string; max?: number }> = {
-  CashReserveMonths: { label: "Nakit rezervi", max: 25 },
-  DebtToIncomeRatio: { label: "Borç / gelir oranı", max: 25 },
-  SavingsRate: { label: "Tasarruf oranı", max: 25 },
-  ExpenseRatio: { label: "Gider oranı", max: 15 },
-  Impatience: { label: "Sabır", max: 10 },
+// factor names; the maximums come with the result (v3: factorMaximums), v2 results without them use the v2 table
+const FACTOR: Record<string, string> = {
+  CashReserveMonths: "Nakit rezervi",
+  InstallmentToIncome: "Taksit / gelir",
+  NetDebtToIncome: "Net borç / gelir",
+  DebtToIncomeRatio: "Borç / gelir oranı",
+  SavingsRate: "Tasarruf oranı",
+  ExpenseRatio: "Gider oranı",
+  Impatience: "Sabır",
 };
+const V2_MAX: Record<string, number> = { CashReserveMonths: 25, DebtToIncomeRatio: 25, SavingsRate: 25, ExpenseRatio: 15, Impatience: 10 };
 const WARNING: Record<string, string> = {
   "Low cash reserve": "Acil durum fonun düşük; en az 3 aylık gider önerilir.",
   "High debt burden": "Aylık taksitlerin gelirine göre yüksek.",
+  "Elevated debt burden": "Aylık taksitlerin gelirine göre yükseğe yakın.",
   "High total debt": "Toplam borcun gelirine göre yüksek.",
+  "Elevated total debt": "Toplam borcun gelirine göre yükseğe yakın.",
   "Negative savings rate": "Giderlerin ve taksitlerin gelirini aşıyor.",
+  "Low savings rate": "Tasarruf oranın düşük.",
   "Overspending relative to income": "Giderlerin gelirine göre yüksek.",
   "High impatience": "Yatırım sabrın düşük; acele karar riski.",
   "Extreme total debt": "Toplam borcun çok yüksek.",
+  "Installment below interest": "Taksitin borcun faizini karşılamıyor olabilir.",
+  "Expenses look too low": "Girdiğin giderler gerçekçi görünmüyor; kontrol et.",
+  "Installment without debt": "Taksit girmişsin ama toplam borç 0.",
+  "Installment exceeds total debt": "Aylık taksitin toplam borçtan büyük; kontrol et.",
 };
 const RULE: Record<string, string> = {
   VERY_HIGH_INCOME: "Aylık gelirin 1.000.000 TL ve üzeri, net borcun düşük: skor 100.",
   VERY_HIGH_WEALTH: "Net servetin 10.000.000 TL ve üzeri: skor 100.",
   EXTREME_DEBT: "Net borcun 100.000.000 TL ve üzeri: skor 0.",
+  SOLVENCY_CAP: "Net borcun yıllık gelirinin 5 katını aşıyor: bütün faktörler küçültüldü (15 katta 0).",
+  WEALTH_RUNWAY: "Nakit ve yatırımların giderlerini uzun yıllar karşılıyor: skor bu yüzden yükseldi.",
 };
 
 const ADJUSTMENT: Record<string, string> = {
@@ -40,7 +52,6 @@ const ADJUSTMENT: Record<string, string> = {
 export default function PanelPage({ api, iq, onNext, onEdit }: { api: PortfolioApi; iq: IqResult; onNext: () => void; onEdit: () => void }) {
   const b = iq.factorBreakdown;
   const turn = 2 * Math.PI * 52;
-  const version2 = !b?.version || b.version.startsWith("v2");
   return (
     <>
       <header className="pf-head">
@@ -76,11 +87,11 @@ export default function PanelPage({ api, iq, onNext, onEdit }: { api: PortfolioA
         <Card title="Skor dökümü" note="Her faktörün aldığı puan; toplamları skoru verir.">
           <div className="pf-factors">
             {Object.entries(b?.factors ?? {}).map(([k, v]) => {
-              const max = version2 ? FACTOR[k]?.max : undefined;
+              const max = b?.factorMaximums?.[k] ?? (!b?.version || b.version.startsWith("v2") ? V2_MAX[k] : undefined);
               const share = max ? v / max : null;
               return (
                 <div key={k}>
-                  <span>{FACTOR[k]?.label ?? k}</span>
+                  <span>{FACTOR[k] ?? k}</span>
                   <em>{max ? `${v} / ${max}` : v}</em>
                   <i>
                     <b style={{ width: `${100 * (share ?? v / 30)}%`, background: share === null ? "#3987e5" : share >= 0.7 ? "var(--good)" : share >= 0.4 ? "var(--warn)" : "var(--bad)" }} />
